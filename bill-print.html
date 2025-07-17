@@ -8,91 +8,240 @@
     <meta http-equiv="Expires" content="0" />
     <title>Hóa đơn</title>
     <style>
-        /* CSS không thay đổi */
-        @page { size: 80mm auto; margin: 0; }
+        /* =================================================================== */
+        /* 1. QUY TẮC IN VÀ KHỔ GIẤY (PRINT & PAGE RULES)                     */
+        /* =================================================================== */
+        @media print {
+            /* Ẩn các phần không cần in */
+            .no-print { display: none !important; }
+
+            /* Định nghĩa khổ giấy A4 đứng */
+            @page a4-portrait {
+                size: A4 portrait;
+                margin: 20mm;
+            }
+
+            /* Định nghĩa khổ giấy A5 ngang */
+            @page a5-landscape {
+                size: A5 landscape;
+                margin: 15mm;
+            }
+
+            /* Định nghĩa khổ giấy in cuộn 80mm */
+            @page receipt-80mm {
+                size: 80mm auto;
+                margin: 0;
+            }
+            
+            /* Áp dụng khổ giấy dựa trên class của body */
+            body.format-a4 { page: a4-portrait; }
+            body.format-a5 { page: a5-landscape; }
+            body.format-80mm { page: receipt-80mm; }
+        }
+
+        /* =================================================================== */
+        /* 2. CSS CƠ BẢN (SHARED STYLES)                                      */
+        /* =================================================================== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.3; width: 80mm; margin: 0 auto; padding: 5mm; background: white; color: #000; }
-        .bill-container { width: 100%; max-width: 70mm; }
+        
+        .bill-container {
+            background: white;
+            color: #000;
+        }
+
         .company-header { text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-        .company-name { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
-        .company-info { font-size: 10px; line-height: 1.2; }
-        .order-info { margin-bottom: 15px; font-size: 11px; }
+        .company-name { font-size: 1.4em; font-weight: bold; margin-bottom: 5px; }
+        .company-info { font-size: 0.8em; line-height: 1.2; }
+        .order-info { margin-bottom: 15px; font-size: 0.9em; }
         .order-info-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
         .order-info-label { font-weight: bold; }
-        .products-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px; }
-        .products-table th, .products-table td { padding: 3px 2px; text-align: left; border-bottom: 1px solid #ddd; }
+        .products-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.8em; }
+        .products-table th, .products-table td { padding: 5px; text-align: left; border-bottom: 1px solid #ddd; }
         .products-table th { font-weight: bold; border-bottom: 1px solid #000; }
-        .product-name { max-width: 30mm; word-wrap: break-word; }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .total-section { border-top: 1px dashed #000; padding-top: 10px; margin-bottom: 15px; }
-        .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
-        .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
-        .amount-in-words { font-size: 10px; font-style: italic; margin-top: 5px; text-align: center; }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 0.9em; }
+        .total-final { font-weight: bold; font-size: 1.1em; border-top: 1px solid #000; padding-top: 5px; }
+        .amount-in-words { font-size: 0.8em; font-style: italic; margin-top: 5px; text-align: center; }
         .qr-section { text-align: center; margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px; }
-        .qr-code { margin: 10px 0; min-height: 200px; display: flex; align-items: center; justify-content: center; }
-        .qr-code img { width: 200px; height: 200px; }
-        .qr-info { font-size: 9px; margin-top: 5px; line-height: 1.4; }
-        .error-message { color: red; font-size: 10px; padding: 10px; border: 1px dashed red; }
-        .footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 10px; }
-        @media print { body { margin: 0; padding: 2mm; } .bill-container { page-break-inside: avoid; } }
+        .qr-code { margin: 10px 0; min-height: 150px; display: flex; align-items: center; justify-content: center; }
+        .qr-code img { width: 150px; height: 150px; }
+        .footer { text-align: center; margin-top: 15px; font-size: 0.8em; border-top: 1px dashed #000; padding-top: 10px; }
+        .error-message { color: red; font-size: 0.8em; padding: 10px; border: 1px dashed red; }
+
+        /* Nút chọn định dạng (chỉ hiển thị trên màn hình) */
+        .print-options {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .print-options button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        /* =================================================================== */
+        /* 3. ĐỊNH DẠNG CHO TỪNG KHỔ GIẤY                                     */
+        /* =================================================================== */
+
+        /* --- FORMAT 80mm (Biên lai in cuộn) --- */
+        body.format-80mm {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            width: 80mm;
+            margin: 0 auto;
+            padding: 5mm;
+        }
+        .format-80mm .bill-container { max-width: 70mm; }
+        .format-80mm .product-name { max-width: 30mm; word-wrap: break-word; }
+        .format-80mm .qr-code img { width: 180px; height: 180px; }
+
+        /* --- FORMAT A4 (Hóa đơn dọc) --- */
+        body.format-a4 {
+            font-family: 'Arial', sans-serif;
+            font-size: 12pt;
+            width: auto;
+            padding: 0;
+            margin: 0;
+        }
+        .format-a4 .bill-container {
+            max-width: 180mm;
+            margin: 0 auto;
+            padding: 20mm; /* Giả lập margin của trang A4 */
+        }
+        .format-a4 .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            text-align: left;
+        }
+        .format-a4 .company-name { font-size: 1.8em; }
+        .format-a4 .invoice-title {
+            text-align: right;
+        }
+        .format-a4 .invoice-title h2 { font-size: 2em; color: #333; }
+        .format-a4 .order-info { font-size: 1em; }
+        .format-a4 .products-table { font-size: 0.9em; }
+        .format-a4 .products-table th, .format-a4 .products-table td { padding: 8px; }
+        .format-a4 .total-section {
+            width: 50%;
+            margin-left: 50%;
+        }
+        .format-a4 .qr-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+        }
+
+        /* --- FORMAT A5 (Hóa đơn ngang) --- */
+        body.format-a5 {
+            font-family: 'Arial', sans-serif;
+            font-size: 10pt;
+            width: auto;
+            padding: 0;
+            margin: 0;
+        }
+        .format-a5 .bill-container {
+            max-width: 260mm; /* A5 landscape width */
+            margin: 0 auto;
+            padding: 15mm;
+            display: flex;
+            gap: 20mm;
+        }
+        .format-a5 .left-column { width: 40%; }
+        .format-a5 .right-column { width: 60%; }
+        .format-a5 .products-table th, .format-a5 .products-table td { padding: 6px; }
+
     </style>
 </head>
 <body>
+    <!-- NÚT TÙY CHỌN (Sẽ bị ẩn khi in) -->
+    <div class="print-options no-print">
+        <strong>Chọn khổ giấy:</strong>
+        <button onclick="changeFormat('80mm')">80mm</button>
+        <button onclick="changeFormat('a4')">A4</button>
+        <button onclick="changeFormat('a5')">A5</button>
+    </div>
+
     <div class="bill-container">
-        <!-- Header -->
-        <div class="company-header">
-            <div class="company-name" id="ten_cong_ty"></div>
-            <div class="company-info">
-                ĐC: <span id="dia_chi"></span><br>
-                ĐT: <span id="so_dien_thoai"></span> | Email: <span id="email"></span>
+        <!-- Bọc nội dung trong 2 cột để dùng cho A5 -->
+        <div class="left-column">
+            <!-- Header -->
+            <div class="company-header">
+                <div>
+                    <div class="company-name" id="ten_cong_ty"></div>
+                    <div class="company-info">
+                        ĐC: <span id="dia_chi"></span><br>
+                        ĐT: <span id="so_dien_thoai"></span> | Email: <span id="email"></span>
+                    </div>
+                </div>
+                <div class="invoice-title">
+                    <h2>HÓA ĐƠN</h2>
+                    <span>BÁN HÀNG</span>
+                </div>
+            </div>
+            
+            <!-- Order Info -->
+            <div class="order-info">
+                <div class="order-info-row">
+                    <span><span class="order-info-label">Số ĐH:</span> <span id="order-number"></span></span>
+                    <span><span class="order-info-label">Ngày:</span> <span id="order-date"></span></span>
+                </div>
+                <div class="order-info-row"><span class="order-info-label">Khách hàng:</span> <span id="customer-name"></span></div>
+                <div class="order-info-row"><span class="order-info-label">In lúc:</span> <span id="print-time"></span></div>
+            </div>
+            <!-- Footer (chỉ hiển thị ở cột trái trên A5) -->
+            <div class="footer">
+                <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
+                <div style="margin-top: 5px;">Hotline: <span id="footer_so_dien_thoai"></span> | Website: <span id="website"></span></div>
             </div>
         </div>
-        <div style="text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 15px;">HÓA ĐƠN BÁN HÀNG</div>
-        
-        <!-- Các phần khác giữ nguyên -->
-        <div class="order-info">
-            <div class="order-info-row"><span class="order-info-label">Số đơn hàng:</span><span id="order-number"></span></div>
-            <div class="order-info-row"><span class="order-info-label">Ngày đặt:</span><span id="order-date"></span></div>
-            <div class="order-info-row"><span class="order-info-label">Khách hàng:</span><span id="customer-name"></span></div>
-            <div class="order-info-row"><span class="order-info-label">Ngày cập nhật:</span><span id="update-date"></span></div>
-        </div>
-        <table class="products-table">
-            <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
-            <tbody id="products-list"></tbody>
-        </table>
-        <div class="total-section">
-            <div class="total-row"><span>Thành tiền:</span><span id="subtotal"></span></div>
-            <div class="total-row"><span>Giảm giá:</span><span id="discount"></span></div>
-            <div class="total-row total-final"><span>Tổng tiền:</span><span id="total-amount"></span></div>
-            <div class="amount-in-words">Bằng chữ: <span id="amount-words"></span></div>
-        </div>
-        <div class="qr-section">
-            <div style="font-weight: bold; margin-bottom: 5px;">QUÉT MÃ ĐỂ THANH TOÁN</div>
-            <div class="qr-code" id="qr-code-container"></div>
-            <div class="qr-info" style="display: none;">
-                Ngân hàng: <span id="bank-name"></span><br>
-                Số tài khoản: <span id="account-number"></span><br>
-                Chủ tài khoản: <span id="account-holder"></span>
+
+        <div class="right-column">
+            <!-- Products Table -->
+            <table class="products-table">
+                <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
+                <tbody id="products-list"></tbody>
+            </table>
+            
+            <!-- Totals -->
+            <div class="total-section">
+                <div class="total-row"><span>Thành tiền:</span><span id="subtotal"></span></div>
+                <div class="total-row"><span>Giảm giá:</span><span id="discount"></span></div>
+                <div class="total-row total-final"><span>Tổng tiền:</span><span id="total-amount"></span></div>
+                <div class="amount-in-words">Bằng chữ: <span id="amount-words"></span></div>
             </div>
-        </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
-            <div style="margin-top: 5px; font-size: 9px;">
-                Hotline: <span id="footer_so_dien_thoai"></span> | Website: <span id="website"></span>
+            
+            <!-- VietQR Section -->
+            <div class="qr-section">
+                <div class="qr-details">
+                    <div style="font-weight: bold; margin-bottom: 5px;">QUÉT MÃ ĐỂ THANH TOÁN</div>
+                    <div class="qr-info" style="display: none;">
+                        Ngân hàng: <span id="bank-name"></span><br>
+                        Số tài khoản: <span id="account-number"></span><br>
+                        Chủ tài khoản: <span id="account-holder"></span>
+                    </div>
+                </div>
+                <div class="qr-code" id="qr-code-container"></div>
             </div>
         </div>
     </div>
     
     <script>
-        // Các hàm tiện ích không thay đổi
+        // --- HÀM TIỆN ÍCH ---
         function getUrlParameter(name) { const urlParams = new URLSearchParams(window.location.search); return urlParams.get(name) || ''; }
         function cleanNumberString(s) { if (typeof s !== 'string') return String(s); return s.replace(/,/g, ''); }
         function getBankCodeFromName(bankName) { if (!bankName) return null; const bankMap = { 'vietinbank': '970415', 'vcb': '970436', 'vietcombank': '970436', 'bidv': '970418', 'agribank': '970405', 'mbbank': '970422', 'mb': '970422', 'techcombank': '970407', 'tcb': '970407', 'acb': '970416', 'vpbank': '970432', 'tpbank': '970423' }; const formattedName = bankName.toLowerCase().replace(/\s/g, ''); return bankMap[formattedName] || null; }
         function formatCurrency(amount) { const cleanAmount = cleanNumberString(amount); if (cleanAmount === null || cleanAmount === '' || isNaN(cleanAmount)) return '0'; return parseInt(cleanAmount).toLocaleString('vi-VN'); }
-        function formatDate(dateString) { if (!dateString) return new Date().toLocaleDateString('vi-VN'); try { const date = new Date(dateString); return isNaN(date) ? dateString : date.toLocaleDateString('vi-VN'); } catch (error) { return dateString; } }
+        function formatDate(dateString) { if (!dateString) return new Date().toLocaleDateString('vi-VN'); try { const date = new Date(dateString); return isNaN(date) ? date.toLocaleDateString('vi-VN') : dateString; } catch (error) { return dateString; } }
         function numberToWords(numStr) { const num = parseInt(cleanNumberString(numStr), 10); if (isNaN(num) || num === null) return 'Không đồng'; if (num === 0) return 'Không đồng'; const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'], tens = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'], scales = ['', 'nghìn', 'triệu', 'tỷ']; function convertHundreds(n) { let result = '', h = Math.floor(n / 100), t = Math.floor((n % 100) / 10), o = n % 10; if (h > 0) result += ones[h] + ' trăm'; if (t > 0) { if (h > 0) result += ' '; if (t === 1) { result += 'mười'; if (o === 5) result += ' lăm'; else if (o > 0) result += ' ' + ones[o]; } else { result += tens[t]; if (o === 1) result += ' mốt'; else if (o === 5) result += ' lăm'; else if (o > 0) result += ' ' + ones[o]; } } else if (o > 0) { if (h > 0) result += ' linh '; result += ones[o]; } return result; } let result = '', scaleIndex = 0, n = num; while (n > 0) { const group = n % 1000; if (group > 0) result = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (result ? ' ' + result : ''); n = Math.floor(n / 1000); scaleIndex++; } result = result.trim(); return result.charAt(0).toUpperCase() + result.slice(1) + ' đồng'; }
         function displayProducts(productsJson) { const tbody = document.getElementById('products-list'); tbody.innerHTML = ''; let products = []; try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); } catch (error) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Lỗi dữ liệu sản phẩm</td></tr>'; return; } if (!products || products.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có sản phẩm</td></tr>'; return; } products.forEach(p => { const row = document.createElement('tr'); row.innerHTML = `<td class="product-name">${p.sanpham||''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td>`; tbody.appendChild(row); }); }
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) { return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`; }
@@ -103,41 +252,16 @@
         function loadDataFromUrl() {
             try {
                 // Đọc tất cả các tham số
-                const orderNumber = getUrlParameter('so_don_hang');
-                const orderDate = getUrlParameter('ngay_dat');
-                const customerName = getUrlParameter('khach_hang');
-                const updateDate = getUrlParameter('ngay_cap_nhat');
-                const subtotal = getUrlParameter('thanh_tien');
-                const discount = getUrlParameter('giam_gia');
-                const totalAmount = getUrlParameter('tong_tien');
+                const orderNumber = getUrlParameter('so_don_hang'), orderDate = getUrlParameter('ngay_dat'), customerName = getUrlParameter('khach_hang');
+                const subtotal = getUrlParameter('thanh_tien'), discount = getUrlParameter('giam_gia'), totalAmount = getUrlParameter('tong_tien');
                 const productsJson = getUrlParameter('products');
-                const bankName = getUrlParameter('bank_name');
-                const accountNumber = getUrlParameter('account_number');
-                const accountHolder = getUrlParameter('account_holder');
-                
-                const tenCongTy = getUrlParameter('ten_cong_ty');
-                const diaChi = getUrlParameter('dia_chi');
-                const soDienThoai = getUrlParameter('so_dien_thoai');
-                const email = getUrlParameter('email');
-                const websiteRaw = getUrlParameter('website');
+                const bankName = getUrlParameter('bank_name'), accountNumber = getUrlParameter('account_number'), accountHolder = getUrlParameter('account_holder');
+                const tenCongTy = getUrlParameter('ten_cong_ty'), diaChi = getUrlParameter('dia_chi'), soDienThoai = getUrlParameter('so_dien_thoai'), email = getUrlParameter('email'), websiteRaw = getUrlParameter('website');
 
-                // SỬA LỖI: Xử lý giá trị của tham số 'website'
+                // Xử lý dữ liệu
                 let finalWebsite = websiteRaw;
-                try {
-                    // Kiểm tra xem chuỗi có phải là JSON không
-                    if (websiteRaw && websiteRaw.startsWith('{') && websiteRaw.endsWith('}')) {
-                        const websiteObj = JSON.parse(websiteRaw);
-                        // Lấy giá trị từ thuộc tính "Url"
-                        finalWebsite = websiteObj.Url || websiteRaw;
-                    }
-                } catch (e) {
-                    // Nếu parse lỗi, cứ dùng giá trị gốc
-                    console.warn("Không thể phân tích tham số 'website' thành JSON:", websiteRaw);
-                }
-
-                // Xử lý các dữ liệu khác
-                const bankCode = getBankCodeFromName(bankName);
-                const cleanTotalAmount = cleanNumberString(totalAmount);
+                try { if (websiteRaw && websiteRaw.startsWith('{') && websiteRaw.endsWith('}')) { const websiteObj = JSON.parse(websiteRaw); finalWebsite = websiteObj.Url || websiteRaw; } } catch (e) { /* Bỏ qua lỗi parse */ }
+                const bankCode = getBankCodeFromName(bankName), cleanTotalAmount = cleanNumberString(totalAmount);
                 
                 // Điền dữ liệu vào các thẻ HTML
                 document.getElementById('ten_cong_ty').textContent = tenCongTy || 'Tên Công Ty';
@@ -146,16 +270,14 @@
                 document.getElementById('email').textContent = email || 'N/A';
                 document.getElementById('footer_so_dien_thoai').textContent = soDienThoai || 'N/A';
                 document.getElementById('website').textContent = finalWebsite || 'N/A';
-
                 document.getElementById('order-number').textContent = orderNumber || 'N/A';
                 document.getElementById('order-date').textContent = formatDate(orderDate);
                 document.getElementById('customer-name').textContent = customerName || 'Khách lẻ';
-                document.getElementById('update-date').textContent = formatDate(updateDate || new Date());
+                document.getElementById('print-time').textContent = new Date().toLocaleString('vi-VN');
                 document.getElementById('subtotal').textContent = formatCurrency(subtotal) + ' VNĐ';
                 document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ';
                 document.getElementById('total-amount').textContent = formatCurrency(cleanTotalAmount) + ' VNĐ';
                 document.getElementById('amount-words').textContent = numberToWords(cleanTotalAmount);
-                
                 document.getElementById('bank-name').textContent = bankName || 'N/A';
                 document.getElementById('account-number').textContent = accountNumber || 'N/A';
                 document.getElementById('account-holder').textContent = accountHolder || 'N/A';
@@ -171,8 +293,17 @@
             }
         }
         
+        // --- HÀM ĐIỀU KHIỂN ĐỊNH DẠNG ---
+        function changeFormat(format) {
+            document.body.classList.remove('format-80mm', 'format-a4', 'format-a5');
+            document.body.classList.add('format-' + format);
+        }
+
         // --- ĐIỂM BẮT ĐẦU THỰC THI ---
         document.addEventListener('DOMContentLoaded', () => {
+            const format = getUrlParameter('format') || '80mm'; // Mặc định là 80mm
+            changeFormat(format);
+
             if (window.location.search.length > 1) {
                  loadDataFromUrl();
             } else {
