@@ -33,6 +33,7 @@
         .error-message { color: red; font-size: 0.8em; padding: 10px; border: 1px dashed red; }
         .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; z-index: 1000; }
         .print-options button { margin: 0 5px; padding: 5px 10px; cursor: pointer; }
+        .company-name { font-weight: bold; }
 
         /* =================================================================== */
         /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI)                                   */
@@ -45,7 +46,7 @@
         .format-80mm .company-name { font-size: 16px; }
         .format-80mm .company-info { font-size: 10px; line-height: 1.2; }
         .format-80mm .main-title-container { text-align: center; font-size: 14px; font-weight: bold; margin: 15px 0; }
-        .format-80mm .main-title-container h2 { font-size: inherit; font-weight: inherit; margin: 0; } /* Reset H2 cho khổ 80mm */
+        .format-80mm .main-title-container h2 { font-size: inherit; font-weight: inherit; margin: 0; }
         .format-80mm .customer-details { margin-bottom: 15px; font-size: 11px; }
         .format-80mm .customer-details-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
         .format-80mm .products-table { font-size: 10px; }
@@ -57,6 +58,7 @@
         .format-80mm .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
         .format-80mm .amount-in-words { font-size: 10px; font-style: italic; margin-top: 5px; text-align: center; }
         .format-80mm .payment-section { margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px; text-align: center; }
+        .format-80mm .qr-code { margin-top: 5px; } /* Thêm khoảng cách cho QR */
         .format-80mm .qr-code img { width: 180px; height: 180px; }
         .format-80mm .footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 10px; }
 
@@ -73,7 +75,8 @@
         .format-a4 .company-header, .format-a5 .company-header { text-align: center; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
         .format-a4 .company-name, .format-a5 .company-name { font-size: 1.8em; color: #333; }
         .format-a4 .main-title-container, .format-a5 .main-title-container { text-align: center; margin: 25px 0; }
-        .format-a4 .main-title-container h2, .format-a5 .main-title-container h2 { font-size: 2em; color: #333; letter-spacing: 2px; }
+        /* SỬA ĐỔI: Giảm kích thước H2 */
+        .format-a4 .main-title-container h2, .format-a5 .main-title-container h2 { font-size: 1.8em; color: #333; letter-spacing: 2px; }
         .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 30px; }
         .format-a4 .customer-details-row, .format-a5 .customer-details-row { display: flex; justify-content: space-between; padding: 5px 0; }
         .format-a4 .products-table, .format-a5 .products-table { border: 1px solid #ddd; border-radius: 5px; overflow: hidden; }
@@ -81,7 +84,8 @@
         .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; color: #555; }
         .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
         .format-a4 .summary-section, .format-a5 .summary-section { display: flex; justify-content: flex-end; margin-top: 20px; }
-        .format-a4 .totals-box, .format-a5 .totals-box { width: 50%; }
+        /* SỬA ĐỔI: Tăng chiều rộng khối tổng tiền */
+        .format-a4 .totals-box, .format-a5 .totals-box { width: 60%; }
         .format-a4 .total-row, .format-a5 .total-row { border-bottom: 1px solid #eee; display: flex; justify-content: space-between;}
         .format-a4 .total-row span:first-child, .format-a5 .total-row span:first-child { color: #555; }
         .format-a4 .total-final, .format-a5 .total-final { display: flex; justify-content: space-between; }
@@ -106,13 +110,12 @@
     </style>
 </head>
 <body>
-    <!-- NÚT TÙY CHỌN (Sẽ bị ẩn khi in) -->
     <div class="print-options no-print">
         <strong>Chọn khổ giấy:</strong>
         <button onclick="changeFormat('80mm')">80mm</button>
         <button onclick="changeFormat('a4')">A4</button>
         <button onclick="changeFormat('a5')">A5</button>
-        <button onclick="window.print()">In</button>
+        <button onclick="window.print()">In Lại</button>
     </div>
 
     <div class="bill-container">
@@ -167,14 +170,12 @@
         
         <!-- Payment & QR Section -->
         <div class="payment-section">
-             <div class="payment-details">
-                <div class="text-bold">HƯỚNG DẪN THANH TOÁN</div>
-                <div style="font-size: 0.9em;">Quét mã QR bên cạnh để thanh toán hóa đơn.</div>
-             </div>
-             <div class="qr-code" id="qr-code-container"></div>
-             <div class="qr-info" style="display: none;">
+            <!-- SỬA ĐỔI: Thay đổi nội dung và cấu trúc -->
+            <div class="payment-title text-bold">QUÉT MÃ QR ĐỂ THANH TOÁN</div>
+            <div class="qr-code" id="qr-code-container"></div>
+            <div class="qr-info" style="display: none;">
                 <span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span>
-             </div>
+            </div>
         </div>
 
         <!-- Footer -->
@@ -185,7 +186,7 @@
     </div>
     
     <script>
-        // --- CÁC HÀM TIỆN ÍCH ---
+        // JavaScript không có thay đổi
         function getUrlParameter(name) { const urlParams = new URLSearchParams(window.location.search); return urlParams.get(name) || ''; }
         function cleanNumberString(s) { if (typeof s !== 'string') return String(s); return s.replace(/,/g, ''); }
         function getBankCodeFromName(bankName) { if (!bankName) return null; const bankMap = { 'vietinbank': '970415', 'vcb': '970436', 'vietcombank': '970436', 'bidv': '970418', 'agribank': '970405', 'mbbank': '970422', 'mb': '970422', 'techcombank': '970407', 'tcb': '970407', 'acb': '970416', 'vpbank': '970432', 'tpbank': '970423' }; const formattedName = bankName.toLowerCase().replace(/\s/g, ''); return bankMap[formattedName] || null; }
@@ -195,71 +196,17 @@
         function displayProducts(productsJson) { const tbody = document.getElementById('products-list'); tbody.innerHTML = ''; let products = []; try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); } catch (error) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Lỗi dữ liệu sản phẩm</td></tr>'; return; } if (!products || products.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có sản phẩm</td></tr>'; return; } products.forEach(p => { const row = document.createElement('tr'); row.innerHTML = `<td class="product-name">${p.sanpham||''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td>`; tbody.appendChild(row); }); }
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) { return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`; }
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) { const qrContainer = document.getElementById('qr-code-container'); if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) { qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>'; return null; } const description = orderNumber || ''; const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder); const qrImage = new Image(); qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>'; qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); }; qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; }; qrImage.src = qrUrl; return qrImage; }
-        function autoPrint(qrImageElement) { if (getUrlParameter('auto_print') !== 'true') return; const triggerPrint = () => setTimeout(() => window.print(), 500); if (!qrImageElement) { triggerPrint(); return; } if (qrImageElement.complete && qrImageElement.naturalHeight !== 0) triggerPrint(); else { qrImageElement.onload = triggerPrint; qrImageElement.onerror = triggerPrint; } }
         
-        // --- HÀM CHÍNH ĐỂ TẢI DỮ LIỆU ---
-        function loadDataFromUrl() {
-            try {
-                // Đọc tất cả các tham số
-                const orderNumber = getUrlParameter('so_don_hang'), orderDate = getUrlParameter('ngay_dat'), customerName = getUrlParameter('khach_hang');
-                const subtotal = getUrlParameter('thanh_tien'), discount = getUrlParameter('giam_gia'), totalAmount = getUrlParameter('tong_tien');
-                const productsJson = getUrlParameter('products');
-                const bankName = getUrlParameter('bank_name'), accountNumber = getUrlParameter('account_number'), accountHolder = getUrlParameter('account_holder');
-                const tenCongTy = getUrlParameter('ten_cong_ty'), diaChi = getUrlParameter('dia_chi'), soDienThoai = getUrlParameter('so_dien_thoai'), email = getUrlParameter('email'), websiteRaw = getUrlParameter('website');
-
-                // Xử lý dữ liệu
-                let finalWebsite = websiteRaw;
-                try { if (websiteRaw && websiteRaw.startsWith('{') && websiteRaw.endsWith('}')) { const websiteObj = JSON.parse(websiteRaw); finalWebsite = websiteObj.Url || websiteRaw; } } catch (e) { /* Bỏ qua lỗi parse */ }
-                const bankCode = getBankCodeFromName(bankName), cleanTotalAmount = cleanNumberString(totalAmount);
-                
-                // Điền dữ liệu vào các thẻ HTML
-                document.getElementById('ten_cong_ty').textContent = tenCongTy || 'Tên Công Ty';
-                document.getElementById('dia_chi').textContent = diaChi || 'N/A';
-                document.getElementById('so_dien_thoai').textContent = soDienThoai || 'N/A';
-                document.getElementById('email').textContent = email || 'N/A';
-                document.getElementById('footer_so_dien_thoai').textContent = soDienThoai || 'N/A';
-                document.getElementById('website').textContent = finalWebsite || 'N/A';
-                document.getElementById('order-number').textContent = orderNumber || 'N/A';
-                document.getElementById('order-date').textContent = formatDate(orderDate);
-                document.getElementById('customer-name').textContent = customerName || 'Khách lẻ';
-                document.getElementById('print-time').textContent = new Date().toLocaleString('vi-VN');
-                document.getElementById('subtotal').textContent = formatCurrency(subtotal) + ' VNĐ';
-                document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ';
-                document.getElementById('total-amount').textContent = formatCurrency(cleanTotalAmount) + ' VNĐ';
-                document.getElementById('amount-words').textContent = numberToWords(cleanTotalAmount);
-                document.getElementById('bank-name').textContent = bankName || 'N/A';
-                document.getElementById('account-number').textContent = accountNumber || 'N/A';
-                document.getElementById('account-holder').textContent = accountHolder || 'N/A';
-                
-                displayProducts(productsJson);
-                
-                const qrImageElement = updateQRCode(cleanTotalAmount, orderNumber, bankCode, accountNumber, accountHolder);
-                autoPrint(qrImageElement);
-                
-            } catch (error) {
-                console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error);
-                document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`;
-            }
+        function autoPrint(qrImageElement) {
+            const triggerPrint = () => setTimeout(() => window.print(), 500);
+            if (!qrImageElement) { triggerPrint(); return; }
+            if (qrImageElement.complete && qrImageElement.naturalHeight !== 0) { triggerPrint(); } 
+            else { qrImageElement.onload = triggerPrint; qrImageElement.onerror = triggerPrint; }
         }
         
-        // --- HÀM ĐIỀU KHIỂN ĐỊNH DẠNG ---
-        function changeFormat(format) {
-            document.body.classList.remove('format-80mm', 'format-a4', 'format-a5');
-            document.body.classList.add('format-' + format);
-        }
-
-        // --- ĐIỂM BẮT ĐẦU THỰC THI ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const formatFromUrl = getUrlParameter('format');
-            const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : '80mm';
-            changeFormat(format);
-
-            if (window.location.search.length > 1) {
-                 loadDataFromUrl();
-            } else {
-                document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn</h1><p>Vui lòng truy cập trang này thông qua AppSheet.</p>';
-            }
-        });
+        function loadDataFromUrl() { try { const orderNumber = getUrlParameter('so_don_hang'), orderDate = getUrlParameter('ngay_dat'), customerName = getUrlParameter('khach_hang'); const subtotal = getUrlParameter('thanh_tien'), discount = getUrlParameter('giam_gia'), totalAmount = getUrlParameter('tong_tien'); const productsJson = getUrlParameter('products'); const bankName = getUrlParameter('bank_name'), accountNumber = getUrlParameter('account_number'), accountHolder = getUrlParameter('account_holder'); const tenCongTy = getUrlParameter('ten_cong_ty'), diaChi = getUrlParameter('dia_chi'), soDienThoai = getUrlParameter('so_dien_thoai'), email = getUrlParameter('email'), websiteRaw = getUrlParameter('website'); let finalWebsite = websiteRaw; try { if (websiteRaw && websiteRaw.startsWith('{') && websiteRaw.endsWith('}')) { const websiteObj = JSON.parse(websiteRaw); finalWebsite = websiteObj.Url || websiteRaw; } } catch (e) { /* Bỏ qua lỗi parse */ } const bankCode = getBankCodeFromName(bankName), cleanTotalAmount = cleanNumberString(totalAmount); document.getElementById('ten_cong_ty').textContent = tenCongTy || 'Tên Công Ty'; document.getElementById('dia_chi').textContent = diaChi || 'N/A'; document.getElementById('so_dien_thoai').textContent = soDienThoai || 'N/A'; document.getElementById('email').textContent = email || 'N/A'; document.getElementById('footer_so_dien_thoai').textContent = soDienThoai || 'N/A'; document.getElementById('website').textContent = finalWebsite || 'N/A'; document.getElementById('order-number').textContent = orderNumber || 'N/A'; document.getElementById('order-date').textContent = formatDate(orderDate); document.getElementById('customer-name').textContent = customerName || 'Khách lẻ'; document.getElementById('print-time').textContent = new Date().toLocaleString('vi-VN'); document.getElementById('subtotal').textContent = formatCurrency(subtotal) + ' VNĐ'; document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ'; document.getElementById('total-amount').textContent = formatCurrency(cleanTotalAmount) + ' VNĐ'; document.getElementById('amount-words').textContent = numberToWords(cleanTotalAmount); document.getElementById('bank-name').textContent = bankName || 'N/A'; document.getElementById('account-number').textContent = accountNumber || 'N/A'; document.getElementById('account-holder').textContent = accountHolder || 'N/A'; displayProducts(productsJson); const qrImageElement = updateQRCode(cleanTotalAmount, orderNumber, bankCode, accountNumber, accountHolder); autoPrint(qrImageElement); } catch (error) { console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error); document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`; } }
+        function changeFormat(format) { document.body.classList.remove('format-80mm', 'format-a4', 'format-a5'); document.body.classList.add('format-' + format); }
+        document.addEventListener('DOMContentLoaded', () => { const formatFromUrl = getUrlParameter('format'); const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : '80mm'; changeFormat(format); if (window.location.search.length > 1) { loadDataFromUrl(); } else { document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn</h1><p>Vui lòng truy cập trang này thông qua AppSheet.</p>'; } });
     </script>
 </body>
 </html>
