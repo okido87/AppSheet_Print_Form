@@ -155,7 +155,7 @@
         }
 
         // --- HÀM TẠO VIETQR VÀ IN ẤN ---
-        function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) {
+        function generateVietQR(bankName, accountNumber, amount, description, accountHolder) {
             return `https://img.vietqr.io/image/${bankName}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`;
         }
 
