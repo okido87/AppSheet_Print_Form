@@ -35,29 +35,27 @@
         .print-options button { margin: 0 5px; padding: 5px 10px; cursor: pointer; }
 
         /* =================================================================== */
-        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI)                                   */
+        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI) - Không thay đổi                   */
         /* =================================================================== */
         body.format-80mm {
             font-family: 'Courier New', monospace; font-size: 12px;
             width: 80mm; margin: 0 auto; padding: 5mm;
         }
-        .format-80mm .bill-container { display: block; }
         .format-80mm .invoice-header { text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-        .format-80mm .company-name { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
-        .format-80mm .company-info { font-size: 10px; line-height: 1.2; }
-        .format-80mm .invoice-title { display: none; } /* Ẩn chữ HÓA ĐƠN to */
+        .format-80mm .company-name { font-size: 16px; }
+        .format-80mm .main-title-container { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
         .format-80mm .customer-details { margin-bottom: 15px; font-size: 11px; }
         .format-80mm .customer-details-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
         .format-80mm .products-table { font-size: 10px; }
-        .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; border-bottom: 1px solid #ddd; }
-        .format-80mm .products-table th { border-bottom-width: 1px; border-color: #000; }
-        .format-80mm .summary-section { margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px; }
+        .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; }
+        .format-80mm .invoice-summary { margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px; }
         .format-80mm .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
         .format-80mm .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
         .format-80mm .amount-in-words { font-size: 10px; font-style: italic; margin-top: 5px; text-align: center; }
-        .format-80mm .payment-section { margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px; }
+        .format-80mm .payment-section { margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px; text-align: center; }
         .format-80mm .qr-code img { width: 180px; height: 180px; }
         .format-80mm .footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 10px; }
+        .format-80mm .company-details {display: none;} /* Ẩn cấu trúc header của A4 */
 
         /* =================================================================== */
         /* 4. ĐỊNH DẠNG A4 & A5 (HÓA ĐƠN CHUYÊN NGHIỆP)                        */
@@ -67,44 +65,43 @@
             width: auto; padding: 0; margin: 0; background: #eee;
         }
         .format-a4 .bill-container, .format-a5 .bill-container {
-            margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: block;
+            margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-        .company-details .company-name { color: #333; }
-        .invoice-title h2 { font-size: 2.2em; color: #555; margin: 0; line-height: 1; }
-        .invoice-title span { font-size: 0.9em; color: #777; }
-        .customer-details { margin-bottom: 30px; padding: 15px; border: 1px solid #eee; border-radius: 5px; }
-        .products-table { border: 1px solid #ddd; border-radius: 5px; overflow: hidden; }
+        .format-a4 .company-header, .format-a5 .company-header { display: none; } /* Ẩn header của 80mm */
+        .company-details .company-name { font-size: 1.8em; color: #333; }
+        .main-title-container { text-align: center; margin: 25px 0; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .main-title-container h1 { font-size: 2em; color: #333; margin: 0; letter-spacing: 2px; }
+        .customer-details { margin-bottom: 30px; }
+        .customer-details-row { padding: 4px 0; }
+        .products-table { border-collapse: collapse; width: 100%; }
         .products-table thead tr { background-color: #f2f2f2; }
-        .products-table th { text-transform: uppercase; font-size: 0.85em; color: #555; }
+        .products-table th { text-transform: uppercase; font-size: 0.85em; color: #555; border-bottom: 2px solid #ddd; }
         .products-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
-        .summary-section { display: flex; justify-content: flex-end; margin-top: 20px; }
-        .totals-box { width: 50%; }
-        .total-row { border-bottom: 1px solid #eee; }
+        .products-table tbody tr:hover { background-color: #f0f0f0; }
+        .invoice-summary { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; padding-top: 20px; border-top: 2px solid #000; }
+        .payment-section { flex-basis: 45%; }
+        .summary-section { flex-basis: 50%; }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
         .total-row span:first-child { color: #555; }
+        .total-final { display: flex; justify-content: space-between; padding: 10px 0; }
         .total-final span { font-size: 1.2em; }
-        .payment-section { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-        .qr-code img { border: 1px solid #eee; }
-        .footer { clear: both; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; }
+        .amount-in-words { margin-top: 10px; font-size: 0.9em; text-align: right; }
+        .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; text-align: center; }
 
         /* --- A4 Specific Styles --- */
         body.format-a4 { font-size: 11pt; }
         .format-a4 .bill-container { max-width: 180mm; padding: 20mm; }
         .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; }
-        .format-a4 .qr-code img { width: 120px; height: 120px; }
-        .format-a4 .total-row, .format-a4 .total-final { padding: 10px; }
+        .format-a4 .qr-code img { width: 150px; height: 150px; border: 1px solid #eee; }
 
-        /* --- A5 Specific Styles --- */
+        /* --- A5 Specific Styles (kế thừa nhiều từ A4) --- */
         body.format-a5 { font-size: 9pt; }
-        .format-a5 .bill-container { max-width: 180mm; /* A5 landscape is wider, but we use A4 portrait layout for consistency */ padding: 15mm; }
+        .format-a5 .bill-container { max-width: 180mm; padding: 15mm; }
         .format-a5 .products-table th, .format-a5 .products-table td { padding: 8px 10px; }
-        .format-a5 .qr-code img { width: 100px; height: 100px; }
-        .format-a5 .total-row, .format-a5 .total-final { padding: 8px; }
-
+        .format-a5 .qr-code img { width: 120px; height: 120px; }
     </style>
 </head>
 <body>
-    <!-- NÚT TÙY CHỌN (Sẽ bị ẩn khi in) -->
     <div class="print-options no-print">
         <strong>Chọn khổ giấy:</strong>
         <button onclick="changeFormat('80mm')">80mm</button>
@@ -114,69 +111,61 @@
     </div>
 
     <div class="bill-container">
-        <!-- Header -->
-        <div class="invoice-header">
-            <div class="company-details">
-                <div class="company-name" id="ten_cong_ty"></div>
-                <div class="company-info">
-                    ĐC: <span id="dia_chi"></span><br>
-                    ĐT: <span id="so_dien_thoai"></span> | Email: <span id="email"></span>
-                </div>
-            </div>
-            <div class="invoice-title">
-                <h2>HÓA ĐƠN</h2>
-                <span>BÁN HÀNG</span>
-            </div>
+        <!-- Header cho 80mm -->
+        <div class="company-header">
+            <div class="company-name" id="ten_cong_ty_80mm"></div>
+            <div class="company-info" id="company_info_80mm"></div>
         </div>
         
-        <!-- Customer Info -->
+        <!-- Header cho A4/A5 -->
+        <div class="company-details">
+            <div class="company-name" id="ten_cong_ty_a4"></div>
+            <div class="company-info" id="company_info_a4"></div>
+        </div>
+
+        <!-- SỬA ĐỔI: Tiêu đề chính tách riêng -->
+        <div class="main-title-container">
+            <h1 id="main-title">HÓA ĐƠN BÁN HÀNG</h1>
+        </div>
+        
         <div class="customer-details">
-            <div class="customer-details-row">
-                <span class="text-bold">Số ĐH:</span> <span id="order-number"></span>
-                <span class="text-bold">Ngày đặt:</span> <span id="order-date"></span>
-            </div>
-            <div class="customer-details-row">
-                <span class="text-bold">Khách hàng:</span> <span id="customer-name"></span>
-            </div>
-             <div class="customer-details-row">
-                <span class="text-bold">In lúc:</span> <span id="print-time"></span>
-            </div>
+            <div class="customer-details-row"><span class="text-bold">Số ĐH:</span> <span id="order-number"></span></div>
+            <div class="customer-details-row"><span class="text-bold">Ngày đặt:</span> <span id="order-date"></span></div>
+            <div class="customer-details-row"><span class="text-bold">Khách hàng:</span> <span id="customer-name"></span></div>
+            <div class="customer-details-row"><span class="text-bold">In lúc:</span> <span id="print-time"></span></div>
         </div>
         
-        <!-- Products Table -->
         <table class="products-table">
             <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
             <tbody id="products-list"></tbody>
         </table>
 
-        <!-- Summary & Totals -->
-        <div class="summary-section">
-            <div class="totals-box">
-                <div class="total-row"><span>Thành tiền:</span><span id="subtotal" class="text-right"></span></div>
-                <div class="total-row"><span>Giảm giá:</span><span id="discount" class="text-right"></span></div>
-                <div class="total-row total-final">
-                    <span class="text-bold">TỔNG CỘNG:</span>
-                    <span id="total-amount" class="text-right text-bold"></span>
-                </div>
-                <div class="amount-in-words">
-                    <span class="text-bold">Bằng chữ:</span> <span id="amount-words"></span>
+        <!-- SỬA ĐỔI: Gộp QR và Tổng tiền vào một khu vực chung -->
+        <div class="invoice-summary">
+            <!-- Cột trái: QR Code -->
+            <div class="payment-section">
+                <div class="text-bold">HƯỚNG DẪN THANH TOÁN</div>
+                <div style="font-size: 0.9em; margin-top: 5px;">Quét mã QR để thanh toán hóa đơn.</div>
+                <div class="qr-code" id="qr-code-container"></div>
+                <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
+            </div>
+
+            <!-- Cột phải: Tổng tiền -->
+            <div class="summary-section">
+                <div class="totals-box">
+                    <div class="total-row"><span>Thành tiền:</span><span id="subtotal" class="text-right"></span></div>
+                    <div class="total-row"><span>Giảm giá:</span><span id="discount" class="text-right"></span></div>
+                    <div class="total-row total-final">
+                        <span class="text-bold">TỔNG CỘNG:</span>
+                        <span id="total-amount" class="text-right text-bold"></span>
+                    </div>
+                    <div class="amount-in-words">
+                        <span class="text-bold">Bằng chữ:</span> <span id="amount-words"></span>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Payment & QR Section -->
-        <div class="payment-section">
-             <div class="payment-details">
-                <div class="text-bold">HƯỚNG DẪN THANH TOÁN</div>
-                <div style="font-size: 0.9em;">Quét mã QR bên cạnh để thanh toán hóa đơn.</div>
-             </div>
-             <div class="qr-code" id="qr-code-container"></div>
-             <div class="qr-info" style="display: none;">
-                <span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span>
-             </div>
-        </div>
 
-        <!-- Footer -->
         <div class="footer">
             <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
             <div>Hotline: <span id="footer_so_dien_thoai"></span> | Website: <span id="website"></span></div>
@@ -212,10 +201,12 @@
                 const bankCode = getBankCodeFromName(bankName), cleanTotalAmount = cleanNumberString(totalAmount);
                 
                 // Điền dữ liệu vào các thẻ HTML
-                document.getElementById('ten_cong_ty').textContent = tenCongTy || 'Tên Công Ty';
-                document.getElementById('dia_chi').textContent = diaChi || 'N/A';
-                document.getElementById('so_dien_thoai').textContent = soDienThoai || 'N/A';
-                document.getElementById('email').textContent = email || 'N/A';
+                const companyInfoHtml = `ĐC: ${diaChi || 'N/A'}<br>ĐT: ${soDienThoai || 'N/A'} | Email: ${email || 'N/A'}`;
+                document.getElementById('ten_cong_ty_80mm').textContent = tenCongTy || 'Tên Công Ty';
+                document.getElementById('company_info_80mm').innerHTML = companyInfoHtml;
+                document.getElementById('ten_cong_ty_a4').textContent = tenCongTy || 'Tên Công Ty';
+                document.getElementById('company_info_a4').innerHTML = companyInfoHtml;
+                
                 document.getElementById('footer_so_dien_thoai').textContent = soDienThoai || 'N/A';
                 document.getElementById('website').textContent = finalWebsite || 'N/A';
                 document.getElementById('order-number').textContent = orderNumber || 'N/A';
