@@ -75,11 +75,12 @@
         <div class="qr-section">
             <div style="font-weight: bold; margin-bottom: 5px;">QUÉT MÃ ĐỂ THANH TOÁN</div>
             <div class="qr-code" id="qr-code-container"></div>
-<!--             <div class="qr-info">
-<!--                 Ngân hàng: <span id="bank-name"></span><br>
-<!--                 Số tài khoản: <span id="account-number"></span><br> -->
-<!--                 Chủ tài khoản: <span id="account-holder"></span> --> -->
-<!--             </div> --> -->
+            <!-- SỬA LỖI: Khôi phục lại phần HTML này -->
+            <div class="qr-info">
+                Ngân hàng: <span id="bank-name"></span><br>
+                Số tài khoản: <span id="account-number"></span><br>
+                Chủ tài khoản: <span id="account-holder"></span>
+            </div>
         </div>
         
         <!-- Footer -->
@@ -109,22 +110,17 @@
 
         function formatDate(dateString) {
             if (!dateString) return new Date().toLocaleDateString('vi-VN');
-            try {
-                const date = new Date(dateString);
-                return isNaN(date) ? dateString : date.toLocaleDateString('vi-VN');
-            } catch (error) { return dateString; }
+            try { const date = new Date(dateString); return isNaN(date) ? dateString : date.toLocaleDateString('vi-VN'); }
+            catch (error) { return dateString; }
         }
         
         function numberToWords(numStr) {
             const num = parseInt(cleanNumberString(String(numStr)), 10);
             if (isNaN(num) || num === null) return 'Không đồng';
             if (num === 0) return 'Không đồng';
-            const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
-            const tens = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
-            const scales = ['', 'nghìn', 'triệu', 'tỷ'];
+            const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'], tens = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'], scales = ['', 'nghìn', 'triệu', 'tỷ'];
             function convertHundreds(n) {
-                let result = '';
-                const h = Math.floor(n / 100), t = Math.floor((n % 100) / 10), o = n % 10;
+                let result = '', h = Math.floor(n / 100), t = Math.floor((n % 100) / 10), o = n % 10;
                 if (h > 0) result += ones[h] + ' trăm';
                 if (t > 0) {
                     if (h > 0) result += ' ';
@@ -136,7 +132,7 @@
             let result = '', scaleIndex = 0, n = num;
             while (n > 0) {
                 const group = n % 1000;
-                if (group > 0) { result = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (result ? ' ' + result : ''); }
+                if (group > 0) result = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (result ? ' ' + result : '');
                 n = Math.floor(n / 1000); scaleIndex++;
             }
             result = result.trim();
@@ -165,7 +161,7 @@
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) {
             const qrContainer = document.getElementById('qr-code-container');
             if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) {
-                qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ để tạo mã QR.</div>';
+                qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>';
                 return null;
             }
             const description = orderNumber || '';
@@ -173,14 +169,13 @@
             const qrImage = new Image(200, 200);
             qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>';
             qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); };
-            qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.<br>Vui lòng thử lại sau.</div>'; };
+            qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; };
             qrImage.src = qrUrl;
             return qrImage;
         }
         
         function autoPrint(qrImageElement) {
-            const autoPrintParam = getUrlParameter('auto_print');
-            if (autoPrintParam !== 'true' && autoPrintParam !== '1') return;
+            if (getUrlParameter('auto_print') !== 'true') return;
             const triggerPrint = () => setTimeout(() => window.print(), 500);
             if (!qrImageElement) { triggerPrint(); return; }
             if (qrImageElement.complete && qrImageElement.naturalHeight !== 0) triggerPrint();
@@ -190,7 +185,7 @@
         // --- HÀM CHÍNH ĐỂ TẢI DỮ LIỆU ---
         function loadDataFromUrl() {
             try {
-                // Đọc tất cả tham số từ URL
+                // Đọc dữ liệu từ URL
                 const orderNumber = getUrlParameter('so_don_hang');
                 const orderDate = getUrlParameter('ngay_dat');
                 const customerName = getUrlParameter('khach_hang');
@@ -198,16 +193,18 @@
                 const subtotal = getUrlParameter('thanh_tien');
                 const discount = getUrlParameter('giam_gia');
                 const totalAmount = getUrlParameter('tong_tien');
-                const bankCode = getUrlParameter('bank_code');
-                const bankName = getUrlParameter('bank_name');
-                const accountNumber = getUrlParameter('account_number');
-                const accountHolder = getUrlParameter('account_holder');
                 const productsJson = getUrlParameter('products');
 
+                // SỬA LỖI: Xác định thông tin tài khoản (Ưu tiên URL, nếu không có thì dùng giá trị cố định)
+                const finalBankCode = getUrlParameter('bank_code') || '970415'; // Vietinbank
+                const finalBankName = getUrlParameter('bank_name') || 'VIETINBANK';
+                const finalAccountNumber = getUrlParameter('account_number') || '102893157888';
+                const finalAccountHolder = getUrlParameter('account_holder') || 'PHAM DUC HUY';
+                
                 // Dọn dẹp dữ liệu số
                 const cleanTotalAmount = cleanNumberString(totalAmount);
 
-                // Điền dữ liệu vào các thẻ HTML tương ứng
+                // Điền dữ liệu vào các thẻ HTML
                 document.getElementById('order-number').textContent = orderNumber || 'N/A';
                 document.getElementById('order-date').textContent = formatDate(orderDate);
                 document.getElementById('customer-name').textContent = customerName || 'Khách lẻ';
@@ -216,13 +213,14 @@
                 document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ';
                 document.getElementById('total-amount').textContent = formatCurrency(cleanTotalAmount) + ' VNĐ';
                 document.getElementById('amount-words').textContent = numberToWords(cleanTotalAmount);
-                document.getElementById('bank-name').textContent = bankName || 'VIETTINBANK';
-                document.getElementById('account-number').textContent = accountNumber || '102893157888';
-                document.getElementById('account-holder').textContent = accountHolder || 'PHAM DUC HUY';
+                document.getElementById('bank-name').textContent = finalBankName;
+                document.getElementById('account-number').textContent = finalAccountNumber;
+                document.getElementById('account-holder').textContent = finalAccountHolder;
                 
                 displayProducts(productsJson);
                 
-                const qrImageElement = updateQRCode(cleanTotalAmount, orderNumber, bankCode, accountNumber, accountHolder);
+                // Tạo QR code với thông tin đã được xác định
+                const qrImageElement = updateQRCode(cleanTotalAmount, orderNumber, finalBankCode, finalAccountNumber, finalAccountHolder);
                 autoPrint(qrImageElement);
                 
             } catch (error) {
