@@ -14,9 +14,9 @@
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
-            /* SỬA ĐỔI: Lề A4 sát hơn */
+            /* SỬA ĐỔI: Giảm lề A4 */
             @page a4-portrait { size: A4 portrait; margin: 16mm; }
-            /* SỬA ĐỔI: A5 ngang và lề sát hơn */
+            /* SỬA ĐỔI: Chuyển A5 sang ngang và giảm lề */
             @page a5-landscape { size: A5 landscape; margin: 8mm; }
             @page receipt-80mm { size: 80mm auto; margin: 0; }
             body.format-a4 { page: a4-portrait; }
@@ -35,156 +35,163 @@
         .company-name { font-weight: bold; }
         .error-message { color: red; font-size: 0.8em; padding: 10px; border: 1px dashed red; }
 
-        /* SỬA ĐỔI: CSS cho các nút bấm mới */
-        .print-options { position: fixed; top: 10px; right: 10px; background: #fff; padding: 10px; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; gap: 10px; }
+        /* SỬA ĐỔI: CSS cho các nút bấm và icon */
+        .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .print-options button {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 8px 12px; cursor: pointer; border: 1px solid #ddd;
-            border-radius: 5px; background-color: #f8f9fa; color: #333;
-            font-weight: 500; font-size: 14px;
+            margin: 0 5px; padding: 0; width: 44px; height: 44px;
+            cursor: pointer; border: none; border-radius: 5px; color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: all 0.2s ease-in-out;
+            display: inline-flex; align-items: center; justify-content: center;
         }
-        .print-options button:hover { border-color: #007bff; background-color: #e9ecef; }
-        .btn-icon { border: 2px solid #555; border-radius: 2px; }
-        .icon-80mm { width: 12px; height: 18px; }
-        .icon-a4 { width: 14px; height: 20px; }
-        .icon-a5 { width: 20px; height: 14px; }
-        .icon-print {
-            width: 20px; height: 20px;
-            background-color: #555;
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 6 2 18 2 18 9'%3E%3C/polyline%3E%3Cpath d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'%3E%3C/path%3E%3Crect x='6' y='14' width='12' height='8'%3E%3C/rect%3E%3C/svg%3E");
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 6 2 18 2 18 9'%3E%3C/polyline%3E%3Cpath d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'%3E%3C/path%3E%3Crect x='6' y='14' width='12' height='8'%3E%3C/rect%3E%3C/svg%3E");
+        .print-options button:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: translateY(-2px); filter: brightness(1.1);
         }
-        .print-options button:hover .icon-print { background-color: #007bff; }
+        .print-options button.btn-80mm { background-color: #007bff; font-weight: bold; font-size: 14px; }
+        .print-options button.btn-a4 { background-color: #28a745; }
+        .print-options button.btn-a5 { background-color: #ffc107; }
+        .print-options button.btn-print { background-color: #6c757d; }
+
+        .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; }
+        .icon-a4 { width: 18px; height: 24px; }
+        .icon-a5 { width: 24px; height: 18px; }
+        .icon-print { position: relative; width: 24px; height: 22px; }
+        .icon-print .printer-top { position: absolute; top: 0; left: 2px; width: 20px; height: 8px; border: 2px solid white; border-bottom: none; }
+        .icon-print .printer-body { position: absolute; bottom: 0; left: 0; width: 24px; height: 12px; background: white; border-radius: 2px; }
+        .icon-print .paper { position: absolute; top: 4px; left: 6px; width: 12px; height: 4px; background: #eee; }
 
         /* =================================================================== */
         /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI)                                   */
         /* =================================================================== */
-        body.format-80mm {
-            font-family: 'Courier New', monospace; font-size: 12px;
-            width: 80mm; margin: 0 auto; padding: 5mm; color: #000;
-        }
-        .format-80mm .invoice-header, .format-80mm .customer-details, .format-80mm .products-table,
-        .format-80mm .summary-section, .format-80mm .payment-section, .format-80mm .footer { width: 100%; }
-        .format-80mm .company-header { text-align: center; margin-bottom: 0; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-        .format-80mm .main-title-container { text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; }
-        .format-80mm .customer-details-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
-        /* ... Các style khác của 80mm giữ nguyên ... */
-        .format-80mm .qr-code img { width: 180px; height: 180px; }
-
+        body.format-80mm { /* Không thay đổi */ }
+        
         /* =================================================================== */
         /* 4. ĐỊNH DẠNG A4 & A5 (HÓA ĐƠN CHUYÊN NGHIỆP)                        */
         /* =================================================================== */
-        body.format-a4, body.format-a5 { font-family: Arial, sans-serif; width: auto; padding: 0; margin: 0; background: #eee; }
-        .format-a4 .bill-container, .format-a5 .bill-container { margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .format-a4 .main-title-container, .format-a5 .main-title-container { display: none; }
-        .format-a4 .invoice-header, .format-a5 .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 2px solid #0056b3; margin-bottom: 20px; }
-        .format-a4 .company-name, .format-a5 .company-name { font-size: 1.8em; color: #333; }
-        .format-a4 .company-info, .format-a5 .company-info { text-align: right; }
-        .format-a4 .invoice-title-box, .format-a5 .invoice-title-box { text-align: center; margin: 20px 0; }
-        .format-a4 .invoice-title-box h2, .format-a5 .invoice-title-box h2 { font-size: 2.2em; color: #333; letter-spacing: 1px; }
-        .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 30px; }
+        body.format-a4, body.format-a5 {
+            font-family: Arial, sans-serif;
+            width: auto; padding: 0; margin: 0; background: #eee;
+        }
+        .format-a4 .bill-container, .format-a5 .bill-container {
+            margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .format-a4 .main-title-container, .format-a5 .main-title-container {
+            text-align: center; margin: 25px 0;
+            font-size: 2em; font-weight: bold; letter-spacing: 2px; color: #333;
+        }
+        .format-a4 .company-header, .format-a5 .company-header {
+            text-align: center; padding-bottom: 20px; border-bottom: 1px solid #ccc;
+        }
+        .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; }
+        .format-a4 .invoice-title-box, .format-a5 .invoice-title-box { display: none; }
+        .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 30px; margin-top: 20px; }
         .format-a4 .customer-details-row, .format-a5 .customer-details-row { display: flex; justify-content: space-between; padding: 5px 0; }
         .format-a4 .products-table, .format-a5 .products-table { border: 1px solid #ddd; border-radius: 5px; overflow: hidden; font-size: 0.9em; width: 100%; }
-        .format-a4 .products-table thead tr, .format-a5 .products-table thead tr { background-color: #f2f2f2; }
-        .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; color: #555; }
-        .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
+        .format-a4 .products-table thead tr, .format-a5 .products-table thead tr { background-color: #0056b3; color: white; }
+        .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; }
+        .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
         .format-a4 .summary-section, .format-a5 .summary-section { display: flex; justify-content: flex-end; margin-top: 20px; }
         .format-a4 .totals-box, .format-a5 .totals-box { width: 50%; }
         .format-a4 .total-row, .format-a5 .total-row { border-bottom: 1px solid #eee; display: flex; justify-content: space-between;}
+        .format-a4 .total-row span:first-child, .format-a5 .total-row span:first-child { color: #555; }
         .format-a4 .total-final, .format-a5 .total-final { display: flex; justify-content: space-between; background-color: #f8f9fa; }
         .format-a4 .total-final span, .format-a5 .total-final span { font-size: 1.2em; font-weight: bold; color: #0056b3; }
         .format-a4 .payment-section, .format-a5 .payment-section { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; }
         .format-a4 .footer, .format-a5 .footer { clear: both; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; text-align: center; }
 
-        /* --- A4 Styles --- */
+        /* --- A4 Specific Styles --- */
         body.format-a4 { font-size: 11pt; }
         .format-a4 .bill-container { max-width: 190mm; padding: 16mm; }
         .format-a4 .products-table th, .format-a4 .products-table td { padding: 12px 15px; }
         .format-a4 .qr-code img { width: 140px; height: 140px; }
         .format-a4 .total-row, .format-a4 .total-final { padding: 12px; }
 
-        /* --- A5 Landscape Styles --- */
+        /* --- A5 Specific Styles --- */
         body.format-a5 { font-size: 9pt; }
-        .format-a5 .bill-container { max-width: 260mm; padding: 8mm; }
-        .format-a5 .main-content { display: flex; gap: 15px; }
+        .format-a5 .bill-container {
+            max-width: 280mm; /* A5 landscape width is 210mm, but padding makes it seem wider */
+            padding: 10mm;
+            display: flex;
+            flex-wrap: wrap; /* Cho phép footer xuống hàng */
+            gap: 15mm;
+        }
         .format-a5 .left-column { width: 40%; }
-        .format-a5 .right-column { width: 60%; }
+        .format-a5 .right-column { width: calc(60% - 15mm); }
+        .format-a5 .footer { width: 100%; } /* Footer chiếm toàn bộ chiều rộng */
         .format-a5 .products-table th, .format-a5 .products-table td { padding: 8px 10px; }
         .format-a5 .qr-code img { width: 110px; height: 110px; }
         .format-a5 .total-row, .format-a5 .total-final { padding: 8px; }
-        .format-a5 .footer { margin-top: 20px; }
-        .format-a5 .payment-section { flex-direction: column; align-items: flex-start; gap: 10px; }
 
     </style>
 </head>
 <body>
     <div class="print-options no-print">
-        <button class="btn-80mm" onclick="changeFormat('80mm')"><span class="btn-icon icon-80mm"></span> 80mm</button>
-        <button class="btn-a4" onclick="changeFormat('a4')"><span class="btn-icon icon-a4"></span> A4</button>
-        <button class="btn-a5" onclick="changeFormat('a5')"><span class="btn-icon icon-a5"></span> A5</button>
-        <button class="btn-print" onclick="window.print()" title="In Lại"><span class="btn-icon icon-print"></span></button>
+        <button class="btn-80mm" onclick="changeFormat('80mm')">80mm</button>
+        <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc"><span class="icon icon-a4"></span></button>
+        <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang"><span class="icon icon-a5"></span></button>
+        <button class="btn-print" onclick="window.print()" title="In Lại">
+            <div class="icon-print">
+                <div class="paper"></div>
+                <div class="printer-top"></div>
+                <div class="printer-body"></div>
+            </div>
+        </button>
     </div>
 
     <div class="bill-container">
-        <!-- Header -->
-        <div class="invoice-header">
-            <div class="company-details">
-                <div class="company-name" id="ten_cong_ty"></div>
+        <!-- SỬA ĐỔI: Bọc nội dung trong các cột để A5 có thể sắp xếp -->
+        <div class="left-column">
+            <!-- Header -->
+            <div class="invoice-header">
+                <div class="company-details">
+                    <div class="company-name" id="ten_cong_ty"></div>
+                    <div class="company-info">
+                        ĐC: <span id="dia_chi"></span><br>
+                        ĐT: <span id="so_dien_thoai"></span> | Email: <span id="email"></span>
+                    </div>
+                </div>
             </div>
-            <div class="company-info">
-                ĐC: <span id="dia_chi"></span><br>
-                ĐT: <span id="so_dien_thoai"></span><br>
-                Email: <span id="email"></span>
+             <!-- Tiêu đề chính -->
+            <div class="main-title-container">HÓA ĐƠN BÁN HÀNG</div>
+            
+            <!-- Thông tin khách hàng -->
+            <div class="customer-details">
+                <div class="customer-details-row">
+                    <span><span class="text-bold">Số ĐH:</span> <span id="order-number"></span></span>
+                    <span><span class="text-bold">Ngày đặt:</span> <span id="order-date"></span></span>
+                </div>
+                <div class="customer-details-row">
+                    <span><span class="text-bold">Khách hàng:</span> <span id="customer-name"></span></span>
+                    <span><span class="text-bold">In lúc:</span> <span id="print-time"></span></span>
+                </div>
             </div>
         </div>
 
-        <!-- Tiêu đề chính -->
-        <div class="invoice-title-box">
-            <h2>HÓA ĐƠN BÁN HÀNG</h2>
-        </div>
-        <div class="main-title-container">HÓA ĐƠN BÁN HÀNG</div>
-        
-        <div class="main-content">
-            <div class="left-column">
-                <!-- Thông tin khách hàng -->
-                <div class="customer-details">
-                    <div class="customer-details-row">
-                        <span><span class="text-bold">Số ĐH:</span> <span id="order-number"></span></span>
-                        <span><span class="text-bold">Ngày đặt:</span> <span id="order-date"></span></span>
+        <div class="right-column">
+            <!-- Bảng sản phẩm -->
+            <table class="products-table">
+                <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
+                <tbody id="products-list"></tbody>
+            </table>
+
+            <!-- Tổng kết -->
+            <div class="summary-section">
+                <div class="totals-box">
+                    <div class="total-row"><span>Thành tiền:</span><span id="subtotal" class="text-right"></span></div>
+                    <div class="total-row"><span>Giảm giá:</span><span id="discount" class="text-right"></span></div>
+                    <div class="total-row total-final">
+                        <span class="text-bold">TỔNG CỘNG:</span>
+                        <span id="total-amount" class="text-right text-bold"></span>
                     </div>
-                    <div class="customer-details-row">
-                        <span><span class="text-bold">Khách hàng:</span> <span id="customer-name"></span></span>
-                        <span><span class="text-bold">In lúc:</span> <span id="print-time"></span></span>
-                    </div>
-                </div>
-                
-                <!-- Thanh toán & QR (chỉ ở cột trái trên A5) -->
-                <div class="payment-section">
-                     <div class="payment-details"><div class="text-bold">QUÉT MÃ QR ĐỂ THANH TOÁN</div></div>
-                     <div class="qr-code" id="qr-code-container"></div>
-                     <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
+                    <div class="amount-in-words"><span class="text-bold">Bằng chữ:</span> <span id="amount-words"></span></div>
                 </div>
             </div>
-
-            <div class="right-column">
-                <!-- Bảng sản phẩm -->
-                <table class="products-table">
-                    <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
-                    <tbody id="products-list"></tbody>
-                </table>
-                <!-- Tổng kết -->
-                <div class="summary-section">
-                    <div class="totals-box">
-                        <div class="total-row"><span>Thành tiền:</span><span id="subtotal" class="text-right"></span></div>
-                        <div class="total-row"><span>Giảm giá:</span><span id="discount" class="text-right"></span></div>
-                        <div class="total-row total-final">
-                            <span class="text-bold">TỔNG CỘNG:</span>
-                            <span id="total-amount" class="text-right text-bold"></span>
-                        </div>
-                        <div class="amount-in-words"><span class="text-bold">Bằng chữ:</span> <span id="amount-words"></span></div>
-                    </div>
-                </div>
+            
+            <!-- Thanh toán & QR -->
+            <div class="payment-section">
+                 <div class="payment-details"><div class="text-bold">QUÉT MÃ QR ĐỂ THANH TOÁN</div></div>
+                 <div class="qr-code" id="qr-code-container"></div>
+                 <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
             </div>
         </div>
 
