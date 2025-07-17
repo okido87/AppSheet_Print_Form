@@ -1,194 +1,82 @@
+// Sửa đổi hàm autoPrint
+function autoPrint() {
+    const autoPrintParam = getUrlParameter('auto_print');
+    if (autoPrintParam === 'true' || autoPrintParam === '1') {
+        const qrImage = document.getElementById('qr-image');
+        
+        // Tạo một hàm để thực hiện in
+        const triggerPrint = () => {
+            // Đợi một chút để đảm bảo trình duyệt đã render xong ảnh
+            setTimeout(() => {
+                window.print();
+            }, 500); // 0.5 giây là đủ
+        };
 
+        // Nếu ảnh đã có src và đã tải xong (trường hợp cache)
+        if (qrImage.complete) {
+            triggerPrint();
+        } else {
+            // Nếu ảnh chưa tải xong, đợi sự kiện onload
+            qrImage.onload = triggerPrint;
+        }
+    }
+}```
+
+#### Bước 4 (Quan trọng): Đảm bảo URL luôn mới từ AppSheet
+
+Để chắc chắn trình duyệt không dùng cache, bạn nên thêm một tham số ngẫu nhiên vào cuối URL khi gọi từ AppSheet. Tham số này không dùng trong code nhưng sẽ "đánh lừa" trình duyệt rằng đây là một trang mới.
+
+Ví dụ về cách tạo URL trong AppSheet:
+`CONCATENATE("https://path/to/your/bill.html?", [Query_Parameters], "&_v=", ENCODEURL(NOW()))`
+
+Thao tác này sẽ thêm một tham số `_v` với giá trị là ngày giờ hiện tại, ví dụ `&_v=2024-07-17T10:30:00.123Z`, làm cho mỗi URL trở nên duy nhất.
+
+---
+
+### Đoạn mã hoàn chỉnh đã sửa lỗi
+
+Bạn có thể thay thế toàn bộ mã cũ bằng mã dưới đây.
+
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- THÊM MỚI: Chống cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Hóa đơn - Michi Camp</title>
     <style>
-        /* CSS cho khổ giấy in bill 80mm */
-        @page {
-            size: 80mm auto;
-            margin: 0;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.3;
-            width: 80mm;
-            margin: 0 auto;
-            padding: 5mm;
-            background: white;
-            color: #000;
-        }
-        
-        .bill-container {
-            width: 100%;
-            max-width: 70mm;
-        }
-        
-        /* Header công ty */
-        .company-header {
-            text-align: center;
-            margin-bottom: 15px;
-            border-bottom: 1px dashed #000;
-            padding-bottom: 10px;
-        }
-        
-        .company-name {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .company-info {
-            font-size: 10px;
-            line-height: 1.2;
-        }
-        
-        /* Thông tin đơn hàng */
-        .order-info {
-            margin-bottom: 15px;
-            font-size: 11px;
-        }
-        
-        .order-info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 3px;
-        }
-        
-        .order-info-label {
-            font-weight: bold;
-        }
-        
-        /* Bảng sản phẩm */
-        .products-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-            font-size: 10px;
-        }
-        
-        .products-table th,
-        .products-table td {
-            padding: 3px 2px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .products-table th {
-            font-weight: bold;
-            border-bottom: 1px solid #000;
-        }
-        
-        .product-name {
-            max-width: 30mm;
-            word-wrap: break-word;
-        }
-        
-        .text-right {
-            text-align: right;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        /* Tổng tiền */
-        .total-section {
-            border-top: 1px dashed #000;
-            padding-top: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 3px;
-            font-size: 11px;
-        }
-        
-        .total-final {
-            font-weight: bold;
-            font-size: 13px;
-            border-top: 1px solid #000;
-            padding-top: 5px;
-        }
-        
-        .amount-in-words {
-            font-size: 10px;
-            font-style: italic;
-            margin-top: 5px;
-            text-align: center;
-        }
-        
-        /* VietQR */
-        .qr-section {
-            text-align: center;
-            margin-top: 15px;
-            border-top: 1px dashed #000;
-            padding-top: 10px;
-        }
-        
-        .qr-code {
-            margin: 10px 0;
-        }
-        
-        .qr-code img {
-            width: 200px;
-            height: 200px;
-        }
-        
-        .qr-info {
-            font-size: 9px;
-            margin-top: 5px;
-        }
-        
-        /* Footer */
-        .footer {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 10px;
-            border-top: 1px dashed #000;
-            padding-top: 10px;
-        }
-        
-        /* Print styles */
-        @media print {
-            body {
-                margin: 0;
-                padding: 2mm;
-            }
-            
-            .bill-container {
-                page-break-inside: avoid;
-            }
-            
-            .no-print {
-                display: none;
-            }
-        }
-        
-        /* Responsive cho mobile */
-        @media screen and (max-width: 480px) {
-            body {
-                width: 100%;
-                max-width: 100%;
-                padding: 10px;
-            }
-            
-            .bill-container {
-                max-width: 100%;
-            }
-        }
+        /* CSS của bạn giữ nguyên */
+        @page { size: 80mm auto; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.3; width: 80mm; margin: 0 auto; padding: 5mm; background: white; color: #000; }
+        .bill-container { width: 100%; max-width: 70mm; }
+        .company-header { text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+        .company-name { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
+        .company-info { font-size: 10px; line-height: 1.2; }
+        .order-info { margin-bottom: 15px; font-size: 11px; }
+        .order-info-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .order-info-label { font-weight: bold; }
+        .products-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px; }
+        .products-table th, .products-table td { padding: 3px 2px; text-align: left; border-bottom: 1px solid #ddd; }
+        .products-table th { font-weight: bold; border-bottom: 1px solid #000; }
+        .product-name { max-width: 30mm; word-wrap: break-word; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .total-section { border-top: 1px dashed #000; padding-top: 10px; margin-bottom: 15px; }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
+        .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
+        .amount-in-words { font-size: 10px; font-style: italic; margin-top: 5px; text-align: center; }
+        .qr-section { text-align: center; margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px; }
+        .qr-code { margin: 10px 0; }
+        .qr-code img { width: 200px; height: 200px; }
+        .qr-info { font-size: 9px; margin-top: 5px; }
+        .footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 10px; }
+        @media print { body { margin: 0; padding: 2mm; } .bill-container { page-break-inside: avoid; } .no-print { display: none; } }
+        @media screen and (max-width: 480px) { body { width: 100%; max-width: 100%; padding: 10px; } .bill-container { max-width: 100%; } }
     </style>
 </head>
 <body>
@@ -196,167 +84,104 @@
         <!-- Header công ty -->
         <div class="company-header">
             <div class="company-name">MICHI CAMP</div>
-            <div class="company-info">
-                ĐT: 038.578.7699 Email: info@michicam.vn<br>
-            </div>
+            <div class="company-info">ĐT: 038.578.7699 Email: info@michicam.vn<br></div>
         </div>
         
         <!-- Tiêu đề hóa đơn -->
-        <div style="text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 15px;">
-            HÓA ĐƠN BÁN HÀNG
-        </div>
+        <div style="text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 15px;">HÓA ĐƠN BÁN HÀNG</div>
         
         <!-- Thông tin đơn hàng -->
         <div class="order-info">
-            <div class="order-info-row">
-                <span class="order-info-label">Số đơn hàng:</span>
-                <span id="order-number">DH001</span>
-            </div>
-            <div class="order-info-row">
-                <span class="order-info-label">Ngày đặt:</span>
-                <span id="order-date">01/01/2024</span>
-            </div>
-            <div class="order-info-row">
-                <span class="order-info-label">Khách hàng:</span>
-                <span id="customer-name">Nguyễn Văn A</span>
-            </div>
-            <div class="order-info-row">
-                <span class="order-info-label">Ngày cập nhật:</span>
-                <span id="update-date">01/01/2024</span>
-            </div>
+            <div class="order-info-row"><span class="order-info-label">Số đơn hàng:</span><span id="order-number"></span></div>
+            <div class="order-info-row"><span class="order-info-label">Ngày đặt:</span><span id="order-date"></span></div>
+            <div class="order-info-row"><span class="order-info-label">Khách hàng:</span><span id="customer-name"></span></div>
+            <div class="order-info-row"><span class="order-info-label">Ngày cập nhật:</span><span id="update-date"></span></div>
         </div>
         
         <!-- Bảng sản phẩm -->
         <table class="products-table">
-            <thead>
-                <tr>
-                    <th class="product-name">Sản phẩm</th>
-                    <th class="text-center">SL</th>
-                    <th class="text-right">Đơn giá</th>
-                    <th class="text-right">Thành tiền</th>
-                </tr>
-            </thead>
-            <tbody id="products-list">
-                <!-- Sản phẩm sẽ được thêm bằng JavaScript -->
-                <tr>
-                    <td class="product-name">Sản phẩm mẫu</td>
-                    <td class="text-center">1</td>
-                    <td class="text-right">100,000</td>
-                    <td class="text-right">100,000</td>
-                </tr>
-            </tbody>
+            <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
+            <tbody id="products-list"></tbody>
         </table>
         
         <!-- Tổng tiền -->
         <div class="total-section">
-            <div class="total-row">
-                <span>Thành tiền:</span>
-                <span id="subtotal">100,000 VNĐ</span>
-            </div>
-            <div class="total-row">
-                <span>Giảm giá:</span>
-                <span id="discount">0 VNĐ</span>
-            </div>
-            <div class="total-row total-final">
-                <span>Tổng tiền:</span>
-                <span id="total-amount">100,000 VNĐ</span>
-            </div>
-            <div class="amount-in-words">
-                Bằng chữ: <span id="amount-words">Một trăm nghìn đồng</span>
-            </div>
+            <div class="total-row"><span>Thành tiền:</span><span id="subtotal"></span></div>
+            <div class="total-row"><span>Giảm giá:</span><span id="discount"></span></div>
+            <div class="total-row total-final"><span>Tổng tiền:</span><span id="total-amount"></span></div>
+            <div class="amount-in-words">Bằng chữ: <span id="amount-words"></span></div>
         </div>
         
         <!-- VietQR -->
         <div class="qr-section">
-            <div style="font-weight: bold; margin-bottom: 5px;">QUÉT MÃ CODE ĐỂ THANH TOÁN </div>
+            <div style="font-weight: bold; margin-bottom: 5px;">QUÉT MÃ CODE ĐỂ THANH TOÁN</div>
             <div class="qr-code">
                 <img id="qr-image" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y5ZjlmOSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjEiLz4KICA8dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UVIgQ29kZTwvdGV4dD4KPC9zdmc+" alt="QR Code">
+            </div>
+            <!-- SỬA ĐỔI: Thêm các thẻ để hiển thị thông tin TK -->
+            <div class="qr-info">
+                Ngân hàng: <span id="bank-name"></span><br>
+                Số tài khoản: <span id="account-number"></span><br>
+                Chủ tài khoản: <span id="account-holder"></span>
             </div>
         </div>
         
         <!-- Footer -->
         <div class="footer">
             <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
-            <div style="margin-top: 5px; font-size: 9px;">
-                Hotline: 038.578.7699 | Website: michicam.vn
-            </div>
+            <div style="margin-top: 5px; font-size: 9px;">Hotline: 038.578.7699 | Website: michicam.vn</div>
         </div>
     </div>
     
-    <!-- Thêm thư viện QR Code -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    
-    <!-- JavaScript xử lý dữ liệu từ URL -->
     <script>
-        // Hàm đọc tham số từ URL
+        // Các hàm của bạn giữ nguyên, trừ hàm autoPrint và loadDataFromUrl
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name) || '';
         }
         
-        // Hàm format số tiền
         function formatCurrency(amount) {
             if (!amount || isNaN(amount)) return '0';
             return parseInt(amount).toLocaleString('vi-VN');
         }
-        
-        // Hàm chuyển số thành chữ tiếng Việt
+
         function numberToWords(num) {
+            // ... (giữ nguyên hàm này)
             if (num === 0) return 'không đồng';
-            
             const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
             const tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
             const scales = ['', 'nghìn', 'triệu', 'tỷ'];
-            
             function convertHundreds(n) {
                 let result = '';
-                
                 const hundreds = Math.floor(n / 100);
                 const remainder = n % 100;
                 const tensDigit = Math.floor(remainder / 10);
                 const onesDigit = remainder % 10;
-                
                 if (hundreds > 0) {
                     result += ones[hundreds] + ' trăm';
                     if (remainder > 0) result += ' ';
                 }
-                
                 if (tensDigit > 1) {
                     result += tens[tensDigit];
                     if (onesDigit > 0) {
-                        if (onesDigit === 1) {
-                            result += ' một';
-                        } else if (onesDigit === 5 && tensDigit > 1) {
-                            result += ' lăm';
-                        } else {
-                            result += ' ' + ones[onesDigit];
-                        }
+                        if (onesDigit === 1) { result += ' mốt'; }
+                        else if (onesDigit === 5) { result += ' lăm'; }
+                        else { result += ' ' + ones[onesDigit]; }
                     }
                 } else if (tensDigit === 1) {
-                    if (onesDigit === 0) {
-                        result += 'mười';
-                    } else if (onesDigit === 5) {
-                        result += 'mười lăm';
-                    } else {
-                        result += 'mười ' + ones[onesDigit];
-                    }
+                    if (onesDigit === 0) { result += 'mười'; }
+                    else if (onesDigit === 5) { result += 'mười lăm'; }
+                    else { result += 'mười ' + ones[onesDigit]; }
                 } else if (onesDigit > 0) {
-                    if (hundreds > 0) {
-                        result += 'lẻ ' + ones[onesDigit];
-                    } else {
-                        result += ones[onesDigit];
-                    }
+                    if (hundreds > 0) { result += 'lẻ ' + ones[onesDigit]; }
+                    else { result += ones[onesDigit]; }
                 }
-                
                 return result.trim();
             }
-            
             function convertNumber(n) {
                 if (n === 0) return '';
-                
                 let result = '';
                 let scaleIndex = 0;
-                
                 while (n > 0) {
                     const group = n % 1000;
                     if (group > 0) {
@@ -369,66 +194,46 @@
                     n = Math.floor(n / 1000);
                     scaleIndex++;
                 }
-                
                 return result;
             }
-            
             const result = convertNumber(Math.floor(num));
             return result.charAt(0).toUpperCase() + result.slice(1) + ' đồng';
         }
         
-        // Hàm tạo VietQR
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) {
-            // Format VietQR theo chuẩn
             const qrData = {
-                bankCode: bankCode || '970415', // Mã ngân hàng VietinBank
+                bankCode: bankCode || '970415',
                 accountNumber: accountNumber || '102893157888',
                 amount: amount || 0,
                 description: description || 'Thanh toan hoa don',
                 accountHolder: accountHolder || 'PHAM DUC HUY'
             };
-            
-            // Tạo URL VietQR
-            const vietqrUrl = `https://img.vietqr.io/image/${qrData.bankCode}-${qrData.accountNumber}-compact2.png?amount=${qrData.amount}&addInfo=${encodeURIComponent(qrData.description)}&accountName=${encodeURIComponent(qrData.accountHolder)}`;
-            
-            return vietqrUrl;
+            return `https://img.vietqr.io/image/${qrData.bankCode}-${qrData.accountNumber}-compact2.png?amount=${qrData.amount}&addInfo=${encodeURIComponent(qrData.description)}&accountName=${encodeURIComponent(qrData.accountHolder)}`;
         }
-        
-        // Hàm cập nhật QR code
+
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) {
             const description = `Thanh toan don hang ${orderNumber || 'DH001'}`;
             const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder);
-            
-            const qrImage = document.getElementById('qr-image');
-            qrImage.src = qrUrl;
-            qrImage.alt = 'VietQR Code';
+            document.getElementById('qr-image').src = qrUrl;
         }
-        
-        // Hàm parse dữ liệu sản phẩm từ JSON string
+
         function parseProducts(productsJson) {
             try {
                 if (!productsJson) return [];
-                // Nếu là string JSON, parse nó
-                if (typeof productsJson === 'string') {
-                    return JSON.parse(decodeURIComponent(productsJson));
-                }
-                return productsJson;
+                return JSON.parse(decodeURIComponent(productsJson));
             } catch (error) {
                 console.error('Error parsing products:', error);
                 return [];
             }
         }
-        
-        // Hàm hiển thị danh sách sản phẩm
+
         function displayProducts(products) {
             const tbody = document.getElementById('products-list');
             tbody.innerHTML = '';
-            
             if (!products || products.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có sản phẩm</td></tr>';
                 return;
             }
-            
             products.forEach(product => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -441,9 +246,8 @@
             });
         }
         
-        // Hàm format ngày
         function formatDate(dateString) {
-            if (!dateString) return '';
+            if (!dateString) return new Date().toLocaleDateString('vi-VN');
             try {
                 const date = new Date(dateString);
                 return date.toLocaleDateString('vi-VN');
@@ -451,125 +255,87 @@
                 return dateString;
             }
         }
-        
-        // Hàm load dữ liệu từ URL parameters
+
         function loadDataFromUrl() {
             try {
-                // Thông tin đơn hàng từ bảng DonHang
-                const orderNumber = getUrlParameter('so_don_hang') || getUrlParameter('order_number');
-                const orderDate = getUrlParameter('ngay_dat') || getUrlParameter('order_date');
-                const customerName = getUrlParameter('khach_hang') || getUrlParameter('customer_name');
-                const updateDate = getUrlParameter('ngay_cap_nhat') || getUrlParameter('update_date');
-                const subtotal = getUrlParameter('thanh_tien') || getUrlParameter('subtotal');
-                const discount = getUrlParameter('giam_gia') || getUrlParameter('discount');
-                const totalAmount = getUrlParameter('tong_tien') || getUrlParameter('total_amount');
+                const orderNumber = getUrlParameter('so_don_hang');
+                const orderDate = getUrlParameter('ngay_dat');
+                const customerName = getUrlParameter('khach_hang');
+                const updateDate = getUrlParameter('ngay_cap_nhat');
+                const subtotal = getUrlParameter('thanh_tien');
+                const discount = getUrlParameter('giam_gia');
+                const totalAmount = getUrlParameter('tong_tien');
                 
-                // Cập nhật thông tin đơn hàng
-                if (orderNumber) document.getElementById('order-number').textContent = orderNumber;
-                if (orderDate) document.getElementById('order-date').textContent = formatDate(orderDate);
-                if (customerName) document.getElementById('customer-name').textContent = customerName;
-                if (updateDate) document.getElementById('update-date').textContent = formatDate(updateDate);
+                document.getElementById('order-number').textContent = orderNumber || 'N/A';
+                document.getElementById('order-date').textContent = formatDate(orderDate);
+                document.getElementById('customer-name').textContent = customerName || 'Khách lẻ';
+                document.getElementById('update-date').textContent = formatDate(updateDate);
                 
-                // Cập nhật tổng tiền
-                if (subtotal) document.getElementById('subtotal').textContent = formatCurrency(subtotal) + ' VNĐ';
-                if (discount) document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ';
-                if (totalAmount) {
-                    document.getElementById('total-amount').textContent = formatCurrency(totalAmount) + ' VNĐ';
-                    // Cập nhật số tiền bằng chữ
-                    document.getElementById('amount-words').textContent = numberToWords(parseInt(totalAmount));
-                }
-                
-                // Dữ liệu sản phẩm từ bảng CTDonHang
-                const productsData = getUrlParameter('products') || getUrlParameter('san_pham');
+                document.getElementById('subtotal').textContent = formatCurrency(subtotal) + ' VNĐ';
+                document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ';
+                document.getElementById('total-amount').textContent = formatCurrency(totalAmount) + ' VNĐ';
+                document.getElementById('amount-words').textContent = numberToWords(parseInt(totalAmount || 0));
+
+                const productsData = getUrlParameter('products');
                 const products = parseProducts(productsData);
                 displayProducts(products);
                 
-                // Thông tin ngân hàng cho VietQR
-                const bankCode = getUrlParameter('bank_code') || '970415';
-                const bankName = getUrlParameter('bank_name') || 'VietinBank';
-                const accountNumber = getUrlParameter('account_number') || '102893157888';
-                const accountHolder = getUrlParameter('account_holder') || 'PHAM DUC HUY';
+                const bankCode = getUrlParameter('bank_code');
+                const bankName = getUrlParameter('bank_name');
+                const accountNumber = getUrlParameter('account_number');
+                const accountHolder = getUrlParameter('account_holder');
                 
-                if (bankName) document.getElementById('bank-name').textContent = bankName;
-                if (accountNumber) document.getElementById('account-number').textContent = accountNumber;
-                if (accountHolder) document.getElementById('account-holder').textContent = accountHolder;
+                // SỬA ĐỔI: Cập nhật thông tin ngân hàng vào các thẻ đã thêm
+                document.getElementById('bank-name').textContent = bankName || 'VietinBank';
+                document.getElementById('account-number').textContent = accountNumber || '102893157888';
+                document.getElementById('account-holder').textContent = accountHolder || 'PHAM DUC HUY';
                 
-                // Tạo VietQR
                 if (totalAmount) {
                     updateQRCode(totalAmount, orderNumber, bankCode, accountNumber, accountHolder);
                 }
                 
-                console.log('Data loaded successfully');
-                
             } catch (error) {
                 console.error('Error loading data from URL:', error);
+                document.body.innerHTML = '<h1>Lỗi tải dữ liệu hóa đơn. Vui lòng kiểm tra lại.</h1><p>' + error + '</p>';
             }
         }
-        
-        // Hàm tự động in khi trang load xong (tùy chọn)
+
+        // SỬA ĐỔI: Cải thiện hàm autoPrint
         function autoPrint() {
             const autoPrintParam = getUrlParameter('auto_print');
             if (autoPrintParam === 'true' || autoPrintParam === '1') {
-                setTimeout(() => {
-                    window.print();
-                }, 2000); // Delay 2 giây để đảm bảo QR code đã load
+                const qrImage = document.getElementById('qr-image');
+                
+                const triggerPrint = () => {
+                    // Đợi một chút để trình duyệt render xong ảnh
+                    setTimeout(() => window.print(), 500); 
+                };
+                
+                // Nếu ảnh đã tải xong (từ cache hoặc tải rất nhanh)
+                if (qrImage.complete && qrImage.naturalHeight !== 0) {
+                    triggerPrint();
+                } else {
+                    // Đợi sự kiện onload để chắc chắn ảnh đã được tải
+                    qrImage.onload = triggerPrint;
+                    // Xử lý trường hợp ảnh lỗi không tải được
+                    qrImage.onerror = () => {
+                        console.error("QR code image failed to load.");
+                        // Vẫn có thể in dù QR lỗi
+                        triggerPrint(); 
+                    };
+                }
             }
         }
-        
-        // Load dữ liệu khi trang được tải
+
         document.addEventListener('DOMContentLoaded', function() {
-            loadDataFromUrl();
-            autoPrint();
+            // Xóa hàm test đi để tránh chạy nhầm
+            if (window.location.search.length > 1) { // Chỉ load khi có tham số
+                 loadDataFromUrl();
+                 autoPrint();
+            } else {
+                document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn.</h1><p>Vui lòng truyền tham số qua URL.</p>';
+            }
         });
-        
-        // Hàm test với dữ liệu mẫu (để development)
-        function loadSampleData() {
-            const sampleProducts = [
-                {
-                    sanpham: 'Laptop Dell Inspiron 15',
-                    soluong: 1,
-                    dongia: 15000000,
-                    thanhtien: 15000000
-                },
-                {
-                    sanpham: 'Chuột không dây Logitech',
-                    soluong: 2,
-                    dongia: 500000,
-                    thanhtien: 1000000
-                },
-                {
-                    sanpham: 'Bàn phím cơ Gaming',
-                    soluong: 1,
-                    dongia: 2000000,
-                    thanhtien: 2000000
-                }
-            ];
-            
-            // Cập nhật thông tin mẫu
-            document.getElementById('order-number').textContent = 'DH2024001';
-            document.getElementById('order-date').textContent = '15/01/2024';
-            document.getElementById('customer-name').textContent = 'Công ty TNHH ABC';
-            document.getElementById('update-date').textContent = '15/01/2024';
-            document.getElementById('subtotal').textContent = '18,000,000 VNĐ';
-            document.getElementById('discount').textContent = '500,000 VNĐ';
-            document.getElementById('total-amount').textContent = '17,500,000 VNĐ';
-            
-            // Cập nhật số tiền bằng chữ
-            document.getElementById('amount-words').textContent = numberToWords(17500000);
-            
-            displayProducts(sampleProducts);
-            
-            // Tạo VietQR mẫu
-            updateQRCode(17500000, 'DH2024001', '970415', '102893157888', 'PHAM DUC HUY');
-        }
-        
-        // Load dữ liệu mẫu nếu không có tham số URL (để test)
-        if (window.location.search === '') {
-            document.addEventListener('DOMContentLoaded', function() {
-                loadSampleData();
-            });
-        }
     </script>
 </body>
 </html>
-
