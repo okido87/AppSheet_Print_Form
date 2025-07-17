@@ -166,7 +166,7 @@
         }
 
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) {
-            const description = ${orderNumber || 'DH001'};
+            const description = orderNumber || '';
             const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder);
             document.getElementById('qr-image').src = qrUrl;
         }
