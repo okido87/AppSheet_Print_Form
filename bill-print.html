@@ -140,11 +140,35 @@
         
         .qr-code {
             margin: 10px 0;
+            position: relative;
+            min-height: 200px; /* Đảm bảo không gian cho QR và spinner */
         }
         
         .qr-code img {
             width: 200px;
             height: 200px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .qr-loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -20px;
+            margin-left: -20px;
+            z-index: 10;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .qr-info {
@@ -158,10 +182,29 @@
             margin-top: 15px;
             font-size: 10px;
             border-top: 1px dashed #000;
-            padding-top: 10px;
+            padding-t        .no-print {
+            display: none;
         }
-        
-        /* Print styles */
+
+        .print-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
         @media print {
             body {
                 margin: 0;
@@ -175,8 +218,7 @@
             .no-print {
                 display: none;
             }
-        }
-        
+        }        
         /* Responsive cho mobile */
         @media screen and (max-width: 480px) {
             body {
@@ -192,15 +234,11 @@
     </style>
 </head>
 <body>
-    <div class="bill-container">
-        <!-- Header công ty -->
-        <div class="company-header">
-            <div class="company-name">MICHI CAM</div>
+    <div class="bill-contai             <div class="company-name">MICHI CAMP</div>
             <div class="company-info">
-                ĐC: Thôn Tân Lai, Xã Hữu Liên, Tỉnh Lạng Sơn<br>
+                ĐC: Thôn Tân Lai, Xã Hữu Liên, Huyện Hữu Lũng, Tỉnh Lạng Sơn<br>
                 ĐT: 038.578.7699 Email: info@michicam.vn<br>
-            </div>
-        </div>
+            </div>          </div>
         
         <!-- Tiêu đề hóa đơn -->
         <div style="text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 15px;">
@@ -271,7 +309,8 @@
         <div class="qr-section">
             <div style="font-weight: bold; margin-bottom: 5px;">QUÉT MÃ CODE ĐỂ THANH TOÁN </div>
             <div class="qr-code">
-                <img id="qr-image" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y5ZjlmOSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjEiLz4KICA8dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UVIgQ29kZTwvdGV4dD4KPC9zdmc+" alt="QR Code">
+                <div id="qr-loading-spinner" class="qr-loading-spinner"></div>
+                <img id="qr-image" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y5ZjlmOSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjEiLz4KICA8dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UVIgQ29kZTwvdGV4dD4KPC9zdmc+" alt="QR Code" style="display: none;">
             </div>
         </div>
         
@@ -283,6 +322,7 @@
             </div>
         </div>
     </div>
+    <button class="print-button no-print" onclick="window.print()">IN HÓA ĐƠN</button>
     
     <!-- Thêm thư viện QR Code -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
@@ -397,12 +437,30 @@
         
         // Hàm cập nhật QR code
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) {
+            const qrImage = document.getElementById('qr-image');
+            const qrSpinner = document.getElementById('qr-loading-spinner');
+
+            qrImage.style.display = 'none'; // Ẩn QR code
+            qrSpinner.style.display = 'block'; // Hiển thị spinner
+
             const description = `Thanh toan don hang ${orderNumber || 'DH001'}`;
             const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder);
             
-            const qrImage = document.getElementById('qr-image');
-            qrImage.src = qrUrl;
-            qrImage.alt = 'VietQR Code';
+            // Sử dụng Promise để chờ ảnh load xong
+            const img = new Image();
+            img.onload = function() {
+                qrImage.src = qrUrl;
+                qrImage.alt = 'VietQR Code';
+                qrImage.style.display = 'block'; // Hiển thị QR code
+                qrSpinner.style.display = 'none'; // Ẩn spinner
+            };
+            img.onerror = function() {
+                console.error('Error loading QR code image.');
+                qrImage.style.display = 'none'; // Ẩn QR code
+                qrSpinner.style.display = 'none'; // Ẩn spinner
+                // Có thể hiển thị thông báo lỗi hoặc placeholder
+            };
+            img.src = qrUrl; // Bắt đầu tải ảnh
         }
         
         // Hàm parse dữ liệu sản phẩm từ JSON string
@@ -456,21 +514,20 @@
         // Hàm load dữ liệu từ URL parameters
         function loadDataFromUrl() {
             try {
-                // Thông tin đơn hàng từ bảng DonHang
-                const orderNumber = getUrlParameter('so_don_hang') || getUrlParameter('order_number');
-                const orderDate = getUrlParameter('ngay_dat') || getUrlParameter('order_date');
-                const customerName = getUrlParameter('khach_hang') || getUrlParameter('customer_name');
-                const updateDate = getUrlParameter('ngay_cap_nhat') || getUrlParameter('update_date');
-                const subtotal = getUrlParameter('thanh_tien') || getUrlParameter('subtotal');
-                const discount = getUrlParameter('giam_gia') || getUrlParameter('discount');
-                const totalAmount = getUrlParameter('tong_tien') || getUrlParameter('total_amount');
-                
+                // Thông tin đơn hàng từ bảng DonHang                const orderNumber = getUrlParameter("so_don_hang") || getUrlParameter("order_number");
+                const orderDate = getUrlParameter("ngay_dat") || getUrlParameter("order_date");
+                const customerName = getUrlParameter("khach_hang") || getUrlParameter("customer_name");
+                const subtotal = getUrlParameter("thanh_tien") || getUrlParameter("subtotal");
+                const discount = getUrlParameter("giam_gia") || getUrlParameter("discount");
+                const totalAmount = getUrlParameter("tong_tien") || getUrlParameter("total_amount");
+                const updateDate = getUrlParameter("ngay_cap_nhat") || getUrlParameter("update_date");
+
                 // Cập nhật thông tin đơn hàng
                 if (orderNumber) document.getElementById('order-number').textContent = orderNumber;
                 if (orderDate) document.getElementById('order-date').textContent = formatDate(orderDate);
                 if (customerName) document.getElementById('customer-name').textContent = customerName;
                 if (updateDate) document.getElementById('update-date').textContent = formatDate(updateDate);
-                
+
                 // Cập nhật tổng tiền
                 if (subtotal) document.getElementById('subtotal').textContent = formatCurrency(subtotal) + ' VNĐ';
                 if (discount) document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ';
@@ -479,27 +536,27 @@
                     // Cập nhật số tiền bằng chữ
                     document.getElementById('amount-words').textContent = numberToWords(parseInt(totalAmount));
                 }
-                
+
                 // Dữ liệu sản phẩm từ bảng CTDonHang
                 const productsData = getUrlParameter('products') || getUrlParameter('san_pham');
                 const products = parseProducts(productsData);
                 displayProducts(products);
-                
+
                 // Thông tin ngân hàng cho VietQR
                 const bankCode = getUrlParameter('bank_code') || '970415';
                 const bankName = getUrlParameter('bank_name') || 'VietinBank';
                 const accountNumber = getUrlParameter('account_number') || '102893157888';
                 const accountHolder = getUrlParameter('account_holder') || 'PHAM DUC HUY';
-                
+
                 if (bankName) document.getElementById('bank-name').textContent = bankName;
                 if (accountNumber) document.getElementById('account-number').textContent = accountNumber;
                 if (accountHolder) document.getElementById('account-holder').textContent = accountHolder;
-                
+
                 // Tạo VietQR
                 if (totalAmount) {
                     updateQRCode(totalAmount, orderNumber, bankCode, accountNumber, accountHolder);
                 }
-                
+
                 console.log('Data loaded successfully');
                 
             } catch (error) {
@@ -509,11 +566,9 @@
         
         // Hàm tự động in khi trang load xong (tùy chọn)
         function autoPrint() {
-            const autoPrintParam = getUrlParameter('auto_print');
-            if (autoPrintParam === 'true' || autoPrintParam === '1') {
-                setTimeout(() => {
-                    window.print();
-                }, 2000); // Delay 2 giây để đảm bảo QR code đã load
+            const autoPrintParam = getUrlParameter("auto_print");
+            if (autoPrintParam === "true" || autoPrintParam === "1") {
+                window.print();
             }
         }
         
@@ -527,41 +582,41 @@
         function loadSampleData() {
             const sampleProducts = [
                 {
-                    sanpham: 'Laptop Dell Inspiron 15',
-                    soluong: 1,
-                    dongia: 15000000,
-                    thanhtien: 15000000
-                },
-                {
-                    sanpham: 'Chuột không dây Logitech',
+                    sanpham: 'Cafe',
                     soluong: 2,
-                    dongia: 500000,
-                    thanhtien: 1000000
+                    dongia: 25000,
+                    thanhtien: 50000
                 },
                 {
-                    sanpham: 'Bàn phím cơ Gaming',
-                    soluong: 1,
-                    dongia: 2000000,
-                    thanhtien: 2000000
+                    sanpham: 'Sinh tố',
+                    soluong: 2,
+                    dongia: 30000,
+                    thanhtien: 60000
+                },
+                {
+                    sanpham: 'Dừa trái',
+                    soluong: 2,
+                    dongia: 35000,
+                    thanhtien: 70000
                 }
             ];
             
             // Cập nhật thông tin mẫu
-            document.getElementById('order-number').textContent = 'DH2024001';
-            document.getElementById('order-date').textContent = '15/01/2024';
-            document.getElementById('customer-name').textContent = 'Công ty TNHH ABC';
-            document.getElementById('update-date').textContent = '15/01/2024';
-            document.getElementById('subtotal').textContent = '18,000,000 VNĐ';
-            document.getElementById('discount').textContent = '500,000 VNĐ';
-            document.getElementById('total-amount').textContent = '17,500,000 VNĐ';
+            document.getElementById('order-number').textContent = 'DH0001';
+            document.getElementById('order-date').textContent = '17/07/2025';
+            document.getElementById('customer-name').textContent = 'EMS Solution';
+            document.getElementById('update-date').textContent = '17/07/2025';
+            document.getElementById('subtotal').textContent = formatCurrency(180000) + ' VNĐ';
+            document.getElementById('discount').textContent = formatCurrency(15000) + ' VNĐ';
+            document.getElementById('total-amount').textContent = formatCurrency(165000) + ' VNĐ';
             
             // Cập nhật số tiền bằng chữ
-            document.getElementById('amount-words').textContent = numberToWords(17500000);
+            document.getElementById('amount-words').textContent = numberToWords(165000);
             
             displayProducts(sampleProducts);
             
             // Tạo VietQR mẫu
-            updateQRCode(17500000, 'DH2024001', '970415', '102893157888', 'PHAM DUC HUY');
+            updateQRCode(165000, 'DH0001', '970415', '102893157888', 'PHAM DUC HUY');
         }
         
         // Load dữ liệu mẫu nếu không có tham số URL (để test)
@@ -573,3 +628,4 @@
     </script>
 </body>
 </html>
+
