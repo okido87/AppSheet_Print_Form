@@ -72,6 +72,7 @@
         <div class="qr-section">
             <div style="font-weight: bold; margin-bottom: 5px;">QUÉT MÃ ĐỂ THANH TOÁN</div>
             <div class="qr-code" id="qr-code-container"></div>
+            <!-- PHẦN QUAN TRỌNG: Các thẻ này phải tồn tại để JS có thể tìm thấy -->
             <div class="qr-info">
                 Ngân hàng: <span id="bank-name"></span><br>
                 Số tài khoản: <span id="account-number"></span><br>
@@ -118,37 +119,20 @@
             const scales = ['', 'nghìn', 'triệu', 'tỷ'];
             function convertHundreds(n) {
                 let result = '';
-                const h = Math.floor(n / 100);
-                const t = Math.floor((n % 100) / 10);
-                const o = n % 10;
+                const h = Math.floor(n / 100), t = Math.floor((n % 100) / 10), o = n % 10;
                 if (h > 0) result += ones[h] + ' trăm';
                 if (t > 0) {
                     if (h > 0) result += ' ';
-                    if (t === 1) {
-                        result += 'mười';
-                        if (o === 5) result += ' lăm';
-                        else if (o > 0) result += ' ' + ones[o];
-                    } else {
-                        result += tens[t];
-                        if (o === 1) result += ' mốt';
-                        else if (o === 5) result += ' lăm';
-                        else if (o > 0) result += ' ' + ones[o];
-                    }
-                } else if (o > 0) {
-                    if (h > 0) result += ' linh ';
-                    result += ones[o];
-                }
+                    if (t === 1) { result += 'mười'; if (o === 5) result += ' lăm'; else if (o > 0) result += ' ' + ones[o]; }
+                    else { result += tens[t]; if (o === 1) result += ' mốt'; else if (o === 5) result += ' lăm'; else if (o > 0) result += ' ' + ones[o]; }
+                } else if (o > 0) { if (h > 0) result += ' linh '; result += ones[o]; }
                 return result;
             }
-            let result = '';
-            let scaleIndex = 0;
+            let result = ''; let scaleIndex = 0;
             while (num > 0) {
                 const group = num % 1000;
-                if (group > 0) {
-                    result = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (result ? ' ' + result : '');
-                }
-                num = Math.floor(num / 1000);
-                scaleIndex++;
+                if (group > 0) { result = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (result ? ' ' + result : ''); }
+                num = Math.floor(num / 1000); scaleIndex++;
             }
             result = result.trim();
             return result.charAt(0).toUpperCase() + result.slice(1) + ' đồng';
@@ -159,32 +143,17 @@
             const tbody = document.getElementById('products-list');
             tbody.innerHTML = '';
             let products = [];
-            try {
-                if(productsJson) products = JSON.parse(decodeURIComponent(productsJson));
-            } catch (error) {
-                console.error('Lỗi khi phân tích JSON sản phẩm:', error);
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center">Lỗi dữ liệu sản phẩm</td></tr>';
-                return;
-            }
-            
-            if (!products || products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có sản phẩm</td></tr>';
-                return;
-            }
-            
+            try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); }
+            catch (error) { console.error('Lỗi JSON sản phẩm:', error); tbody.innerHTML = '<tr><td colspan="4" class="text-center">Lỗi dữ liệu sản phẩm</td></tr>'; return; }
+            if (!products || products.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có sản phẩm</td></tr>'; return; }
             products.forEach(p => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="product-name">${p.sanpham || p.product_name || ''}</td>
-                    <td class="text-center">${p.soluong || p.quantity || 0}</td>
-                    <td class="text-right">${formatCurrency(p.dongia || p.unit_price || 0)}</td>
-                    <td class="text-right">${formatCurrency(p.thanhtien || p.total_price || 0)}</td>
-                `;
+                row.innerHTML = `<td class="product-name">${p.sanpham||''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td>`;
                 tbody.appendChild(row);
             });
         }
 
-        // --- HÀM TẠO VIETQR VÀ IN ẤN (PHIÊN BẢN CẢI TIẾN) ---
+        // --- HÀM TẠO VIETQR VÀ IN ẤN ---
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) {
             return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`;
         }
@@ -192,28 +161,17 @@
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) {
             const qrContainer = document.getElementById('qr-code-container');
             qrContainer.innerHTML = '';
-
             if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) {
                 qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ để tạo mã QR.</div>';
                 return null;
             }
-            
-            // SỬA ĐỔI THEO YÊU CẦU: Chỉ dùng orderNumber cho nội dung chuyển khoản
             const description = orderNumber || '';
             const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder);
-            
-            console.log("URL VietQR được tạo:", qrUrl);
-
             const qrImage = new Image();
-            qrImage.width = 200;
-            qrImage.height = 200;
+            qrImage.width = 200; qrImage.height = 200;
             qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>';
-
             qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); };
-            qrImage.onerror = () => {
-                console.error("Không thể tải ảnh VietQR.");
-                qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.<br>Vui lòng kiểm tra lại thông tin hoặc thử lại sau.</div>';
-            };
+            qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.<br>Vui lòng thử lại sau.</div>'; };
             qrImage.src = qrUrl;
             return qrImage;
         }
@@ -221,25 +179,16 @@
         function autoPrint(qrImageElement) {
             const autoPrintParam = getUrlParameter('auto_print');
             if (autoPrintParam !== 'true' && autoPrintParam !== '1') return;
-
             const triggerPrint = () => setTimeout(() => window.print(), 500);
-            
-            if (!qrImageElement) {
-                triggerPrint();
-                return;
-            }
-            
-            if (qrImageElement.complete && qrImageElement.naturalHeight !== 0) {
-                triggerPrint();
-            } else {
-                qrImageElement.onload = triggerPrint;
-                qrImageElement.onerror = triggerPrint;
-            }
+            if (!qrImageElement) { triggerPrint(); return; }
+            if (qrImageElement.complete && qrImageElement.naturalHeight !== 0) triggerPrint();
+            else { qrImageElement.onload = triggerPrint; qrImageElement.onerror = triggerPrint; }
         }
 
         // --- HÀM CHÍNH ĐỂ TẢI DỮ LIỆU ---
         function loadDataFromUrl() {
             try {
+                // Đọc tất cả tham số từ URL
                 const orderNumber = getUrlParameter('so_don_hang');
                 const orderDate = getUrlParameter('ngay_dat');
                 const customerName = getUrlParameter('khach_hang');
@@ -251,7 +200,9 @@
                 const bankName = getUrlParameter('bank_name');
                 const accountNumber = getUrlParameter('account_number');
                 const accountHolder = getUrlParameter('account_holder');
+                const productsJson = getUrlParameter('products');
 
+                // Điền dữ liệu vào các thẻ HTML tương ứng
                 document.getElementById('order-number').textContent = orderNumber || 'N/A';
                 document.getElementById('order-date').textContent = formatDate(orderDate);
                 document.getElementById('customer-name').textContent = customerName || 'Khách lẻ';
@@ -260,18 +211,18 @@
                 document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ';
                 document.getElementById('total-amount').textContent = formatCurrency(totalAmount) + ' VNĐ';
                 document.getElementById('amount-words').textContent = numberToWords(totalAmount);
-                displayProducts(getUrlParameter('products'));
-                
                 document.getElementById('bank-name').textContent = bankName || 'N/A';
                 document.getElementById('account-number').textContent = accountNumber || 'N/A';
                 document.getElementById('account-holder').textContent = accountHolder || 'N/A';
+                
+                displayProducts(productsJson);
                 
                 const qrImageElement = updateQRCode(totalAmount, orderNumber, bankCode, accountNumber, accountHolder);
                 autoPrint(qrImageElement);
                 
             } catch (error) {
                 console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error);
-                document.body.innerHTML = `<h1>Lỗi tải dữ liệu hóa đơn</h1><p>${error.message}</p>`;
+                document.body.innerHTML = `<h1>${error.message}</h1><p>Đã xảy ra lỗi khi hiển thị hóa đơn. Vui lòng kiểm tra lại các tham số trên URL.</p>`;
             }
         }
         
