@@ -59,23 +59,26 @@
         .icon-print .paper { position: absolute; top: 4px; left: 6px; width: 12px; height: 4px; background: #eee; }
 
         /* =================================================================== */
-        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI)                                   */
+        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI) - KHÔI PHỤC ĐẦY ĐỦ                 */
         /* =================================================================== */
         body.format-80mm {
             font-family: 'Courier New', monospace; font-size: 12px;
-            width: 80mm; margin: 0 auto; padding: 6mm; color: #000; /* Tăng padding */
+            width: 80mm; margin: 0 auto; padding: 6mm; color: #000;
         }
-        .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+        .format-80mm .bill-container { display: block; }
+        .format-80mm .left-column, .format-80mm .right-column { width: 100%; }
+        .format-80mm .invoice-header { display: block; text-align: center; margin-bottom: 0; border-bottom: 1px dashed #000; padding-bottom: 10px; }
         .format-80mm .company-name { font-size: 16px; }
         .format-80mm .company-info { font-size: 10px; line-height: 1.2; }
+        .format-80mm .invoice-title-box { display: none; }
         .format-80mm .main-title-container { text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; }
-        .format-80mm .customer-details { margin-bottom: 15px; font-size: 11px; }
+        .format-80mm .customer-details { margin-top: 0; margin-bottom: 15px; font-size: 11px; }
         .format-80mm .customer-details-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
         .format-80mm .products-table { font-size: 10px; width: 100%; }
         .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; border-bottom: 1px solid #ddd; }
         .format-80mm .products-table th { border-bottom-width: 1px; border-color: #000; }
         .format-80mm .summary-section { margin-top: 15px; }
-        .format-80mm .totals-box { border-top: 1px dashed #000; padding-top: 10px; }
+        .format-80mm .totals-box { border-top: 1px dashed #000; padding-top: 10px; width: 100%; }
         .format-80mm .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
         .format-80mm .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
         .format-80mm .amount-in-words { font-size: 10px; font-style: italic; margin-top: 5px; text-align: center; }
@@ -96,6 +99,7 @@
         .format-a4 .company-header, .format-a5 .company-header { text-align: center; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
         .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; }
         .format-a4 .main-title-container, .format-a5 .main-title-container { text-align: center; margin: 25px 0; font-size: 2em; font-weight: bold; letter-spacing: 2px; color: #333; }
+        .format-a4 .invoice-title-box, .format-a5 .invoice-title-box { display: none; }
         .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 30px; margin-top: 20px; }
         .format-a4 .customer-details-row, .format-a5 .customer-details-row { display: flex; justify-content: space-between; padding: 5px 0; }
         .format-a4 .products-table, .format-a5 .products-table { border: 1px solid #ddd; border-radius: 5px; overflow: hidden; font-size: 0.9em; width: 100%; }
@@ -113,7 +117,8 @@
 
         /* --- A4 Specific Styles --- */
         body.format-a4 { font-size: 11pt; }
-        .format-a4 .bill-container { max-width: 190mm; padding: 16mm; }
+        .format-a4 .bill-container { max-width: 190mm; padding: 16mm; display: block; }
+        .format-a4 .left-column, .format-a4 .right-column { width: 100%; }
         .format-a4 .products-table th, .format-a4 .products-table td { padding: 12px 15px; }
         .format-a4 .qr-code img { width: 140px; height: 140px; }
         .format-a4 .total-row, .format-a4 .total-final { padding: 12px; }
@@ -121,6 +126,7 @@
         /* --- A5 Specific Styles --- */
         body.format-a5 { font-size: 9pt; }
         .format-a5 .bill-container { max-width: 280mm; padding: 10mm; }
+        .format-a5 .left-column, .format-a5 .right-column, .format-a5 .footer { width: 100%; }
         .format-a5 .products-table th, .format-a5 .products-table td { padding: 8px 10px; }
         .format-a5 .qr-code img { width: 110px; height: 110px; }
         .format-a5 .total-row, .format-a5 .total-final { padding: 8px; }
@@ -140,45 +146,57 @@
     </div>
 
     <div class="bill-container">
-        <!-- Cấu trúc đơn giản, một cột, CSS sẽ tự điều khiển bố cục -->
-        <div class="company-header">
-            <div class="company-name" id="ten_cong_ty"></div>
-            <div class="company-info">
-                ĐC: <span id="dia_chi"></span><br>
-                ĐT: <span id="so_dien_thoai"></span> | Email: <span id="email"></span>
-            </div>
-        </div>
-        <div class="main-title-container">HÓA ĐƠN BÁN HÀNG</div>
-        <div class="customer-details">
-            <div class="customer-details-row">
-                <span><span class="text-bold">Số ĐH:</span> <span id="order-number"></span></span>
-                <span><span class="text-bold">Ngày đặt:</span> <span id="order-date"></span></span>
-            </div>
-            <div class="customer-details-row">
-                <span><span class="text-bold">Khách hàng:</span> <span id="customer-name"></span></span>
-                <span><span class="text-bold">In lúc:</span> <span id="print-time"></span></span>
-            </div>
-        </div>
-        <table class="products-table">
-            <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
-            <tbody id="products-list"></tbody>
-        </table>
-        <div class="summary-section">
-            <div class="totals-box">
-                <div class="total-row"><span>Thành tiền:</span><span id="subtotal" class="text-right"></span></div>
-                <div class="total-row"><span>Giảm giá:</span><span id="discount" class="text-right"></span></div>
-                <div class="total-row total-final">
-                    <span class="text-bold">TỔNG CỘNG:</span>
-                    <span id="total-amount" class="text-right text-bold"></span>
+        <!-- Cấu trúc HTML đơn giản, CSS sẽ điều khiển bố cục -->
+        <div class="left-column">
+            <div class="invoice-header">
+                <div class="company-details">
+                    <div class="company-name" id="ten_cong_ty"></div>
+                    <div class="company-info">
+                        ĐC: <span id="dia_chi"></span><br>
+                        ĐT: <span id="so_dien_thoai"></span> | Email: <span id="email"></span>
+                    </div>
                 </div>
-                <div class="amount-in-words"><span class="text-bold">Bằng chữ:</span> <span id="amount-words"></span></div>
+                <div class="invoice-title-box">
+                    <h2>HÓA ĐƠN</h2>
+                    <span>BÁN HÀNG</span>
+                </div>
+            </div>
+            <div class="main-title-container">HÓA ĐƠN BÁN HÀNG</div>
+            <div class="customer-details">
+                <div class="customer-details-row">
+                    <span><span class="text-bold">Số ĐH:</span> <span id="order-number"></span></span>
+                    <span><span class="text-bold">Ngày đặt:</span> <span id="order-date"></span></span>
+                </div>
+                <div class="customer-details-row">
+                    <span><span class="text-bold">Khách hàng:</span> <span id="customer-name"></span></span>
+                    <span><span class="text-bold">In lúc:</span> <span id="print-time"></span></span>
+                </div>
             </div>
         </div>
-        <div class="payment-section">
-             <div class="payment-details"><div class="text-bold">QUÉT MÃ QR ĐỂ THANH TOÁN</div></div>
-             <div class="qr-code" id="qr-code-container"></div>
-             <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
+
+        <div class="right-column">
+            <table class="products-table">
+                <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
+                <tbody id="products-list"></tbody>
+            </table>
+            <div class="summary-section">
+                <div class="totals-box">
+                    <div class="total-row"><span>Thành tiền:</span><span id="subtotal" class="text-right"></span></div>
+                    <div class="total-row"><span>Giảm giá:</span><span id="discount" class="text-right"></span></div>
+                    <div class="total-row total-final">
+                        <span class="text-bold">TỔNG CỘNG:</span>
+                        <span id="total-amount" class="text-right text-bold"></span>
+                    </div>
+                    <div class="amount-in-words"><span class="text-bold">Bằng chữ:</span> <span id="amount-words"></span></div>
+                </div>
+            </div>
+            <div class="payment-section">
+                 <div class="payment-details"><div class="text-bold">QUÉT MÃ QR ĐỂ THANH TOÁN</div></div>
+                 <div class="qr-code" id="qr-code-container"></div>
+                 <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
+            </div>
         </div>
+
         <div class="footer">
             <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
             <div>Hotline: <span id="footer_so_dien_thoai"></span> | Website: <span id="website"></span></div>
@@ -186,20 +204,178 @@
     </div>
     
     <script>
-        // JavaScript không có thay đổi
-        function getUrlParameter(name) { const urlParams = new URLSearchParams(window.location.search); return urlParams.get(name) || ''; }
-        function cleanNumberString(s) { if (typeof s !== 'string') return String(s); return s.replace(/,/g, ''); }
-        function getBankCodeFromName(bankName) { if (!bankName) return null; const bankMap = { 'vietinbank': '970415', 'vcb': '970436', 'vietcombank': '970436', 'bidv': '970418', 'agribank': '970405', 'mbbank': '970422', 'mb': '970422', 'techcombank': '970407', 'tcb': '970407', 'acb': '970416', 'vpbank': '970432', 'tpbank': '970423' }; const formattedName = bankName.toLowerCase().replace(/\s/g, ''); return bankMap[formattedName] || null; }
-        function formatCurrency(amount) { const cleanAmount = cleanNumberString(amount); if (cleanAmount === null || cleanAmount === '' || isNaN(cleanAmount)) return '0'; return parseInt(cleanAmount).toLocaleString('vi-VN'); }
-        function formatDate(dateString) { if (!dateString) return new Date().toLocaleDateString('vi-VN'); try { const date = new Date(dateString); return isNaN(date) ? date.toLocaleDateString('vi-VN') : dateString; } catch (error) { return dateString; } }
-        function numberToWords(numStr) { const num = parseInt(cleanNumberString(numStr), 10); if (isNaN(num) || num === null) return 'Không đồng'; if (num === 0) return 'Không đồng'; const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'], tens = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'], scales = ['', 'nghìn', 'triệu', 'tỷ']; function convertHundreds(n) { let result = '', h = Math.floor(n / 100), t = Math.floor((n % 100) / 10), o = n % 10; if (h > 0) result += ones[h] + ' trăm'; if (t > 0) { if (h > 0) result += ' '; if (t === 1) { result += 'mười'; if (o === 5) result += ' lăm'; else if (o > 0) result += ' ' + ones[o]; } else { result += tens[t]; if (o === 1) result += ' mốt'; else if (o === 5) result += ' lăm'; else if (o > 0) result += ' ' + ones[o]; } } else if (o > 0) { if (h > 0) result += ' linh '; result += ones[o]; } return result; } let result = '', scaleIndex = 0, n = num; while (n > 0) { const group = n % 1000; if (group > 0) result = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (result ? ' ' + result : ''); n = Math.floor(n / 1000); scaleIndex++; } result = result.trim(); return result.charAt(0).toUpperCase() + result.slice(1) + ' đồng'; }
-        function displayProducts(productsJson) { const tbody = document.getElementById('products-list'); tbody.innerHTML = ''; let products = []; try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); } catch (error) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Lỗi dữ liệu sản phẩm</td></tr>'; return; } if (!products || products.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có sản phẩm</td></tr>'; return; } products.forEach(p => { const row = document.createElement('tr'); row.innerHTML = `<td class="product-name">${p.sanpham||''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td>`; tbody.appendChild(row); }); }
-        function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) { return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`; }
-        function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) { return new Promise((resolve, reject) => { const qrContainer = document.getElementById('qr-code-container'); if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) { qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>'; reject('Dữ liệu QR không hợp lệ'); return; } const description = orderNumber || ''; const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder); const qrImage = new Image(); qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>'; qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); resolve(); }; qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; reject('Lỗi tải ảnh QR'); }; qrImage.src = qrUrl; }); }
-        async function autoPrint(qrPromise) { try { await qrPromise; } catch (error) { console.error("Không thể tạo QR, nhưng vẫn tiếp tục in:", error); } setTimeout(() => window.print(), 500); }
-        function loadDataFromUrl() { try { const orderNumber = getUrlParameter('so_don_hang'), orderDate = getUrlParameter('ngay_dat'), customerName = getUrlParameter('khach_hang'); const subtotal = getUrlParameter('thanh_tien'), discount = getUrlParameter('giam_gia'), totalAmount = getUrlParameter('tong_tien'); const productsJson = getUrlParameter('products'); const bankName = getUrlParameter('bank_name'), accountNumber = getUrlParameter('account_number'), accountHolder = getUrlParameter('account_holder'); const tenCongTy = getUrlParameter('ten_cong_ty'), diaChi = getUrlParameter('dia_chi'), soDienThoai = getUrlParameter('so_dien_thoai'), email = getUrlParameter('email'), websiteRaw = getUrlParameter('website'); let finalWebsite = websiteRaw; try { if (websiteRaw && websiteRaw.startsWith('{') && websiteRaw.endsWith('}')) { const websiteObj = JSON.parse(websiteRaw); finalWebsite = websiteObj.Url || websiteRaw; } } catch (e) { /* Bỏ qua lỗi parse */ } const bankCode = getBankCodeFromName(bankName), cleanTotalAmount = cleanNumberString(totalAmount); document.getElementById('ten_cong_ty').textContent = tenCongTy || 'Tên Công Ty'; document.getElementById('dia_chi').textContent = diaChi || 'N/A'; document.getElementById('so_dien_thoai').textContent = soDienThoai || 'N/A'; document.getElementById('email').textContent = email || 'N/A'; document.getElementById('footer_so_dien_thoai').textContent = soDienThoai || 'N/A'; document.getElementById('website').textContent = finalWebsite || 'N/A'; document.getElementById('order-number').textContent = orderNumber || 'N/A'; document.getElementById('order-date').textContent = formatDate(orderDate); document.getElementById('customer-name').textContent = customerName || 'Khách lẻ'; document.getElementById('print-time').textContent = new Date().toLocaleString('vi-VN'); document.getElementById('subtotal').textContent = formatCurrency(subtotal) + ' VNĐ'; document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ'; document.getElementById('total-amount').textContent = formatCurrency(cleanTotalAmount) + ' VNĐ'; document.getElementById('amount-words').textContent = numberToWords(cleanTotalAmount); document.getElementById('bank-name').textContent = bankName || 'N/A'; document.getElementById('account-number').textContent = accountNumber || 'N/A'; document.getElementById('account-holder').textContent = accountHolder || 'N/A'; displayProducts(productsJson); return updateQRCode(cleanTotalAmount, orderNumber, bankCode, accountNumber, accountHolder); } catch (error) { console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error); document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`; return Promise.reject(error); } }
-        function changeFormat(format) { document.body.classList.remove('format-80mm', 'format-a4', 'format-a5'); document.body.classList.add('format-' + format); }
-        document.addEventListener('DOMContentLoaded', () => { const formatFromUrl = getUrlParameter('format'); const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : '80mm'; changeFormat(format); if (window.location.search.length > 1) { const qrPromise = loadDataFromUrl(); autoPrint(qrPromise); } else { document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn</h1><p>Vui lòng truy cập trang này thông qua AppSheet.</p>'; } });
+        // VIẾT LẠI ĐẦY ĐỦ CÁC HÀM JAVASCRIPT
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name) || '';
+        }
+        
+        function cleanNumberString(s) {
+            if (typeof s !== 'string') return String(s);
+            return s.replace(/,/g, '');
+        }
+
+        function getBankCodeFromName(bankName) {
+            if (!bankName) return null;
+            const bankMap = {
+                'vietinbank': '970415', 'vtb': '970415',
+                'vcb': '970436', 'vietcombank': '970436',
+                'bidv': '970418',
+                'agribank': '970405',
+                'mbbank': '970422', 'mb': '970422',
+                'techcombank': '970407', 'tcb': '970407',
+                'acb': '970416',
+                'vpbank': '970432',
+                'tpbank': '970423',
+                'sacombank': '970403'
+            };
+            const formattedName = bankName.toLowerCase().replace(/\s/g, '');
+            return bankMap[formattedName] || null;
+        }
+
+        function formatCurrency(amount) {
+            const cleanAmount = cleanNumberString(amount);
+            if (cleanAmount === null || cleanAmount === '' || isNaN(cleanAmount)) return '0';
+            return parseInt(cleanAmount).toLocaleString('vi-VN');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return new Date().toLocaleDateString('vi-VN');
+            try {
+                const date = new Date(dateString);
+                return isNaN(date) ? dateString : date.toLocaleDateString('vi-VN');
+            } catch (error) {
+                return dateString;
+            }
+        }
+        
+        function numberToWords(numStr) {
+            const num = parseInt(cleanNumberString(numStr), 10);
+            if (isNaN(num) || num === null) return 'Không đồng';
+            if (num === 0) return 'Không đồng';
+            const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'],
+                  tens = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'],
+                  scales = ['', 'nghìn', 'triệu', 'tỷ'];
+            function convertHundreds(n) {
+                let result = '';
+                const h = Math.floor(n / 100), t = Math.floor((n % 100) / 10), o = n % 10;
+                if (h > 0) { result += ones[h] + ' trăm'; }
+                if (t > 0) {
+                    if (h > 0) result += ' ';
+                    if (t === 1) { result += 'mười'; if (o === 5) result += ' lăm'; else if (o > 0) result += ' ' + ones[o]; } 
+                    else { result += tens[t]; if (o === 1) result += ' mốt'; else if (o === 5) result += ' lăm'; else if (o > 0) result += ' ' + ones[o]; }
+                } else if (o > 0) { if (h > 0) result += ' linh '; result += ones[o]; }
+                return result;
+            }
+            let result = '', scaleIndex = 0, n = num;
+            while (n > 0) {
+                const group = n % 1000;
+                if (group > 0) { result = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (result ? ' ' + result : ''); }
+                n = Math.floor(n / 1000); scaleIndex++;
+            }
+            result = result.trim();
+            return result.charAt(0).toUpperCase() + result.slice(1) + ' đồng';
+        }
+
+        function displayProducts(productsJson) {
+            const tbody = document.getElementById('products-list');
+            tbody.innerHTML = '';
+            let products = [];
+            try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); } 
+            catch (error) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Lỗi dữ liệu sản phẩm</td></tr>'; return; }
+            if (!products || products.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có sản phẩm</td></tr>'; return; }
+            products.forEach(p => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td class="product-name">${p.sanpham||''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) {
+            return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`;
+        }
+        
+        function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) {
+            return new Promise((resolve, reject) => {
+                const qrContainer = document.getElementById('qr-code-container');
+                if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) {
+                    qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>';
+                    reject('Dữ liệu QR không hợp lệ');
+                    return;
+                }
+                const description = orderNumber || '';
+                const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder);
+                const qrImage = new Image();
+                qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>';
+                qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); resolve(); };
+                qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; reject('Lỗi tải ảnh QR'); };
+                qrImage.src = qrUrl;
+            });
+        }
+        
+        async function autoPrint(qrPromise) {
+            try { await qrPromise; } 
+            catch (error) { console.error("Không thể tạo QR, nhưng vẫn tiếp tục in:", error); }
+            setTimeout(() => window.print(), 500);
+        }
+        
+        function loadDataFromUrl() {
+            try {
+                const orderNumber = getUrlParameter('so_don_hang'), orderDate = getUrlParameter('ngay_dat'), customerName = getUrlParameter('khach_hang');
+                const subtotal = getUrlParameter('thanh_tien'), discount = getUrlParameter('giam_gia'), totalAmount = getUrlParameter('tong_tien');
+                const productsJson = getUrlParameter('products');
+                const bankName = getUrlParameter('bank_name'), accountNumber = getUrlParameter('account_number'), accountHolder = getUrlParameter('account_holder');
+                const tenCongTy = getUrlParameter('ten_cong_ty'), diaChi = getUrlParameter('dia_chi'), soDienThoai = getUrlParameter('so_dien_thoai'), email = getUrlParameter('email'), websiteRaw = getUrlParameter('website');
+                
+                let finalWebsite = websiteRaw;
+                try { if (websiteRaw && websiteRaw.startsWith('{') && websiteRaw.endsWith('}')) { const websiteObj = JSON.parse(websiteRaw); finalWebsite = websiteObj.Url || websiteRaw; } } catch (e) { /* Bỏ qua lỗi parse */ }
+                
+                const bankCode = getBankCodeFromName(bankName), cleanTotalAmount = cleanNumberString(totalAmount);
+                
+                document.getElementById('ten_cong_ty').textContent = tenCongTy || 'Tên Công Ty';
+                document.getElementById('dia_chi').textContent = diaChi || 'N/A';
+                document.getElementById('so_dien_thoai').textContent = soDienThoai || 'N/A';
+                document.getElementById('email').textContent = email || 'N/A';
+                document.getElementById('footer_so_dien_thoai').textContent = soDienThoai || 'N/A';
+                document.getElementById('website').textContent = finalWebsite || 'N/A';
+                document.getElementById('order-number').textContent = orderNumber || 'N/A';
+                document.getElementById('order-date').textContent = formatDate(orderDate);
+                document.getElementById('customer-name').textContent = customerName || 'Khách lẻ';
+                document.getElementById('print-time').textContent = new Date().toLocaleString('vi-VN');
+                document.getElementById('subtotal').textContent = formatCurrency(subtotal) + ' VNĐ';
+                document.getElementById('discount').textContent = formatCurrency(discount) + ' VNĐ';
+                document.getElementById('total-amount').textContent = formatCurrency(cleanTotalAmount) + ' VNĐ';
+                document.getElementById('amount-words').textContent = numberToWords(cleanTotalAmount);
+                document.getElementById('bank-name').textContent = bankName || 'N/A';
+                document.getElementById('account-number').textContent = accountNumber || 'N/A';
+                document.getElementById('account-holder').textContent = accountHolder || 'N/A';
+                
+                displayProducts(productsJson);
+                
+                return updateQRCode(cleanTotalAmount, orderNumber, bankCode, accountNumber, accountHolder);
+            } catch (error) {
+                console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error);
+                document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`;
+                return Promise.reject(error);
+            }
+        }
+        
+        function changeFormat(format) {
+            document.body.classList.remove('format-80mm', 'format-a4', 'format-a5');
+            document.body.classList.add('format-' + format);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const formatFromUrl = getUrlParameter('format');
+            const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : '80mm';
+            changeFormat(format);
+            if (window.location.search.length > 1) {
+                const qrPromise = loadDataFromUrl();
+                autoPrint(qrPromise);
+            } else {
+                document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn</h1><p>Vui lòng truy cập trang này thông qua AppSheet.</p>';
+            }
+        });
     </script>
 </body>
 </html>
