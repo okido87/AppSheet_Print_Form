@@ -70,9 +70,9 @@
             width: 80mm; margin: 0 auto; color: #000;
         }
         .format-80mm .bill-container { padding: 6mm; }
-        .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
         .format-80mm .logo { display: block; max-width: 50px; margin: 0 auto 10px; }
-        .format-80mm .company-details { text-align: center; }
+        .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+        .format-80mm .order-qr-code { display: none; }
         .format-80mm .company-name { font-size: 16px; }
         .format-80mm .company-info { font-size: 10px; line-height: 1.2; }
         .format-80mm .main-title-container { text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; }
@@ -105,7 +105,8 @@
         .format-a4 .bill-container, .format-a5 .bill-container {
             margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .format-a4 .company-header, .format-a5 .company-header { text-align: center; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
+        .format-a4 .company-header, .format-a5 .company-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
+        .format-a4 .logo, .format-a5 .logo { max-width: 60px; }
         .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; }
         .format-a4 .main-title-container, .format-a5 .main-title-container { text-align: center; margin: 25px 0; font-size: 2em; font-weight: bold; letter-spacing: 2px; color: #333; }
         .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 20px; margin-top: 20px; }
@@ -153,7 +154,6 @@
     </div>
 
     <div class="bill-container">
-        <!-- Cấu trúc HTML đơn giản, một cột, CSS sẽ tự điều khiển bố cục -->
         <div class="company-header">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo">
@@ -209,7 +209,7 @@
         </div>
         <div class="footer">
             <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
-            <div>☎️: <span id="footer_so_dien_thoai"></span> | 🌐: <span id="website"></span></div>
+            <div>☎️ <span id="footer_so_dien_thoai"></span> | 🌐 <span id="website"></span></div>
         </div>
     </div>
     
