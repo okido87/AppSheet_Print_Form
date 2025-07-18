@@ -14,10 +14,22 @@
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; }
             .no-print { display: none !important; }
-            body, .bill-container { margin: 0 !important; padding: 0 !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; border: none !important; }
+
+            /* SỬA LỖI: Reset toàn bộ margin, padding, shadow để nội dung fill trang in */
+            body, .bill-container {
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                border: none !important;
+            }
+
+            /* SỬA LỖI: Định nghĩa khổ giấy và lề vật lý DUY NHẤT cho máy in */
             @page a4-portrait { size: A4 portrait; margin: 16mm; }
             @page a5-landscape { size: A5 landscape; margin: 8mm; }
             @page receipt-80mm { size: 80mm auto; margin: 0; }
+            
             body.format-a4 { page: a4-portrait; }
             body.format-a5 { page: a5-landscape; }
             body.format-80mm { page: receipt-80mm; }
@@ -60,7 +72,7 @@
         .format-80mm .bill-container { padding: 6mm; }
         .format-80mm .logo { display: block; max-width: 50px; margin: 0 auto 10px; }
         .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-        .format-80mm .order-qr-code { display: none; } /* Ẩn QR đơn hàng */
+        .format-80mm .order-qr-code { display: none; }
         .format-80mm .company-name { font-size: 16px; }
         .format-80mm .company-info { font-size: 10px; line-height: 1.2; }
         .format-80mm .main-title-container { text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; }
@@ -90,7 +102,9 @@
         body.format-a4, body.format-a5 {
             font-family: Arial, sans-serif;
         }
-        .format-a4 .bill-container, .format-a5 .bill-container { margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .format-a4 .bill-container, .format-a5 .bill-container {
+            margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
         .format-a4 .company-header, .format-a5 .company-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
         .format-a4 .logo, .format-a5 .logo { max-width: 60px; }
         .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; }
