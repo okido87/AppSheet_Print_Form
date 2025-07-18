@@ -14,22 +14,10 @@
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; }
             .no-print { display: none !important; }
-
-            /* SỬA LỖI: Reset toàn bộ margin, padding, shadow để nội dung fill trang in */
-            body, .bill-container {
-                margin: 0 !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                border: none !important;
-            }
-
-            /* SỬA LỖI: Định nghĩa khổ giấy và lề vật lý DUY NHẤT cho máy in */
-            @page a4-portrait { size: A4 portrait; margin: 12mm; }
+            body, .bill-container { margin: 0 !important; padding: 0 !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; border: none !important; }
+            @page a4-portrait { size: A4 portrait; margin: 16mm; }
             @page a5-landscape { size: A5 landscape; margin: 8mm; }
             @page receipt-80mm { size: 80mm auto; margin: 0; }
-            
             body.format-a4 { page: a4-portrait; }
             body.format-a5 { page: a5-landscape; }
             body.format-80mm { page: receipt-80mm; }
@@ -63,7 +51,7 @@
         .product-note { font-size: 0.9em; color: #555; font-style: italic; }
 
         /* =================================================================== */
-        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI)                                   */
+        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI) - KHÔI PHỤC ĐẦY ĐỦ                 */
         /* =================================================================== */
         body.format-80mm {
             font-family: 'Courier New', monospace; font-size: 12px;
@@ -154,6 +142,7 @@
     </div>
 
     <div class="bill-container">
+        <!-- Cấu trúc HTML đơn giản, một cột, CSS sẽ tự điều khiển bố cục -->
         <div class="company-header">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo">
@@ -209,7 +198,7 @@
         </div>
         <div class="footer">
             <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
-            <div>☎️ <span id="footer_so_dien_thoai"></span> | 🌐 <span id="website"></span></div>
+            <div>Hotline: <span id="footer_so_dien_thoai"></span> | Website: <span id="website"></span></div>
         </div>
     </div>
     
