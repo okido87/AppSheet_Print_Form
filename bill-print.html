@@ -14,9 +14,9 @@
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
-            @page a4-portrait { size: A4 portrait; margin: 12mm; }
+            @page a4-portrait { size: A4 portrait; margin: 16mm; }
             @page a5-landscape { size: A5 landscape; margin: 8mm; }
-            @page receipt-80mm { size: 80mm auto; margin: 1; }
+            @page receipt-80mm { size: 80mm auto; margin: 0; }
             body.format-a4 { page: a4-portrait; }
             body.format-a5 { page: a5-landscape; }
             body.format-80mm { page: receipt-80mm; }
@@ -69,7 +69,8 @@
         .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; border-bottom: 1px solid #ddd; }
         .format-80mm .products-table .col-dvt, .format-80mm .products-table .col-ghi-chu { display: none; }
         .format-80mm .products-table th { border-bottom-width: 1px; border-color: #000; }
-        .format-80mm .bottom-section { display: block; }
+        .format-80mm .bottom-section { display: block; } /* Reset layout */
+        .format-80mm .left-bottom-section, .format-80mm .right-bottom-section { width: 100%; }
         .format-80mm .totals-box { border-top: 1px dashed #000; padding-top: 10px; }
         .format-80mm .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
         .format-80mm .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
@@ -97,6 +98,8 @@
         .format-a4 .products-table thead tr, .format-a5 .products-table thead tr { background-color: #0056b3; color: white; }
         .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; }
         .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        
+        /* SỬA ĐỔI: Bố cục mới cho phần dưới */
         .format-a4 .bottom-section, .format-a5 .bottom-section { display: flex; justify-content: space-between; margin-top: 20px; gap: 30px; }
         .format-a4 .left-bottom-section, .format-a5 .left-bottom-section { width: 40%; text-align: center; }
         .format-a4 .right-bottom-section, .format-a5 .right-bottom-section { width: 60%; }
@@ -157,7 +160,7 @@
             </div>
         </div>
         <table class="products-table">
-            <thead><tr><th class="product-name">Sản Phẩm</th><th class="col-dvt text-center">ĐVT</th><th class="text-center">Số Lượng</th><th class="text-right">Đơn Giá</th><th class="text-right">Thành Tiền</th><th class="col-ghi-chu text-center">Ghi Chú</th></tr></thead>
+            <thead><tr><th class="product-name">Sản Phẩm</th><th class="col-dvt text-center">ĐVT</th><th class="text-center">Số Lượng</th><th class="text-right">Đơn Giá</th><th class="text-right">Thành Tiền</th></tr></thead>
             <tbody id="products-list"></tbody>
         </table>
         <div class="bottom-section">
@@ -168,7 +171,7 @@
                      <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
                 </div>
                  <div class="notes-section" id="notes-container" style="display: none;">
-                    <span class="text-bold">Ghi Chú:</span>
+                    <span class="text-bold">Ghi Chú Chung:</span>
                     <span id="ghi_chu"></span>
                 </div>
             </div>
@@ -177,7 +180,7 @@
                     <div class="totals-box">
                         <div class="total-row"><span>Thành Tiền:</span><span id="subtotal" class="text-right"></span></div>
                         <div class="total-row"><span>Giảm Giá:</span><span id="discount" class="text-right"></span></div>
-                        <div class="total-row"><span>Tổng Tiền Sau CK:</span><span id="total-after-discount" class="text-right"></span></div>
+                        <div class="total-row"><span>Tổng Tiền Sau Chiết Khấu:</span><span id="total-after-discount" class="text-right"></span></div>
                         <div class="total-row"><span>VAT (<span id="vat-percent"></span>):</span><span id="vat-amount" class="text-right"></span></div>
                         <div class="total-row total-final"><span class="text-bold">Phải Thanh Toán:</span><span id="total-after-vat" class="text-right text-bold"></span></div>
                         <div class="amount-in-words"><span class="text-bold">Bằng Chữ:</span> <span id="amount-words"></span></div>
@@ -187,7 +190,7 @@
         </div>
         <div class="footer">
             <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
-            <div>☎️ <span id="footer_so_dien_thoai"></span> | 🌐 <span id="website"></span></div>
+            <div>Hotline: <span id="footer_so_dien_thoai"></span> | Website: <span id="website"></span></div>
         </div>
     </div>
     
@@ -214,7 +217,7 @@
         }
         function formatDate(dateString) {
             if (!dateString) return new Date().toLocaleDateString('vi-VN');
-            try { const date = new Date(dateString); return isNaN(date) ? dateString : date.toLocaleDateString('vi-VN'); }
+            try { const date = new Date(dateString); return isNaN(date) ? date.toLocaleDateString('vi-VN') : dateString; }
             catch (error) { return dateString; }
         }
         function numberToWords(numStr) {
@@ -235,9 +238,15 @@
         }
         function displayProducts(productsJson) {
             const tbody = document.getElementById('products-list'); tbody.innerHTML = ''; let products = [];
-            try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); } catch (error) { tbody.innerHTML = '<tr><td colspan="6" class="text-center">Lỗi dữ liệu sản phẩm. Vui lòng kiểm tra công thức JSON trong AppSheet.</td></tr>'; console.error("JSON Parse Error:", error); return; }
+            try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); } catch (error) { tbody.innerHTML = '<tr><td colspan="6" class="text-center">Lỗi dữ liệu sản phẩm. Vui lòng kiểm tra công thức JSON trong AppSheet.</td></tr>'; console.error("JSON Parse Error:", error, "Input:", decodeURIComponent(productsJson)); return; }
             if (!products || products.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không có sản phẩm</td></tr>'; return; }
-            products.forEach(p => { const row = document.createElement('tr'); row.innerHTML = `<td class="product-name">${p.sanpham||''}</td><td class="col-dvt text-center">${p.dvt || ''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td><td class="col-ghi-chu">${p.ghi_chu || ''}</td>`; tbody.appendChild(row); });
+            products.forEach(p => {
+                const row = document.createElement('tr');
+                let noteHtml = '';
+                if (p.ghi_chu) { noteHtml = `<div class="product-note">Ghi chú: ${p.ghi_chu}</div>`; }
+                row.innerHTML = `<td class="product-name">${p.sanpham||''}${noteHtml}</td><td class="col-dvt text-center">${p.dvt || ''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td><td class="col-ghi-chu">${p.ghi_chu || ''}</td>`;
+                tbody.appendChild(row);
+            });
         }
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) { return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`; }
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) { return new Promise((resolve, reject) => { const qrContainer = document.getElementById('qr-code-container'); if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) { qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>'; reject('Dữ liệu QR không hợp lệ'); return; } const description = orderNumber || ''; const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder); const qrImage = new Image(); qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>'; qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); resolve(); }; qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; reject('Lỗi tải ảnh QR'); }; qrImage.src = qrUrl; }); }
