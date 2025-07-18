@@ -15,7 +15,7 @@
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; }
             .no-print { display: none !important; }
 
-            /* Reset toàn bộ margin, padding, shadow để nội dung fill trang in */
+            /* SỬA LỖI: Reset toàn bộ margin, padding, shadow để nội dung fill trang in */
             body, .bill-container {
                 margin: 0 !important;
                 padding: 0 !important;
@@ -24,7 +24,7 @@
                 max-width: 100% !important;
             }
 
-            /* Định nghĩa khổ giấy và lề vật lý cho máy in */
+            /* SỬA LỖI: Định nghĩa khổ giấy và lề vật lý DUY NHẤT cho máy in */
             @page a4-portrait { size: A4 portrait; margin: 16mm; }
             @page a5-landscape { size: A5 landscape; margin: 8mm; }
             @page receipt-80mm { size: 80mm auto; margin: 0; }
@@ -174,7 +174,7 @@
             </div>
         </div>
         <table class="products-table">
-            <thead><tr><th class="product-name">Sản Phẩm</th><th class="col-dvt text-center">ĐVT</th><th class="text-center">Số Lượng</th><th class="text-right">Đơn Giá</th><th class="text-right">Thành Tiền</th><th class="text-right">Ghi chú</th></tr></thead>
+            <thead><tr><th class="product-name">Sản Phẩm</th><th class="col-dvt text-center">ĐVT</th><th class="text-center">Số Lượng</th><th class="text-right">Đơn Giá</th><th class="text-right">Thành Tiền</th><th class="col-ghi-chu text-center">Ghi Chú</th></tr></thead>
             <tbody id="products-list"></tbody>
         </table>
         <div class="bottom-section">
@@ -184,7 +184,8 @@
                      <div class="qr-code" id="qr-code-container"></div>
                      <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
                 </div>
-                 <div class="notes-section" id="notes-container" style="display: none;">
+                 <!-- SỬA LỖI: Sửa lại logic hiển thị ghi chú -->
+                 <div class="notes-section">
                     <span class="text-bold">Ghi Chú:</span>
                     <span id="ghi_chu"></span>
                 </div>
@@ -204,7 +205,7 @@
         </div>
         <div class="footer">
             <div>Cảm ơn quý khách đã sử dụng dịch vụ!</div>
-            <div>Hotl☎️ <span id="footer_so_dien_thoai"></span> | 🌐 <span id="website"></span></div>
+            <div>Hotline: <span id="footer_so_dien_thoai"></span> | Website: <span id="website"></span></div>
         </div>
     </div>
     
@@ -288,7 +289,7 @@
                 document.getElementById('vat-amount').textContent = formatCurrency(vatAmount) + ' VNĐ';
                 document.getElementById('total-after-vat').textContent = formatCurrency(totalAfterVat) + ' VNĐ';
                 document.getElementById('amount-words').textContent = numberToWords(totalAfterVat);
-                if (notes) { document.getElementById('notes-container').style.display = 'block'; document.getElementById('ghi_chu').textContent = notes; }
+                document.getElementById('ghi_chu').textContent = notes || 'Không có';
                 document.getElementById('bank-name').textContent = bankName || 'N/A';
                 document.getElementById('account-number').textContent = accountNumber || 'N/A';
                 document.getElementById('account-holder').textContent = accountHolder || 'N/A';
