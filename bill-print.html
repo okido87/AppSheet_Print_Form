@@ -33,20 +33,9 @@
         .text-bold { font-weight: bold; }
         .company-name { font-weight: bold; }
         .error-message { color: red; font-size: 0.8em; padding: 10px; border: 1px dashed red; }
-
-        /* Nút bấm tùy chọn */
         .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .print-options button {
-            margin: 0 5px; padding: 8px 12px; height: 44px;
-            cursor: pointer; border: none; border-radius: 5px; color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: all 0.2s ease-in-out;
-            display: inline-flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 14px; gap: 8px;
-        }
-        .print-options button:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: translateY(-2px); filter: brightness(1.1);
-        }
+        .print-options button { margin: 0 5px; padding: 8px 12px; height: 44px; cursor: pointer; border: none; border-radius: 5px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; gap: 8px; }
+        .print-options button:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: translateY(-2px); filter: brightness(1.1); }
         .print-options button.btn-80mm { background-color: #007bff; }
         .print-options button.btn-a4 { background-color: #28a745; }
         .print-options button.btn-a5 { background-color: #ffc107; }
@@ -66,6 +55,7 @@
             font-family: 'Courier New', monospace; font-size: 12px;
             width: 80mm; margin: 0 auto; padding: 6mm; color: #000;
         }
+        .format-80mm .bill-container { display: block; }
         .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
         .format-80mm .company-name { font-size: 16px; }
         .format-80mm .company-info { font-size: 10px; line-height: 1.2; }
@@ -77,7 +67,8 @@
         .format-80mm .products-table { font-size: 10px; width: 100%; }
         .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; border-bottom: 1px solid #ddd; }
         .format-80mm .products-table th { border-bottom-width: 1px; border-color: #000; }
-        .format-80mm .summary-section { margin-top: 15px; }
+        .format-80mm .bottom-section { display: block; }
+        .format-80mm .left-bottom-section, .format-80mm .right-bottom-section { width: 100%; }
         .format-80mm .totals-box { border-top: 1px dashed #000; padding-top: 10px; }
         .format-80mm .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
         .format-80mm .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
@@ -87,16 +78,15 @@
         .format-80mm .qr-code { margin-top: 5px; }
         .format-80mm .qr-code img { width: 180px; height: 180px; }
         .format-80mm .footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 10px; }
-        .format-80mm .bottom-section { display: block; }
         
         /* =================================================================== */
-        /* 4. ĐỊNH DẠNG A4 & A5 (HÓA ĐƠN CHUYÊN NGHIỆP)                        */
+        /* 4. ĐỊNH DẠNG A4 & A5 (HÓA ĐƠN CHUYÊN NGHIỆP) - KHÔI PHỤC ĐẦY ĐỦ     */
         /* =================================================================== */
         body.format-a4, body.format-a5 {
             font-family: Arial, sans-serif;
         }
         .format-a4 .bill-container, .format-a5 .bill-container {
-            margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: block;
         }
         .format-a4 .company-header, .format-a5 .company-header { text-align: center; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
         .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; }
@@ -108,22 +98,22 @@
         .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; }
         .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
         .format-a4 .bottom-section, .format-a5 .bottom-section { display: flex; justify-content: space-between; margin-top: 20px; gap: 30px; }
-        .format-a4 .left-bottom-section, .format-a5 .left-bottom-section { width: 60%; }
-        .format-a4 .right-bottom-section, .format-a5 .right-bottom-section { width: 40%; text-align: center; }
+        .format-a4 .left-bottom-section, .format-a5 .left-bottom-section { width: 40%; text-align: center; } /* Đảo lại: QR bên trái */
+        .format-a4 .right-bottom-section, .format-a5 .right-bottom-section { width: 60%; } /* Đảo lại: Tổng tiền bên phải */
         .format-a4 .totals-box, .format-a5 .totals-box { width: 100%; }
         .format-a4 .total-row, .format-a5 .total-row { border-bottom: 1px solid #eee; display: flex; justify-content: space-between;}
         .format-a4 .total-row span:first-child, .format-a5 .total-row span:first-child { color: #555; }
         .format-a4 .total-final, .format-a5 .total-final { display: flex; justify-content: space-between; background-color: #f8f9fa; }
         .format-a4 .total-final span, .format-a5 .total-final span { font-size: 1.2em; font-weight: bold; color: #0056b3; }
-        .format-a4 .notes-section, .format-a5 .notes-section { margin-top: 20px; font-style: italic; font-size: 0.9em; }
+        .format-a4 .notes-section, .format-a5 .notes-section { margin-top: 20px; font-style: italic; font-size: 0.9em; text-align: left; }
         .format-a4 .footer, .format-a5 .footer { clear: both; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; text-align: center; }
 
         /* --- A4 Specific Styles --- */
         body.format-a4 { font-size: 11pt; }
         .format-a4 .bill-container { max-width: 190mm; padding: 16mm; }
-        .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; }
+        .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; } /* Giảm padding */
         .format-a4 .qr-code img { width: 140px; height: 140px; }
-        .format-a4 .total-row, .format-a4 .total-final { padding: 10px; }
+        .format-a4 .total-row, .format-a4 .total-final { padding: 10px; } /* Giảm padding */
 
         /* --- A5 Specific Styles --- */
         body.format-a5 { font-size: 9pt; }
@@ -168,10 +158,21 @@
             <thead><tr><th class="product-name">Sản phẩm</th><th class="text-center">SL</th><th class="text-right">Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
             <tbody id="products-list"></tbody>
         </table>
-        
+
         <!-- SỬA ĐỔI: Bố cục mới cho phần dưới -->
         <div class="bottom-section">
             <div class="left-bottom-section">
+                <div class="payment-section">
+                     <div class="payment-details"><div class="text-bold">QUÉT MÃ QR ĐỂ THANH TOÁN</div></div>
+                     <div class="qr-code" id="qr-code-container"></div>
+                     <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
+                </div>
+                 <div class="notes-section" id="notes-container" style="display: none;">
+                    <span class="text-bold">Ghi chú:</span>
+                    <span id="ghi_chu"></span>
+                </div>
+            </div>
+            <div class="right-bottom-section">
                 <div class="summary-section">
                     <div class="totals-box">
                         <div class="total-row"><span>Thành tiền:</span><span id="subtotal" class="text-right"></span></div>
@@ -181,17 +182,6 @@
                         <div class="total-row total-final"><span class="text-bold">PHẢI THANH TOÁN:</span><span id="total-after-vat" class="text-right text-bold"></span></div>
                         <div class="amount-in-words"><span class="text-bold">Bằng chữ:</span> <span id="amount-words"></span></div>
                     </div>
-                </div>
-                <div class="notes-section" id="notes-container" style="display: none;">
-                    <span class="text-bold">Ghi chú:</span>
-                    <span id="ghi_chu"></span>
-                </div>
-            </div>
-            <div class="right-bottom-section">
-                <div class="payment-section">
-                     <div class="payment-details"><div class="text-bold">QUÉT MÃ QR ĐỂ THANH TOÁN</div></div>
-                     <div class="qr-code" id="qr-code-container"></div>
-                     <div class="qr-info" style="display: none;"><span id="bank-name"></span> / <span id="account-number"></span> / <span id="account-holder"></span></div>
                 </div>
             </div>
         </div>
