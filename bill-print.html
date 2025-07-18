@@ -60,7 +60,7 @@
         .format-80mm .bill-container { padding: 6mm; }
         .format-80mm .logo { display: block; max-width: 50px; margin: 0 auto 10px; }
         .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-        .format-80mm .invoice-title-box { display: none; } /* Ẩn QR đơn hàng */
+        .format-80mm .order-qr-code { display: none; } /* Ẩn QR đơn hàng */
         .format-80mm .company-name { font-size: 16px; }
         .format-80mm .company-info { font-size: 10px; line-height: 1.2; }
         .format-80mm .main-title-container { text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; }
@@ -118,19 +118,13 @@
         .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; }
         .format-a4 .qr-code img { width: 140px; height: 140px; }
         .format-a4 .total-row, .format-a4 .total-final { padding: 10px; }
-        .format-a4 .invoice-title-box { text-align: right; }
-        .format-a4 .invoice-title-box h2 { font-size: 2.8em; color: #333; margin: 0; line-height: 1; }
-        .format-a4 .order-qr-code { margin-top: 10px; }
         .format-a4 .order-qr-code img { width: 80px; height: 80px; }
 
         /* --- A5 Specific Styles --- */
         body.format-a5 { font-size: 9pt; }
         .format-a5 .bill-container { max-width: 280mm; padding: 10mm; }
-        .format-a5 .main-title-container { display: none; }
-        .format-a5 .invoice-title-box { text-align: right; }
-        .format-a5 .invoice-title-box h2 { font-size: 2em; color: #333; margin: 0 0 10px 0; line-height: 1; }
-        .format-a5 .qr-code img { width: 120px; height: 120px; }
         .format-a5 .products-table th, .format-a5 .products-table td { padding: 8px 10px; }
+        .format-a5 .qr-code img { width: 120px; height: 120px; }
         .format-a5 .total-row, .format-a5 .total-final { padding: 8px; }
 
     </style>
@@ -147,18 +141,17 @@
 
     <div class="bill-container">
         <div class="company-header">
-            <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo">
-            <div class="company-details">
-                <div class="company-name" id="ten_cong_ty"></div>
-                <div class="company-info">
-                    ĐC: <span id="dia_chi"></span><br>
-                    ĐT: <span id="so_dien_thoai"></span> | Email: <span id="email"></span>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo">
+                <div class="company-details">
+                    <div class="company-name" id="ten_cong_ty"></div>
+                    <div class="company-info">
+                        ĐC: <span id="dia_chi"></span><br>
+                        ĐT: <span id="so_dien_thoai"></span> | Email: <span id="email"></span>
+                    </div>
                 </div>
             </div>
-            <div class="invoice-title-box">
-                <h2>HÓA ĐƠN BÁN HÀNG</h2>
-                <div class="order-qr-code" id="order-qr-code"></div>
-            </div>
+            <div class="order-qr-code" id="order-qr-code"></div>
         </div>
         <div class="main-title-container">HÓA ĐƠN BÁN HÀNG</div>
         <div class="customer-details">
@@ -229,7 +222,7 @@
         }
         function formatDate(dateString) {
             if (!dateString) return new Date().toLocaleDateString('vi-VN');
-            try { const date = new Date(dateString); return isNaN(date) ? dateString : date.toLocaleDateString('vi-VN'); }
+            try { const date = new Date(dateString); return isNaN(date) ? date.toLocaleDateString('vi-VN') : dateString; }
             catch (error) { return dateString; }
         }
         function numberToWords(numStr) {
@@ -256,8 +249,6 @@
         }
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) { return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`; }
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) { return new Promise((resolve, reject) => { const qrContainer = document.getElementById('qr-code-container'); if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) { qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>'; reject('Dữ liệu QR không hợp lệ'); return; } const description = orderNumber || ''; const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder); const qrImage = new Image(); qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>'; qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); resolve(); }; qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; reject('Lỗi tải ảnh QR'); }; qrImage.src = qrUrl; }); }
-        
-        // SỬA ĐỔI: Thêm hàm tạo QR cho số đơn hàng
         function displayOrderQRCode(orderNumber) {
             const container = document.getElementById('order-qr-code');
             if (container && orderNumber) {
@@ -266,7 +257,6 @@
                 container.appendChild(qrImg);
             }
         }
-        
         async function autoPrint(qrPromise) { try { await qrPromise; } catch (error) { console.error("Không thể tạo QR, nhưng vẫn tiếp tục in:", error); } setTimeout(() => window.print(), 500); }
         function loadDataFromUrl() {
             try {
@@ -302,7 +292,7 @@
                 document.getElementById('account-number').textContent = accountNumber || 'N/A';
                 document.getElementById('account-holder').textContent = accountHolder || 'N/A';
                 displayProducts(productsJson);
-                displayOrderQRCode(orderNumber); // Gọi hàm mới
+                displayOrderQRCode(orderNumber);
                 return updateQRCode(cleanNumberString(totalAfterVat), orderNumber, bankCode, accountNumber, accountHolder);
             } catch (error) { console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error); document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`; return Promise.reject(error); }
         }
