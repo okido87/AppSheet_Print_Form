@@ -18,63 +18,50 @@
     margin: 0 !important;
     padding: 0 !important;
     height: 100% !important;
-    width: 100% !important;
     overflow: hidden !important;
+    background: white !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    background: white !important;
   }
 
-  .no-print {
+  .no-print, .print-options {
     display: none !important;
   }
 
   body, .bill-container {
     margin: 0 !important;
     padding: 0 !important;
+    border: none !important;
     box-shadow: none !important;
     width: 100% !important;
     max-width: 100% !important;
-    border: none !important;
     height: auto !important;
     page-break-before: avoid !important;
     page-break-after: avoid !important;
     page-break-inside: avoid !important;
   }
 
+  /* Chọn khổ giấy theo class */
+  body.format-a4 {
+    width: 210mm;
+    height: 297mm;
+  }
+
+  body.format-a5 {
+    width: 210mm;
+    height: 148mm;
+  }
+
+  body.format-80mm {
+    width: 80mm;
+    height: auto;
+  }
+
   @page {
     size: auto;
     margin: 0;
   }
-
-  @page a4-portrait {
-    size: A4 portrait;
-    margin: 0;
-  }
-
-  @page a5-landscape {
-    size: A5 landscape;
-    margin: 0;
-  }
-
-  @page receipt-80mm {
-    size: 80mm auto;
-    margin: 0;
-  }
-
-  body.format-a4 {
-    page: a4-portrait;
-  }
-
-  body.format-a5 {
-    page: a5-landscape;
-  }
-
-  body.format-80mm {
-    page: receipt-80mm;
-  }
 }
-
 
 
 
