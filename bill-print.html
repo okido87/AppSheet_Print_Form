@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -11,6 +12,7 @@
         /* =================================================================== */
         /* 1. QUY TẮC IN VÀ KHỔ GIẤY (PRINT & PAGE RULES)                     */
         /* =================================================================== */
+
 @media print {
   html, body {
     margin: 0 !important;
@@ -31,26 +33,17 @@
     margin: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
-    border: none !important;
     width: 100% !important;
     max-width: 100% !important;
+    border: none !important;
     height: auto !important;
     page-break-before: avoid !important;
     page-break-after: avoid !important;
     page-break-inside: avoid !important;
   }
 
-  /* Tránh khoảng trắng thừa sau phần tử cuối */
-  .bill-container::after {
-    content: "";
-    display: block;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
   @page {
-    size: auto; /* Default nếu không match class bên dưới */
+    size: auto;
     margin: 0;
   }
 
@@ -81,6 +74,7 @@
     page: receipt-80mm;
   }
 }
+
 
 
 
