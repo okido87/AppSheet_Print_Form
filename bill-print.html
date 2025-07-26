@@ -7,151 +7,152 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Hóa đơn</title>
-   <style>
-    /* =================================================================== */
-    /* 1. QUY TẮC IN VÀ KHỔ GIẤY (PRINT & PAGE RULES)                     */
-    /* =================================================================== */
-    @media print {
-        /* === SỬA LỖI TRANG TRẮNG: Bắt buộc html, body phải co lại theo nội dung === */
-        html, body {
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: none !important;
+    <style>
+        /* =================================================================== */
+        /* 1. QUY TẮC IN VÀ KHỔ GIẤY (PRINT & PAGE RULES)                     */
+        /* =================================================================== */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden; /* Ngăn nội dung tràn ra ngoài */
+            }
+            .no-print { display: none !important; }
+            .bill-container {
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                border: none !important;
+                page-break-inside: avoid; /* Ngăn chia tách trang không mong muốn */
+            }
+            /* Đảm bảo không có trang trắng thừa */
+            @page {
+                margin: 0; /* Xóa margin mặc định của @page */
+            }
+            @page a4-portrait { size: A4 portrait; margin: 16mm; }
+            @page a5-landscape { size: A5 landscape; margin: 8mm; }
+            @page receipt-80mm { size: 80mm auto; margin: 0; }
+            body.format-a4 { page: a4-portrait; }
+            body.format-a5 { page: a5-landscape; }
+            body.format-80mm { page: receipt-80mm; }
+            /* Ngăn trang trắng trước/sau */
+            * {
+                page-break-before: avoid;
+                page-break-after: avoid;
+            }
         }
 
-        body { 
-            -webkit-print-color-adjust: exact; 
-            print-color-adjust: exact; 
+        /* =================================================================== */
+        /* 2. CSS CƠ BẢN (SHARED STYLES)                                      */
+        /* =================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #eee; }
+        .bill-container { background: white; color: #333; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .text-bold { font-weight: bold; }
+        .company-name { font-weight: bold; }
+        .error-message { color: red; font-size: 0.8em; padding: 10px; border: 1px dashed red; }
+        .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .print-options button { margin: 0 5px; padding: 8px 12px; height: 44px; cursor: pointer; border: none; border-radius: 5px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; gap: 8px; }
+        .print-options button:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: translateY(-2px); filter: brightness(1.1); }
+        .print-options button.btn-80mm { background-color: #007bff; }
+        .print-options button.btn-a4 { background-color: #28a745; }
+        .print-options button.btn-a5 { background-color: #ffc107; }
+        .print-options button.btn-print { background-color: #6c757d; width: 44px; padding: 0; }
+        .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; }
+        .icon-a4 { width: 14px; height: 20px; }
+        .icon-a5 { width: 20px; height: 14px; }
+        .icon-print { position: relative; width: 24px; height: 22px; }
+        .icon-print .printer-top { position: absolute; top: 0; left: 2px; width: 20px; height: 8px; border: 2px solid white; border-bottom: none; }
+        .icon-print .printer-body { position: absolute; bottom: 0; left: 0; width: 24px; height: 12px; background: white; border-radius: 2px; }
+        .icon-print .paper { position: absolute; top: 4px; left: 6px; width: 12px; height: 4px; background: #eee; }
+        .product-note { font-size: 0.9em; color: #555; font-style: italic; }
+
+        /* =================================================================== */
+        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI) - KHÔI PHỤC ĐẦY ĐỦ                 */
+        /* =================================================================== */
+        body.format-80mm {
+            font-family: 'Courier New', monospace; font-size: 12px;
+            width: 80mm; margin: 0 auto; color: #000;
         }
-
-        .no-print { 
-            display: none !important; 
+        .format-80mm .bill-container { padding: 3mm; }
+        .format-80mm .logo { display: block; max-width: 40px; margin: 0 auto 8px; }
+        .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+        .format-80mm .order-qr-code { display: none; }
+        .format-80mm .company-name { font-size: 12px; }
+        .format-80mm .company-info { font-size: 8px; line-height: 1.2; }
+        .format-80mm .main-title-container { text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; }
+        .format-80mm .customer-details { margin-bottom: 15px; font-size: 11px; }
+        .format-80mm .customer-details-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .format-80mm .row-stack-on-receipt { display: block; }
+        .format-80mm .row-stack-on-receipt > span { display: block; margin-bottom: 3px; }
+        .format-80mm .products-table { font-size: 10px; width: 100%; }
+        .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; border-bottom: 1px solid #ddd; }
+        .format-80mm .products-table .col-dvt, .format-80mm .products-table .col-ghi-chu, .format-80mm .product-note { display: none; }
+        .format-80mm .products-table th { border-bottom-width: 1px; border-color: #000; }
+        .format-80mm .bottom-section { display: block; }
+        .format-80mm .left-bottom-section, .format-80mm .right-bottom-section { width: 100%; }
+        .format-80mm .totals-box { border-top: 1px dashed #000; padding-top: 10px; }
+        .format-80mm .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
+        .format-80mm .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
+        .format-80mm .amount-in-words { font-size: 10px; font-style: italic; margin-top: 5px; text-align: center; }
+        .format-80mm .notes-section { margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 10px; }
+        .format-80mm .payment-section { margin-top: 15px; text-align: center; }
+        .format-80mm .qr-code { margin-top: 5px; }
+        .format-80mm .qr-code img { width: 180px; height: 180px; }
+        .format-80mm .footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 8px; }
+        
+        /* =================================================================== */
+        /* 4. ĐỊNH DẠNG A4 & A5 (HÓA ĐƠN CHUYÊN NGHIỆP)                        */
+        /* =================================================================== */
+        body.format-a4, body.format-a5 {
+            font-family: Arial, sans-serif;
         }
-
-        .bill-container { 
-            margin: 0 !important; 
-            padding: 0 !important; 
-            box-shadow: none !important; 
-            border: none !important;
-            /* Không cần width/max-width ở đây vì đã có style riêng cho từng format */
+        .format-a4 .bill-container, .format-a5 .bill-container {
+            margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+        .format-a4 .company-header, .format-a5 .company-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
+        .format-a4 .logo, .format-a5 .logo { max-width: 60px; }
+        .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; }
+        .format-a4 .main-title-container, .format-a5 .main-title-container { text-align: center; margin: 25px 0; font-size: 2em; font-weight: bold; letter-spacing: 2px; color: #333; }
+        .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 20px; margin-top: 20px; }
+        .format-a4 .customer-details-row, .format-a5 .customer-details-row { display: flex; justify-content: space-between; padding: 5px 0; }
+        .format-a4 .products-table, .format-a5 .products-table { border: 1px solid #ddd; border-radius: 5px; overflow: hidden; font-size: 0.9em; width: 100%; }
+        .format-a4 .products-table thead tr, .format-a5 .products-table thead tr { background-color: #0056b3; color: white; }
+        .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; }
+        .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        .format-a4 .bottom-section, .format-a5 .bottom-section { display: flex; justify-content: space-between; margin-top: 20px; gap: 30px; }
+        .format-a4 .left-bottom-section, .format-a5 .left-bottom-section { width: 40%; text-align: center; }
+        .format-a4 .right-bottom-section, .format-a5 .right-bottom-section { width: 60%; }
+        .format-a4 .totals-box, .format-a5 .totals-box { width: 100%; }
+        .format-a4 .total-row, .format-a5 .total-row { border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .format-a4 .total-row span:first-child, .format-a5 .total-row span:first-child { color: #555; }
+        .format-a4 .total-final, .format-a5 .total-final { display: flex; justify-content: space-between; background-color: #f8f9fa; }
+        .format-a4 .total-final span, .format-a5 .total-final span { font-size: 1.2em; font-weight: bold; color: #0056b3; }
+        .format-a4 .notes-section, .format-a5 .notes-section { margin-top: 20px; font-style: italic; font-size: 0.9em; text-align: left; }
+        .format-a4 .footer, .format-a5 .footer { clear: both; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; text-align: center; }
 
-        @page a4-portrait { size: A4 portrait; margin: 16mm; }
-        @page a5-landscape { size: A5 landscape; margin: 8mm; }
-        @page receipt-80mm { size: 80mm auto; margin: 0; }
+        /* --- A4 Specific Styles --- */
+        body.format-a4 { font-size: 11pt; }
+        .format-a4 .bill-container { max-width: 190mm; padding: 16mm; }
+        .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; }
+        .format-a4 .qr-code img { width: 140px; height: 140px; }
+        .format-a4 .total-row, .format-a4 .total-final { padding: 10px; }
+        .format-a4 .order-qr-code img { width: 80px; height: 80px; }
 
-        body.format-a4 { page: a4-portrait; }
-        body.format-a5 { page: a5-landscape; }
-        body.format-80mm { page: receipt-80mm; }
-    }
-
-    /* =================================================================== */
-    /* 2. CSS CƠ BẢN (SHARED STYLES)                                      */
-    /* =================================================================== */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #eee; }
-    .bill-container { background: white; color: #333; }
-    .text-right { text-align: right; }
-    .text-center { text-align: center; }
-    .text-bold { font-weight: bold; }
-    .company-name { font-weight: bold; }
-    .error-message { color: red; font-size: 0.8em; padding: 10px; border: 1px dashed red; }
-    .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    .print-options button { margin: 0 5px; padding: 8px 12px; height: 44px; cursor: pointer; border: none; border-radius: 5px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; gap: 8px; }
-    .print-options button:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: translateY(-2px); filter: brightness(1.1); }
-    .print-options button.btn-80mm { background-color: #007bff; }
-    .print-options button.btn-a4 { background-color: #28a745; }
-    .print-options button.btn-a5 { background-color: #ffc107; }
-    .print-options button.btn-print { background-color: #6c757d; width: 44px; padding: 0;}
-    .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; }
-    .icon-a4 { width: 14px; height: 20px; }
-    .icon-a5 { width: 20px; height: 14px; }
-    .icon-print { position: relative; width: 24px; height: 22px; }
-    .icon-print .printer-top { position: absolute; top: 0; left: 2px; width: 20px; height: 8px; border: 2px solid white; border-bottom: none; }
-    .icon-print .printer-body { position: absolute; bottom: 0; left: 0; width: 24px; height: 12px; background: white; border-radius: 2px; }
-    .icon-print .paper { position: absolute; top: 4px; left: 6px; width: 12px; height: 4px; background: #eee; }
-    .product-note { font-size: 0.9em; color: #555; font-style: italic; }
-
-    /* =================================================================== */
-    /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI) - KHÔI PHỤC ĐẦY ĐỦ                 */
-    /* =================================================================== */
-    body.format-80mm {
-        font-family: 'Courier New', monospace; font-size: 12px;
-        width: 80mm; margin: 0 auto; color: #000;
-    }
-    .format-80mm .bill-container { padding: 3mm; }
-    .format-80mm .logo { display: block; max-width: 40px; margin: 0 auto 8px; }
-    .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-    .format-80mm .order-qr-code { display: none; }
-    .format-80mm .company-name { font-size: 12px; }
-    .format-80mm .company-info { font-size: 8px; line-height: 1.2; }
-    .format-80mm .main-title-container { text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; }
-    .format-80mm .customer-details { margin-bottom: 15px; font-size: 11px; }
-    .format-80mm .customer-details-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
-    .format-80mm .row-stack-on-receipt { display: block; }
-    .format-80mm .row-stack-on-receipt > span { display: block; margin-bottom: 3px; }
-    .format-80mm .products-table { font-size: 10px; width: 100%; }
-    .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; border-bottom: 1px solid #ddd; }
-    .format-80mm .products-table .col-dvt, .format-80mm .products-table .col-ghi-chu, .format-80mm .product-note { display: none; }
-    .format-80mm .products-table th { border-bottom-width: 1px; border-color: #000; }
-    .format-80mm .bottom-section { display: block; }
-    .format-80mm .left-bottom-section, .format-80mm .right-bottom-section { width: 100%; }
-    .format-80mm .totals-box { border-top: 1px dashed #000; padding-top: 10px; }
-    .format-80mm .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
-    .format-80mm .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
-    .format-80mm .amount-in-words { font-size: 10px; font-style: italic; margin-top: 5px; text-align: center; }
-    .format-80mm .notes-section { margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 10px; }
-    .format-80mm .payment-section { margin-top: 15px; text-align: center; }
-    .format-80mm .qr-code { margin-top: 5px; }
-    .format-80mm .qr-code img { width: 180px; height: 180px; }
-    .format-80mm .footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 8px; }
-    
-    /* =================================================================== */
-    /* 4. ĐỊNH DẠNG A4 & A5 (HÓA ĐƠN CHUYÊN NGHIỆP)                        */
-    /* =================================================================== */
-    body.format-a4, body.format-a5 {
-        font-family: Arial, sans-serif;
-    }
-    .format-a4 .bill-container, .format-a5 .bill-container {
-        margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .format-a4 .company-header, .format-a5 .company-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
-    .format-a4 .logo, .format-a5 .logo { max-width: 60px; }
-    .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; }
-    .format-a4 .main-title-container, .format-a5 .main-title-container { text-align: center; margin: 25px 0; font-size: 2em; font-weight: bold; letter-spacing: 2px; color: #333; }
-    .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 20px; margin-top: 20px; }
-    .format-a4 .customer-details-row, .format-a5 .customer-details-row { display: flex; justify-content: space-between; padding: 5px 0; }
-    .format-a4 .products-table, .format-a5 .products-table { border: 1px solid #ddd; border-radius: 5px; overflow: hidden; font-size: 0.9em; width: 100%; }
-    .format-a4 .products-table thead tr, .format-a5 .products-table thead tr { background-color: #0056b3; color: white; }
-    .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; }
-    .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
-    .format-a4 .bottom-section, .format-a5 .bottom-section { display: flex; justify-content: space-between; margin-top: 20px; gap: 30px; }
-    .format-a4 .left-bottom-section, .format-a5 .left-bottom-section { width: 40%; text-align: center; }
-    .format-a4 .right-bottom-section, .format-a5 .right-bottom-section { width: 60%; }
-    .format-a4 .totals-box, .format-a5 .totals-box { width: 100%; }
-    .format-a4 .total-row, .format-a5 .total-row { border-bottom: 1px solid #eee; display: flex; justify-content: space-between;}
-    .format-a4 .total-row span:first-child, .format-a5 .total-row span:first-child { color: #555; }
-    .format-a4 .total-final, .format-a5 .total-final { display: flex; justify-content: space-between; background-color: #f8f9fa; }
-    .format-a4 .total-final span, .format-a5 .total-final span { font-size: 1.2em; font-weight: bold; color: #0056b3; }
-    .format-a4 .notes-section, .format-a5 .notes-section { margin-top: 20px; font-style: italic; font-size: 0.9em; text-align: left; }
-    .format-a4 .footer, .format-a5 .footer { clear: both; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; text-align: center; }
-
-    /* --- A4 Specific Styles --- */
-    body.format-a4 { font-size: 11pt; }
-    .format-a4 .bill-container { max-width: 190mm; padding: 16mm; }
-    .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; }
-    .format-a4 .qr-code img { width: 140px; height: 140px; }
-    .format-a4 .total-row, .format-a4 .total-final { padding: 10px; }
-    .format-a4 .order-qr-code img { width: 80px; height: 80px; }
-
-    /* --- A5 Specific Styles --- */
-    body.format-a5 { font-size: 9pt; }
-    .format-a5 .bill-container { max-width: 280mm; padding: 10mm; }
-    .format-a5 .products-table th, .format-a5 .products-table td { padding: 8px 10px; }
-    .format-a5 .qr-code img { width: 120px; height: 120px; }
-    .format-a5 .total-row, .format-a5 .total-final { padding: 8px; }
-</style>
+        /* --- A5 Specific Styles --- */
+        body.format-a5 { font-size: 9pt; }
+        .format-a5 .bill-container { max-width: 280mm; padding: 10mm; }
+        .format-a5 .products-table th, .format-a5 .products-table td { padding: 8px 10px; }
+        .format-a5 .qr-code img { width: 120px; height: 120px; }
+        .format-a5 .total-row, .format-a5 .total-final { padding: 8px; }
+    </style>
 </head>
 <body>
     <div class="print-options no-print">
@@ -164,7 +165,6 @@
     </div>
 
     <div class="bill-container">
-        <!-- Cấu trúc HTML đơn giản, một cột, CSS sẽ tự điều khiển bố cục -->
         <div class="company-header">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo">
@@ -225,7 +225,6 @@
     </div>
     
     <script>
-        // VIẾT LẠI ĐẦY ĐỦ CÁC HÀM JAVASCRIPT
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name) || '';
@@ -273,7 +272,30 @@
             products.forEach(p => { const row = document.createElement('tr'); row.innerHTML = `<td class="product-name">${p.sanpham||''}</td><td class="col-dvt text-center">${p.dvt || ''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td><td class="col-ghi-chu">${p.ghi_chu || ''}</td>`; tbody.appendChild(row); });
         }
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) { return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`; }
-        function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) { return new Promise((resolve, reject) => { const qrContainer = document.getElementById('qr-code-container'); if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) { qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>'; reject('Dữ liệu QR không hợp lệ'); return; } const description = orderNumber || ''; const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder); const qrImage = new Image(); qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>'; qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); resolve(); }; qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; reject('Lỗi tải ảnh QR'); }; qrImage.src = qrUrl; }); }
+        function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) { 
+            return new Promise((resolve, reject) => { 
+                const qrContainer = document.getElementById('qr-code-container'); 
+                if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) { 
+                    qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>'; 
+                    reject('Dữ liệu QR không hợp lệ'); 
+                    return; 
+                } 
+                const description = orderNumber || ''; 
+                const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder); 
+                const qrImage = new Image(); 
+                qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>'; 
+                qrImage.onload = () => { 
+                    qrContainer.innerHTML = ''; 
+                    qrContainer.appendChild(qrImage); 
+                    resolve(); 
+                }; 
+                qrImage.onerror = () => { 
+                    qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; 
+                    reject('Lỗi tải ảnh QR'); 
+                }; 
+                qrImage.src = qrUrl; 
+            }); 
+        }
         function displayOrderQRCode(orderNumber) {
             const container = document.getElementById('order-qr-code');
             if (container && orderNumber) {
@@ -282,7 +304,17 @@
                 container.appendChild(qrImg);
             }
         }
-        async function autoPrint(qrPromise) { try { await qrPromise; } catch (error) { console.error("Không thể tạo QR, nhưng vẫn tiếp tục in:", error); } setTimeout(() => window.print(), 500); }
+        async function autoPrint(qrPromise) { 
+            try { 
+                await qrPromise; 
+                // Đợi thêm để đảm bảo DOM được render hoàn toàn
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Tăng thời gian chờ lên 1000ms
+                window.print(); 
+            } catch (error) { 
+                console.error("Không thể tạo QR, nhưng vẫn tiếp tục in:", error); 
+                window.print(); // Vẫn in ngay cả khi QR lỗi
+            } 
+        }
         function loadDataFromUrl() {
             try {
                 const orderNumber = getUrlParameter('so_don_hang'), orderDate = getUrlParameter('ngay_dat'), customerName = getUrlParameter('khach_hang');
@@ -318,16 +350,43 @@
                 document.getElementById('account-holder').textContent = accountHolder || 'N/A';
                 displayProducts(productsJson);
                 displayOrderQRCode(orderNumber);
-                return updateQRCode(cleanNumberString(totalAfterVat), orderNumber, bankCode, accountNumber, accountHolder);
-            } catch (error) { console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error); document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`; return Promise.reject(error); }
+                const qrPromise = updateQRCode(cleanNumberString(totalAfterVat), orderNumber, bankCode, accountNumber, accountHolder);
+                // Đảm bảo DOM được cập nhật trước khi trả về
+                return qrPromise.then(() => {
+                    // Buộc trình duyệt render lại
+                    document.body.offsetHeight; // Trigger reflow
+                    return Promise.resolve();
+                });
+            } catch (error) { 
+                console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error); 
+                document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`; 
+                return Promise.reject(error); 
+            }
         }
-        function changeFormat(format) { document.body.classList.remove('format-80mm', 'format-a4', 'format-a5'); document.body.classList.add('format-' + format); }
+        function changeFormat(format) { 
+            document.body.classList.remove('format-80mm', 'format-a4', 'format-a5'); 
+            document.body.classList.add('format-' + format); 
+        }
         document.addEventListener('DOMContentLoaded', () => {
             const formatFromUrl = getUrlParameter('format');
             const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : '80mm';
             changeFormat(format);
-            if (window.location.search.length > 1) { const qrPromise = loadDataFromUrl(); autoPrint(qrPromise); }
-            else { document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn</h1><p>Vui lòng truy cập trang này thông qua AppSheet.</p>'; }
+            if (window.location.search.length > 1) { 
+                const qrPromise = loadDataFromUrl(); 
+                autoPrint(qrPromise); 
+            } else { 
+                document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn</h1><p>Vui lòng truy cập trang này thông qua AppSheet.</p>'; 
+            }
+            // Thêm sự kiện beforeprint để kiểm soát
+            window.addEventListener('beforeprint', () => {
+                document.querySelector('.no-print').style.display = 'none';
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+            });
+            // Khôi phục sau khi in
+            window.addEventListener('afterprint', () => {
+                document.querySelector('.no-print').style.display = 'block';
+            });
         });
     </script>
 </body>
