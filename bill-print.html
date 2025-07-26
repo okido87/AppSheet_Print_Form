@@ -20,7 +20,7 @@
                 background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                overflow: hidden; /* Ngăn nội dung tràn ra ngoài */
+                overflow: hidden;
             }
             .no-print { display: none !important; }
             .bill-container {
@@ -30,11 +30,10 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 border: none !important;
-                page-break-inside: avoid; /* Ngăn chia tách trang không mong muốn */
+                page-break-inside: avoid;
             }
-            /* Đảm bảo không có trang trắng thừa */
             @page {
-                margin: 0; /* Xóa margin mặc định của @page */
+                margin: 0;
             }
             @page a4-portrait { size: A4 portrait; margin: 16mm; }
             @page a5-landscape { size: A5 landscape; margin: 8mm; }
@@ -42,11 +41,7 @@
             body.format-a4 { page: a4-portrait; }
             body.format-a5 { page: a5-landscape; }
             body.format-80mm { page: receipt-80mm; }
-            /* Ngăn trang trắng trước/sau */
-            * {
-                page-break-before: avoid;
-                page-break-after: avoid;
-            }
+            * { page-break-before: avoid; page-break-after: avoid; }
         }
 
         /* =================================================================== */
@@ -67,7 +62,6 @@
         .print-options button.btn-a4 { background-color: #28a745; }
         .print-options button.btn-a5 { background-color: #ffc107; }
         .print-options button.btn-print { background-color: #6c757d; width: 44px; padding: 0; }
-        /* THÊM MỚI: Style cho nút Tải PDF */
         .print-options button.btn-pdf { background-color: #dc3545; }
         .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; }
         .icon-a4 { width: 14px; height: 20px; }
@@ -79,7 +73,7 @@
         .product-note { font-size: 0.9em; color: #555; font-style: italic; }
 
         /* =================================================================== */
-        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI) - KHÔI PHỤC ĐẦY ĐỦ                 */
+        /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI)                                  */
         /* =================================================================== */
         body.format-80mm {
             font-family: 'Courier New', monospace; font-size: 12px;
@@ -115,12 +109,8 @@
         /* =================================================================== */
         /* 4. ĐỊNH DẠNG A4 & A5 (HÓA ĐƠN CHUYÊN NGHIỆP)                        */
         /* =================================================================== */
-        body.format-a4, body.format-a5 {
-            font-family: Arial, sans-serif;
-        }
-        .format-a4 .bill-container, .format-a5 .bill-container {
-            margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
+        body.format-a4, body.format-a5 { font-family: Arial, sans-serif; }
+        .format-a4 .bill-container, .format-a5 .bill-container { margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .format-a4 .company-header, .format-a5 .company-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
         .format-a4 .logo, .format-a5 .logo { max-width: 60px; }
         .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; }
@@ -141,21 +131,41 @@
         .format-a4 .total-final span, .format-a5 .total-final span { font-size: 1.2em; font-weight: bold; color: #0056b3; }
         .format-a4 .notes-section, .format-a5 .notes-section { margin-top: 20px; font-style: italic; font-size: 0.9em; text-align: left; }
         .format-a4 .footer, .format-a5 .footer { clear: both; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; text-align: center; }
-
-        /* --- A4 Specific Styles --- */
         body.format-a4 { font-size: 11pt; }
         .format-a4 .bill-container { max-width: 190mm; padding: 16mm; }
         .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; }
         .format-a4 .qr-code img { width: 140px; height: 140px; }
         .format-a4 .total-row, .format-a4 .total-final { padding: 10px; }
         .format-a4 .order-qr-code img { width: 80px; height: 80px; }
-
-        /* --- A5 Specific Styles --- */
         body.format-a5 { font-size: 9pt; }
         .format-a5 .bill-container { max-width: 280mm; padding: 10mm; }
         .format-a5 .products-table th, .format-a5 .products-table td { padding: 8px 10px; }
         .format-a5 .qr-code img { width: 120px; height: 120px; }
         .format-a5 .total-row, .format-a5 .total-final { padding: 8px; }
+
+        /* =================================================================== */
+        /* 5. PDF EXPORT STYLES (TẠM THỜI KHI TẢI FILE)                      */
+        /* =================================================================== */
+        body.pdf-export-mode {
+            background: white !important; /* Nền trắng tuyệt đối */
+        }
+        body.pdf-export-mode .bill-container {
+            margin: 0 auto !important; /* Bỏ margin ngoài */
+            padding: 0 !important;     /* Bỏ padding gốc, sẽ được định nghĩa lại bên dưới */
+            box-shadow: none !important; /* Bỏ đổ bóng */
+            border: none !important;     /* Bỏ viền */
+        }
+        /* Áp dụng lại padding chính xác cho từng khổ giấy */
+        body.pdf-export-mode.format-a4 .bill-container { padding: 16mm !important; }
+        body.pdf-export-mode.format-a5 .bill-container { padding: 10mm !important; }
+        body.pdf-export-mode.format-80mm .bill-container { padding: 3mm !important; }
+
+        /* Giảm khoảng trắng thừa ở header khi xuất PDF */
+        body.pdf-export-mode .format-a4 .company-header,
+        body.pdf-export-mode .format-a5 .company-header {
+             padding-bottom: 10px !important;
+        }
+
     </style>
 </head>
 <body>
@@ -164,7 +174,6 @@
         <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc">A4<span class="icon icon-a4"></span></button>
         <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang">A5<span class="icon icon-a5"></span></button>
         
-        <!-- THÊM MỚI: Nút Tải PDF -->
         <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16">
                 <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/>
@@ -238,47 +247,52 @@
     </div>
     
     <script>
-        // THÊM MỚI: Hàm để tải hóa đơn về file PDF
-        function downloadPDF() {
+        /**
+         * TỐI ƯU HÓA: Hàm tải hóa đơn về file PDF
+         * - Tự động áp dụng style tạm thời để PDF trông giống bản in (sát lề, không có box-shadow).
+         * - Đặt margin của file PDF = 0, khoảng cách lề được quyết định bởi padding của .bill-container.
+         * - Sử dụng async/await và try/finally để đảm bảo giao diện được khôi phục ngay cả khi có lỗi.
+         */
+        async function downloadPDF() {
             const element = document.querySelector('.bill-container');
+            const printOptionsPanel = document.querySelector('.print-options');
             const orderNumber = document.getElementById('order-number').textContent || 'unknown';
             const filename = `HoaDon-${orderNumber}.pdf`;
-            const printOptionsPanel = document.querySelector('.print-options');
 
-            // Cấu hình cho html2pdf
+            // Xác định cấu hình PDF dựa trên class của body
             let jspdfConfig = { unit: 'mm', format: 'a4', orientation: 'portrait' };
-            let margin = [10, 10, 10, 10]; // Margin mặc định [top, left, bottom, right]
-
             if (document.body.classList.contains('format-a5')) {
                 jspdfConfig = { unit: 'mm', format: 'a5', orientation: 'landscape' };
-                margin = [8, 8, 8, 8];
             } else if (document.body.classList.contains('format-80mm')) {
-                // Khổ 80mm có kích thước tùy chỉnh, chiều cao sẽ tự động điều chỉnh
-                jspdfConfig = { unit: 'mm', format: [80, 297], orientation: 'portrait' }; 
-                margin = [3, 3, 3, 3];
-            } else { // A4
-                margin = [16, 16, 16, 16];
+                jspdfConfig = { unit: 'mm', format: [80, 297], orientation: 'portrait' };
             }
 
             const opt = {
-                margin:       margin,
+                margin:       0, // QUAN TRỌNG: Loại bỏ lề của file PDF, để CSS padding kiểm soát
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false }, // useCORS để tải logo từ domain khác
+                html2canvas:  { scale: 3, useCORS: true, logging: false }, // Tăng scale để chất lượng cao hơn
                 jsPDF:        jspdfConfig,
                 pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            // Tạm ẩn các nút điều khiển để không bị chụp vào PDF
-            printOptionsPanel.style.display = 'none';
+            // Bắt đầu quá trình xuất file
+            try {
+                // 1. Tạm thời thay đổi giao diện để tối ưu cho việc xuất PDF
+                printOptionsPanel.style.display = 'none';
+                document.body.classList.add('pdf-export-mode');
 
-            // Gọi hàm html2pdf và hiện lại các nút sau khi hoàn thành
-            html2pdf().from(element).set(opt).save().then(() => {
+                // 2. Chờ cho đến khi file được tạo và lưu
+                await html2pdf().from(element).set(opt).save();
+
+            } catch (error) {
+                console.error("Lỗi khi tạo PDF:", error);
+                alert("Đã có lỗi xảy ra khi tạo file PDF. Vui lòng thử lại.");
+            } finally {
+                // 3. Luôn khôi phục lại giao diện ban đầu, dù thành công hay thất bại
+                document.body.classList.remove('pdf-export-mode');
                 printOptionsPanel.style.display = 'block';
-            }).catch(err => {
-                console.error("Lỗi khi tạo PDF:", err);
-                printOptionsPanel.style.display = 'block'; // Đảm bảo các nút hiện lại ngay cả khi có lỗi
-            });
+            }
         }
 
 
@@ -424,20 +438,19 @@
         }
         document.addEventListener('DOMContentLoaded', () => {
             const formatFromUrl = getUrlParameter('format');
+            const shouldAutoPrint = getUrlParameter('autoprint');
             const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : '80mm';
             changeFormat(format);
             if (window.location.search.length > 1) { 
-                const qrPromise = loadDataFromUrl(); 
-                if(getUrlParameter('autoprint') !== 'false') {
-                    autoPrint(qrPromise);
+                const dataPromise = loadDataFromUrl(); 
+                if (shouldAutoPrint !== 'false') {
+                    dataPromise.then(qrPromise => autoPrint(qrPromise)).catch(err => console.error("Không thể tự động in do lỗi tải dữ liệu:", err));
                 }
             } else { 
                 document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn</h1><p>Vui lòng truy cập trang này thông qua AppSheet.</p>'; 
             }
             window.addEventListener('beforeprint', () => {
                 document.querySelector('.no-print').style.display = 'none';
-                document.body.style.margin = '0';
-                document.body.style.padding = '0';
             });
             window.addEventListener('afterprint', () => {
                 document.querySelector('.no-print').style.display = 'block';
