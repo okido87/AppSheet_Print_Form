@@ -7,6 +7,8 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Hóa đơn</title>
+    <!-- THÊM MỚI: Thư viện html2pdf.js để xuất file PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         /* =================================================================== */
         /* 1. QUY TẮC IN VÀ KHỔ GIẤY (PRINT & PAGE RULES)                     */
@@ -65,6 +67,8 @@
         .print-options button.btn-a4 { background-color: #28a745; }
         .print-options button.btn-a5 { background-color: #ffc107; }
         .print-options button.btn-print { background-color: #6c757d; width: 44px; padding: 0; }
+        /* THÊM MỚI: Style cho nút Tải PDF */
+        .print-options button.btn-pdf { background-color: #dc3545; }
         .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; }
         .icon-a4 { width: 14px; height: 20px; }
         .icon-a5 { width: 20px; height: 14px; }
@@ -159,12 +163,21 @@
         <button class="btn-80mm" onclick="changeFormat('80mm')">80mm</button>
         <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc">A4<span class="icon icon-a4"></span></button>
         <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang">A5<span class="icon icon-a5"></span></button>
+        
+        <!-- THÊM MỚI: Nút Tải PDF -->
+        <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16">
+                <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/>
+            </svg>
+        </button>
+
         <button class="btn-print" onclick="window.print()" title="In Lại">
             <div class="icon-print"><div class="paper"></div><div class="printer-top"></div><div class="printer-body"></div></div>
         </button>
     </div>
 
     <div class="bill-container">
+        <!-- Nội dung hóa đơn giữ nguyên -->
         <div class="company-header">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo">
@@ -225,6 +238,51 @@
     </div>
     
     <script>
+        // THÊM MỚI: Hàm để tải hóa đơn về file PDF
+        function downloadPDF() {
+            const element = document.querySelector('.bill-container');
+            const orderNumber = document.getElementById('order-number').textContent || 'unknown';
+            const filename = `HoaDon-${orderNumber}.pdf`;
+            const printOptionsPanel = document.querySelector('.print-options');
+
+            // Cấu hình cho html2pdf
+            let jspdfConfig = { unit: 'mm', format: 'a4', orientation: 'portrait' };
+            let margin = [10, 10, 10, 10]; // Margin mặc định [top, left, bottom, right]
+
+            if (document.body.classList.contains('format-a5')) {
+                jspdfConfig = { unit: 'mm', format: 'a5', orientation: 'landscape' };
+                margin = [8, 8, 8, 8];
+            } else if (document.body.classList.contains('format-80mm')) {
+                // Khổ 80mm có kích thước tùy chỉnh, chiều cao sẽ tự động điều chỉnh
+                jspdfConfig = { unit: 'mm', format: [80, 297], orientation: 'portrait' }; 
+                margin = [3, 3, 3, 3];
+            } else { // A4
+                margin = [16, 16, 16, 16];
+            }
+
+            const opt = {
+                margin:       margin,
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false }, // useCORS để tải logo từ domain khác
+                jsPDF:        jspdfConfig,
+                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            // Tạm ẩn các nút điều khiển để không bị chụp vào PDF
+            printOptionsPanel.style.display = 'none';
+
+            // Gọi hàm html2pdf và hiện lại các nút sau khi hoàn thành
+            html2pdf().from(element).set(opt).save().then(() => {
+                printOptionsPanel.style.display = 'block';
+            }).catch(err => {
+                console.error("Lỗi khi tạo PDF:", err);
+                printOptionsPanel.style.display = 'block'; // Đảm bảo các nút hiện lại ngay cả khi có lỗi
+            });
+        }
+
+
+        // ------ CODE GỐC GIỮ NGUYÊN ------
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name) || '';
@@ -307,12 +365,11 @@
         async function autoPrint(qrPromise) { 
             try { 
                 await qrPromise; 
-                // Đợi thêm để đảm bảo DOM được render hoàn toàn
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Tăng thời gian chờ lên 1000ms
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 window.print(); 
             } catch (error) { 
                 console.error("Không thể tạo QR, nhưng vẫn tiếp tục in:", error); 
-                window.print(); // Vẫn in ngay cả khi QR lỗi
+                window.print();
             } 
         }
         function loadDataFromUrl() {
@@ -351,10 +408,8 @@
                 displayProducts(productsJson);
                 displayOrderQRCode(orderNumber);
                 const qrPromise = updateQRCode(cleanNumberString(totalAfterVat), orderNumber, bankCode, accountNumber, accountHolder);
-                // Đảm bảo DOM được cập nhật trước khi trả về
                 return qrPromise.then(() => {
-                    // Buộc trình duyệt render lại
-                    document.body.offsetHeight; // Trigger reflow
+                    document.body.offsetHeight;
                     return Promise.resolve();
                 });
             } catch (error) { 
@@ -373,17 +428,17 @@
             changeFormat(format);
             if (window.location.search.length > 1) { 
                 const qrPromise = loadDataFromUrl(); 
-                autoPrint(qrPromise); 
+                if(getUrlParameter('autoprint') !== 'false') {
+                    autoPrint(qrPromise);
+                }
             } else { 
                 document.body.innerHTML = '<h1>Không có dữ liệu hóa đơn</h1><p>Vui lòng truy cập trang này thông qua AppSheet.</p>'; 
             }
-            // Thêm sự kiện beforeprint để kiểm soát
             window.addEventListener('beforeprint', () => {
                 document.querySelector('.no-print').style.display = 'none';
                 document.body.style.margin = '0';
                 document.body.style.padding = '0';
             });
-            // Khôi phục sau khi in
             window.addEventListener('afterprint', () => {
                 document.querySelector('.no-print').style.display = 'block';
             });
