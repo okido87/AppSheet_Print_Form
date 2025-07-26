@@ -7,34 +7,22 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Hóa đơn</title>
-    <!-- THÊM MỚI: Thư viện html2pdf.js để xuất file PDF -->
+    
+    <!-- THÊM MỚI: Thư viện html2canvas.js để xuất file ảnh -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoVBL5gI9kLmbG0C+wFjrAaBFBNsRg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <!-- Thư viện html2pdf.js để xuất file PDF (đã có) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     <style>
         /* =================================================================== */
         /* 1. QUY TẮC IN VÀ KHỔ GIẤY (PRINT & PAGE RULES)                     */
         /* =================================================================== */
         @media print {
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                background: white !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden;
-            }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; margin: 0 !important; padding: 0 !important; overflow: hidden; }
             .no-print { display: none !important; }
-            .bill-container {
-                margin: 0 !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                border: none !important;
-                page-break-inside: avoid;
-            }
-            @page {
-                margin: 0;
-            }
+            .bill-container { margin: 0 !important; padding: 0 !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; border: none !important; page-break-inside: avoid; }
+            @page { margin: 0; }
             @page a4-portrait { size: A4 portrait; margin: 10mm; }
             @page a5-landscape { size: A5 landscape; margin: 5mm; }
             @page receipt-80mm { size: 80mm auto; margin: 0; }
@@ -55,14 +43,53 @@
         .text-bold { font-weight: bold; }
         .company-name { font-weight: bold; }
         .error-message { color: red; font-size: 0.8em; padding: 10px; border: 1px dashed red; }
-        .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .print-options button { margin: 0 5px; padding: 8px 12px; height: 44px; cursor: pointer; border: none; border-radius: 5px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; gap: 8px; }
+        
+        /* CSS CHO KHUNG ĐIỀU KHIỂN - ĐÃ SỬA ĐỔI */
+        .print-options {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column; /* Sắp xếp các hàng theo chiều dọc */
+            gap: 8px; /* Khoảng cách giữa các hàng */
+        }
+        .options-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px; /* Khoảng cách giữa các nút trong một hàng */
+        }
+        .print-options button {
+            margin: 0; /* Bỏ margin cũ */
+            padding: 8px 12px;
+            height: 44px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            gap: 8px;
+        }
         .print-options button:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: translateY(-2px); filter: brightness(1.1); }
         .print-options button.btn-80mm { background-color: #007bff; }
         .print-options button.btn-a4 { background-color: #28a745; }
         .print-options button.btn-a5 { background-color: #ffc107; }
-        .print-options button.btn-print { background-color: #6c757d; width: 44px; padding: 0; }
+        .print-options button.btn-print { background-color: #6c757d; }
+        .print-options button.btn-image { background-color: #17a2b8; } /* MÀU MỚI cho nút tải ảnh */
         .print-options button.btn-pdf { background-color: #dc3545; }
+        
         .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; }
         .icon-a4 { width: 14px; height: 20px; }
         .icon-a5 { width: 20px; height: 14px; }
@@ -75,10 +102,7 @@
         /* =================================================================== */
         /* 3. ĐỊNH DẠNG KHỔ 80MM (BIÊN LAI)                                  */
         /* =================================================================== */
-        body.format-80mm {
-            font-family: 'Courier New', monospace; font-size: 12px;
-            width: 80mm; margin: 0 auto; color: #000;
-        }
+        body.format-80mm { font-family: 'Courier New', monospace; font-size: 12px; width: 80mm; margin: 0 auto; color: #000; }
         .format-80mm .bill-container { padding: 3mm; }
         .format-80mm .logo { display: block; max-width: 40px; margin: 0 auto 8px; }
         .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; }
@@ -144,48 +168,61 @@
         .format-a5 .total-row, .format-a5 .total-final { padding: 8px; }
 
         /* =================================================================== */
-        /* 5. PDF EXPORT STYLES (TẠM THỜI KHI TẢI FILE)                      */
+        /* 5. PDF & IMAGE EXPORT STYLES (TẠM THỜI KHI TẢI FILE)               */
         /* =================================================================== */
-        body.pdf-export-mode {
+        body.export-mode {
             background: white !important; /* Nền trắng tuyệt đối */
         }
-        body.pdf-export-mode .bill-container {
+        body.export-mode .bill-container {
             margin: 0 auto !important; /* Bỏ margin ngoài */
             padding: 0 !important;     /* Bỏ padding gốc, sẽ được định nghĩa lại bên dưới */
             box-shadow: none !important; /* Bỏ đổ bóng */
             border: none !important;     /* Bỏ viền */
         }
         /* Áp dụng lại padding chính xác cho từng khổ giấy */
-        body.pdf-export-mode.format-a4 .bill-container { padding: 16mm !important; }
-        body.pdf-export-mode.format-a5 .bill-container { padding: 10mm !important; }
-        body.pdf-export-mode.format-80mm .bill-container { padding: 3mm !important; }
+        body.export-mode.format-a4 .bill-container { padding: 16mm !important; }
+        body.export-mode.format-a5 .bill-container { padding: 10mm !important; }
+        body.export-mode.format-80mm .bill-container { padding: 3mm !important; }
 
-        /* Giảm khoảng trắng thừa ở header khi xuất PDF */
-        body.pdf-export-mode .format-a4 .company-header,
-        body.pdf-export-mode .format-a5 .company-header {
+        /* Giảm khoảng trắng thừa ở header khi xuất file */
+        body.export-mode .format-a4 .company-header,
+        body.export-mode .format-a5 .company-header {
              padding-bottom: 10px !important;
         }
-
     </style>
 </head>
 <body>
+    <!-- KHUNG ĐIỀU KHIỂN - ĐÃ SẮP XẾP LẠI -->
     <div class="print-options no-print">
-        <button class="btn-80mm" onclick="changeFormat('80mm')">80mm</button>
-        <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc">A4<span class="icon icon-a4"></span></button>
-        <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang">A5<span class="icon icon-a5"></span></button>
-        
-        <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16">
-                <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/>
-            </svg>
-        </button>
-
-        <button class="btn-print" onclick="window.print()" title="In Lại">
-            <div class="icon-print"><div class="paper"></div><div class="printer-top"></div><div class="printer-body"></div></div>
-        </button>
+        <!-- Hàng trên: Lựa chọn khổ in -->
+        <div class="options-row">
+            <button class="btn-80mm" onclick="changeFormat('80mm')">80mm</button>
+            <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc">A4<span class="icon icon-a4"></span></button>
+            <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang">A5<span class="icon icon-a5"></span></button>
+        </div>
+        <!-- Hàng dưới: Các nút chức năng -->
+        <div class="options-row">
+            <button class="btn-print" onclick="window.print()" title="In Hóa Đơn">
+                <div class="icon-print"><div class="paper"></div><div class="printer-top"></div><div class="printer-body"></div></div>
+            </button>
+            
+            <!-- NÚT TẢI HÌNH MỚI -->
+            <button class="btn-image" onclick="downloadImage()" title="Tải về file ảnh PNG">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
+                    <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                    <path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3.5a.5.5 0 0 1 .5-.5h13z"/>
+                </svg>
+            </button>
+            
+            <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16">
+                    <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/>
+                </svg>
+            </button>
+        </div>
     </div>
 
-    <div class="bill-container">
+    <div class="bill-container" id="bill-container">
         <!-- Nội dung hóa đơn giữ nguyên -->
         <div class="company-header">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -248,6 +285,51 @@
     
     <script>
         /**
+         * THÊM MỚI: Hàm tải hóa đơn về file ảnh PNG
+         * - Sử dụng thư viện html2canvas
+         * - Tương tự như hàm PDF, hàm này cũng tạm thời ẩn các nút điều khiển
+         *   và áp dụng style 'export-mode' để ảnh chụp được sạch sẽ.
+         */
+        async function downloadImage() {
+            const element = document.querySelector('.bill-container');
+            const printOptionsPanel = document.querySelector('.print-options');
+            const orderNumber = document.getElementById('order-number').textContent || 'unknown';
+            const filename = `HoaDon-${orderNumber}.png`;
+
+            // Bắt đầu quá trình xuất file
+            try {
+                // 1. Tạm thời thay đổi giao diện để tối ưu cho việc chụp ảnh
+                printOptionsPanel.style.display = 'none';
+                document.body.classList.add('export-mode');
+
+                // 2. Chờ html2canvas render xong
+                const canvas = await html2canvas(element, {
+                    scale: 3, // Tăng scale để ảnh nét hơn
+                    useCORS: true, // Cho phép tải ảnh từ domain khác (logo)
+                    logging: false
+                });
+
+                // 3. Tạo một link ẩn để tải file
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png'); // Chuyển canvas thành dữ liệu ảnh PNG
+                link.download = filename;
+                
+                // 4. Kích hoạt việc tải file và dọn dẹp
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (error) {
+                console.error("Lỗi khi tạo ảnh:", error);
+                alert("Đã có lỗi xảy ra khi tạo file ảnh. Vui lòng thử lại.");
+            } finally {
+                // 5. Luôn khôi phục lại giao diện ban đầu, dù thành công hay thất bại
+                document.body.classList.remove('export-mode');
+                printOptionsPanel.style.display = 'flex'; // Dùng 'flex' thay vì 'block'
+            }
+        }
+
+        /**
          * TỐI ƯU HÓA: Hàm tải hóa đơn về file PDF
          * - Tự động áp dụng style tạm thời để PDF trông giống bản in (sát lề, không có box-shadow).
          * - Đặt margin của file PDF = 0, khoảng cách lề được quyết định bởi padding của .bill-container.
@@ -280,7 +362,7 @@
             try {
                 // 1. Tạm thời thay đổi giao diện để tối ưu cho việc xuất PDF
                 printOptionsPanel.style.display = 'none';
-                document.body.classList.add('pdf-export-mode');
+                document.body.classList.add('export-mode');
 
                 // 2. Chờ cho đến khi file được tạo và lưu
                 await html2pdf().from(element).set(opt).save();
@@ -290,8 +372,8 @@
                 alert("Đã có lỗi xảy ra khi tạo file PDF. Vui lòng thử lại.");
             } finally {
                 // 3. Luôn khôi phục lại giao diện ban đầu, dù thành công hay thất bại
-                document.body.classList.remove('pdf-export-mode');
-                printOptionsPanel.style.display = 'block';
+                document.body.classList.remove('export-mode');
+                printOptionsPanel.style.display = 'flex'; // Dùng 'flex' thay vì 'block'
             }
         }
 
@@ -453,7 +535,7 @@
                 document.querySelector('.no-print').style.display = 'none';
             });
             window.addEventListener('afterprint', () => {
-                document.querySelector('.no-print').style.display = 'block';
+                document.querySelector('.no-print').style.display = 'flex'; // Dùng 'flex' thay vì 'block'
             });
         });
     </script>
