@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đề Nghị Thanh Toán</title>
+    <style>
+        body { font-family: 'Times New Roman', Times, serif; background-color: #e0e0e0; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px 0; }
+        .a4-page {
+            width: 210mm; min-height: 297mm; padding: 20mm 15mm; margin: 10mm auto;
+            border: 1px #D3D3D3 solid; background: white; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            position: relative; display: flex; flex-direction: column;
+        }
+        .a4-page * { box-sizing: border-box; }
+        #watermark {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 150pt; color: red; opacity: 0.15; font-weight: bold; z-index: 0; pointer-events: none; display: none;
+        }
+        .content-wrapper { position: relative; z-index: 1; display: flex; flex-direction: column; flex-grow: 1;}
+
+        .header-block { margin-bottom: 25px; }
+        .top-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .top-header .company-name { font-weight: bold; font-size: 11pt; }
+        .top-header .form-no { border: 1px solid black; padding: 5px 10px; font-size: 10pt; flex-shrink: 0; }
+        .title-section { text-align: center; margin-bottom: 15px; }
+        .title-main { display: block; font-size: 18pt; font-weight: bold; }
+        .title-sub { display: block; font-size: 14pt; font-style: italic; color: #666; }
+        
+        .info-section { font-size: 11pt; line-height: 1.8; }
+        .info-grid { display: flex; justify-content: space-between; }
+        .info-grid .left-col, .info-grid .right-col { width: 49%; }
+        .field { display: flex; align-items: baseline; }
+        .field .label { flex-shrink: 0; }
+        .field .value { font-weight: bold; margin-left: 5px; color: #191970; }
+        .field .value a { color: #0000ee; text-decoration: underline; }
+        .payment-method-field .label { min-width: 210px; }
+        .payment-method-field .options {
+            display: flex; align-items: center; white-space: nowrap; flex-grow: 1;
+            margin-left: 10px;
+        }
+        .payment-method-field .option { display: flex; align-items: center; margin-right: 15px; }
+        .payment-method-field .checkbox { width: 18px; height: 18px; border: 1px solid black; margin-right: 5px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14pt; color: #191970; }
+        .details-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; }
+        .details-table th, .details-table td { border: 1px solid black; padding: 6px 8px; vertical-align: top; }
+        .details-table th { font-weight: bold; text-align: center; vertical-align: middle; }
+        .details-table tbody td { color: #191970; }
+        .details-table tbody tr { min-height: 35px; }
+        .col-no { width: 6%; }
+        .col-desc { width: 49%; white-space: normal; overflow-wrap: break-word; }
+        .col-amount { width: 25%; text-align: right; }
+        .col-remark { width: 20%; }
+        .total-row td { font-weight: bold; }
+        .total-row .total-label { text-align: center; }
+        #total-amount { color: #191970; }
+        .summary-section { margin-top: 15px; font-size: 11pt; line-height: 1.8; }
+        .summary-section .value { font-style: italic; font-weight: bold; color: #191970; }
+        
+        .signature-area { margin-top: 40px; }
+        .signature-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; font-size: 11pt; gap: 20px; }
+        .signature-box { display: flex; flex-direction: column; justify-content: flex-end; min-height: 120px; }
+        .signature-title { font-weight: bold; }
+        .signature-image-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; min-height: 50px; }
+        .signature-image { max-width: 100%; max-height: 50px; object-fit: contain; display: none; }
+        .signature-name { font-weight: bold; color: #191970; padding-top: 5px; }
+        .bottom-signatures { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; text-align: center; font-size: 11pt; padding: 0 15%; }
+        .bottom-signatures .signature-box { min-height: 100px; }
+
+        .print-button { position: fixed; top: 15px; right: 15px; z-index: 100; padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; }
+        @media print { body { background-color: #fff; padding: 0; } .a4-page { margin: 0; border: none; box-shadow: none; min-height: initial; } .print-button { display: none; } }
+        @page { size: A4; margin: 20mm 15mm; }
+    </style>
+</head>
+<body>
+
+    <button class="print-button" onclick="window.print()">In Phiếu</button>
+
+    <div class="a4-page">
+        <div id="watermark">DEMO</div>
+        <div class="content-wrapper">
+            <div class="header-block">
+                <div class="top-header">
+                    <span class="company-name">KÄRCHER VIET NAM</span>
+                    <span class="form-no">Form no: FIN01</span>
+                </div>
+                <div class="title-section">
+                    <span class="title-main">ĐỀ NGHỊ THANH TOÁN</span>
+                    <span class="title-sub">PAYMENT REQUEST</span>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="info-section">
+                    <div class="info-grid">
+                        <div class="left-col">
+                            <div class="field"><span class="label" style="min-width: 170px;">Người đề nghị (Applicant):</span> <span class="value" id="applicant"></span></div>
+                            <div class="field"><span class="label" style="min-width: 170px;">Bộ phận (dept.):</span> <span class="value" id="department"></span></div>
+                        </div>
+                        <div class="right-col">
+                            <div class="field"><span class="label" style="min-width: 80px;">Ngày (date):</span> <span class="value" id="date"></span></div>
+                            <div class="field"><span class="label" style="min-width: 80px;">Số (Ref No.):</span> <span class="value" id="ref-no"></span></div>
+                        </div>
+                    </div>
+                    <div class="field payment-method-field">
+                        <span class="label">Phương thức thanh toán (Method of Payment):</span>
+                        <div class="options">
+                            <div class="option"><div class="checkbox" id="pay-cash"></div><span>Cash</span></div>
+                            <div class="option"><div class="checkbox" id="pay-bank"></div><span>Bank transfer</span></div>
+                            <div class="option"><div class="checkbox" id="pay-visa"></div><span>VISA</span></div>
+                        </div>
+                    </div>
+                    <div class="field"><span class="label" style="min-width: 210px;">Tên nhà cung cấp (vendor name):</span> <span class="value" id="vendor-name"></span></div>
+                </div>
+
+                <table class="details-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">STT / No</th>
+                            <th class="col-desc">Diễn giải / Description</th>
+                            <th class="col-amount">Số tiền (VND) / Amount</th>
+                            <th class="col-remark">Ghi chú / Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody id="details-body"></tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="2" class="total-label">TOTAL</td>
+                            <td id="total-amount" style="text-align: right;"></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="summary-section">
+                    <div>Bằng chữ (In words): <span class="value" id="amount-in-words"></span></div>
+                    <div>Chứng từ đính kèm (supporting document): <span class="value" id="supporting-doc-container"></span></div>
+                    <div>Ghi chú tổng (General Note / Remark): <span class="value" id="general-note"></span></div>
+                </div>
+            </div>
+            
+            <div class="signature-area">
+                <div class="signature-grid">
+                    <div class="signature-box">
+                        <span class="signature-title">Giám đốc<br>Director</span>
+                        <div class="signature-image-container"><img class="signature-image" id="img-director" alt="Chữ ký"></div>
+                        <span class="signature-name" id="signature-director">LÊ VIỆT HÙNG</span>
+                    </div>
+                    <div class="signature-box">
+                        <span class="signature-title">Kế toán trưởng<br>Chief accountant</span>
+                        <div class="signature-image-container"><img class="signature-image" id="img-ca" alt="Chữ ký"></div>
+                        <span class="signature-name" id="signature-ca">TRẦN THỊ DUYÊN ANH</span>
+                    </div>
+                    <div class="signature-box">
+                        <span class="signature-title">Trưởng bộ phận<br>Head of dept.</span>
+                        <div class="signature-image-container"><img class="signature-image" id="img-hod" alt="Chữ ký"></div>
+                        <span class="signature-name" id="signature-hod"></span>
+                    </div>
+                </div>
+                <div class="bottom-signatures">
+                    <div class="signature-box">
+                        <span class="signature-title">Người đề nghị<br>Requestor</span>
+                        <div class="signature-image-container"><img class="signature-image" id="img-requestor" alt="Chữ ký"></div>
+                        <span class="signature-name" id="signature-requestor"></span>
+                    </div>
+                    <div class="signature-box">
+                        <span class="signature-title">Kế toán thanh toán<br>Accountant</span>
+                        <div class="signature-image-container"><img class="signature-image" id="img-accountant" alt="Chữ ký"></div>
+                        <span class="signature-name" id="signature-accountant"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const dataParam = urlParams.get('data');
+    if (dataParam) {
+        try {
+            const data = JSON.parse(decodeURIComponent(dataParam));
+            populateForm(data);
+        } catch (e) {
+            console.error('Lỗi khi đọc dữ liệu JSON:', e);
+            alert('Không thể đọc dữ liệu từ AppSheet. Hiển thị dữ liệu mẫu.');
+            showDemoData();
+        }
+    } else {
+        showDemoData();
+    }
+});
+
+function formatCurrency(number) {
+    if (typeof number !== 'number') return '0';
+    return number.toLocaleString('vi-VN');
+}
+
+function populateForm(data) {
+    // Hide demo elements first
+    document.getElementById('watermark').style.display = 'none';
+    document.querySelectorAll('.signature-image').forEach(img => img.style.display = 'none');
+
+    // Populate header and info
+    const applicantName = data.nguoi_de_nghi || '';
+    document.getElementById('applicant').textContent = applicantName;
+    document.getElementById('department').textContent = data.bo_phan || '';
+    document.getElementById('vendor-name').textContent = data.nha_cung_cap || '';
+    document.getElementById('date').textContent = data.ngay || '';
+    document.getElementById('ref-no').textContent = data.so_phieu || '';
+    
+    // Populate summary section
+    const amountInWords = data.tong_tien_chu || '';
+    document.getElementById('amount-in-words').textContent = amountInWords ? amountInWords.charAt(0).toUpperCase() + amountInWords.slice(1) : '';
+    document.getElementById('general-note').textContent = data.ghi_chu_tong || '';
+    
+    // Populate supporting documents
+    const docContainer = document.getElementById('supporting-doc-container');
+    const docName = data.chung_tu_ten;
+    const docUrl = data.chung_tu_url;
+    let docHtml = docName || 'Không có';
+    if (docUrl && (docUrl.startsWith('http://') || docUrl.startsWith('https://'))) {
+        docHtml += ` - <a href="${docUrl}" target="_blank" rel="noopener noreferrer">Xem chi tiết</a>`;
+    }
+    docContainer.innerHTML = docHtml;
+
+    // Set payment method
+    const paymentMethod = (data.phuong_thuc || '').trim().toLowerCase();
+    document.getElementById('pay-cash').textContent = paymentMethod === 'cash' ? 'X' : '';
+    document.getElementById('pay-bank').textContent = paymentMethod === 'bank transfer' ? 'X' : '';
+    document.getElementById('pay-visa').textContent = paymentMethod === 'visa' ? 'X' : '';
+    
+    // Populate details table
+    const tableBody = document.getElementById('details-body');
+    tableBody.innerHTML = '';
+    let total = 0;
+    let dataRowCount = 0;
+    const THRESHOLD_FOR_BLANK_ROWS = 5;
+    if (data.chi_tiet && data.chi_tiet.length > 0) {
+        data.chi_tiet.forEach((item, index) => {
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td class="col-no" style="text-align: center;">${index + 1}</td>
+                <td class="col-desc">${item.dien_giai || ''}</td>
+                <td class="col-amount">${formatCurrency(item.so_tien)}</td>
+                <td class="col-remark">${item.ghi_chu || ''}</td>
+            `;
+            total += Number(item.so_tien) || 0;
+        });
+        dataRowCount = data.chi_tiet.length;
+    }
+    if (dataRowCount <= THRESHOLD_FOR_BLANK_ROWS) {
+        for (let i = 0; i < 2; i++) {
+            const blankRow = tableBody.insertRow();
+            blankRow.innerHTML = `<td>&nbsp;</td><td></td><td></td><td></td>`;
+        }
+    }
+    document.getElementById('total-amount').textContent = formatCurrency(total);
+
+    // Populate signature names from data
+    document.getElementById('signature-hod').textContent = data.ten_hod || '';
+    document.getElementById('signature-requestor').textContent = applicantName;
+    document.getElementById('signature-accountant').textContent = data.ten_ketoan_tt || '';
+}
+
+function showDemoData() {
+    const demoData = {
+        nguoi_de_nghi: 'NGUYỄN MINH ANH', 
+        bo_phan: 'Service', 
+        phuong_thuc: 'Cash',
+        nha_cung_cap: 'CÔNG TY TNHH ABC', 
+        ngay: '10-thg 7-25', 
+        so_phieu: 'DEMO-001',
+        tong_tien_chu: 'chín trăm bảy mươi sáu ngàn đồng',
+        chung_tu_ten: 'Hóa đơn đỏ số 001, 002',
+        chung_tu_url: 'https://www.karcher-vn.com/vn/dich-vu.html',
+        ghi_chu_tong: 'Đây là ghi chú tổng ở chế độ demo.',
+        chi_tiet: [
+            { dien_giai: 'Tiền công tác phí 2 ngày (Thanh Hóa)', so_tien: 580000, ghi_chu: 'Theo quy định' },
+            { dien_giai: 'Tiền nhà nghỉ 1 đêm', so_tien: 396000, ghi_chu: 'Hóa đơn 123' }
+        ],
+        ten_hod: 'TRẦN VĂN AN',
+        ten_ketoan_tt: 'LÊ THỊ BÍCH'
+    };
+    populateForm(demoData);
+
+    // Show demo elements
+    document.getElementById('watermark').style.display = 'block';
+    
+    // Show signature images for demo
+    const signatureUrls = {
+        director: 'https://png.pngtree.com/png-clipart/20240816/original/pngtree-signature-isolated-the-signature-is-neatly-written-in-black-ink-the-png-image_15785835.png',
+        ca: 'https://penstore.vn/wp-content/uploads/2018/11/Nhung-mau-chu-ky-dep-nhat-ten-Anh-hop-phong-thuy.png',
+        requestor: 'https://chukydep.vn/Upload/post/chu-ky-ten-minh-anh.jpg',
+        hod: 'https://chukyphongthuy.vn/wp-content/uploads/Chu-ky-toi-gian.png',
+        accountant: 'https://petrovietnam.petrotimes.vn/stores/news_dataimages/administrator/072020/31/20/nguoi-dau-khi-van-tu-tin-tiep-buoc.png'
+    };
+
+    Object.keys(signatureUrls).forEach(id => {
+        const imgElement = document.getElementById(`img-${id}`);
+        if (imgElement) {
+            imgElement.src = signatureUrls[id];
+            imgElement.style.display = 'block';
+        }
+    });
+
+    // Ensure fixed names are correct for demo
+    document.getElementById('signature-director').textContent = 'LÊ VIỆT HÙNG';
+    document.getElementById('signature-ca').textContent = 'TRẦN THỊ DUYÊN ANH';
+    // Update requestor name to match signature
+    document.getElementById('applicant').textContent = 'NGUYỄN MINH ANH';
+    document.getElementById('signature-requestor').textContent = 'NGUYỄN MINH ANH';
+}
+</script>
+
+</body>
+</html>
