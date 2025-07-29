@@ -116,7 +116,11 @@
         .format-80mm .row-stack-on-receipt > span { display: block; margin-bottom: 3px; }
         .format-80mm .products-table { font-size: 10px; width: 100%; }
         .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; border-bottom: 1px solid #ddd; }
-        .format-80mm .products-table .col-dvt, .format-80mm .products-table .col-ghi-chu, .format-80mm .product-note { display: none; }
+        /* THAY ĐỔI: Ẩn cột STT, ĐVT, Ghi chú ở khổ 80mm */
+        .format-80mm .products-table .col-stt,
+        .format-80mm .products-table .col-dvt, 
+        .format-80mm .products-table .col-ghi-chu, 
+        .format-80mm .product-note { display: none; }
         .format-80mm .products-table th { border-bottom-width: 1px; border-color: #000; }
         .format-80mm .bottom-section { display: block; }
         .format-80mm .left-bottom-section, .format-80mm .right-bottom-section { width: 100%; }
@@ -144,6 +148,10 @@
         .format-a4 .products-table, .format-a5 .products-table { border: 1px solid #ddd; border-radius: 5px; overflow: hidden; font-size: 0.9em; width: 100%; }
         .format-a4 .products-table thead tr, .format-a5 .products-table thead tr { background-color: #0056b3; color: white; }
         .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; }
+        /* THÊM MỚI: Định dạng chiều rộng cho cột STT */
+        .format-a4 .products-table .col-stt, .format-a5 .products-table .col-stt {
+            width: 45px;
+        }
         .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
         .format-a4 .bottom-section, .format-a5 .bottom-section { display: flex; justify-content: space-between; margin-top: 20px; gap: 30px; }
         .format-a4 .left-bottom-section, .format-a5 .left-bottom-section { width: 40%; text-align: center; }
@@ -223,7 +231,7 @@
     </div>
 
     <div class="bill-container" id="bill-container">
-        <!-- Nội dung hóa đơn giữ nguyên -->
+        <!-- Nội dung hóa đơn -->
         <div class="company-header">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo">
@@ -249,7 +257,18 @@
             </div>
         </div>
         <table class="products-table">
-            <thead><tr><th class="product-name">Sản Phẩm</th><th class="col-dvt text-center">ĐVT</th><th class="text-center">Số Lượng</th><th class="text-right">Đơn Giá</th><th class="text-right">Thành Tiền</th><th class="col-ghi-chu text-center">Ghi Chú</th></tr></thead>
+            <thead>
+                <tr>
+                    <!-- THAY ĐỔI: Thêm cột STT -->
+                    <th class="col-stt text-center">STT</th> 
+                    <th class="product-name">Sản Phẩm</th>
+                    <th class="col-dvt text-center">ĐVT</th>
+                    <th class="text-center">Số Lượng</th>
+                    <th class="text-right">Đơn Giá</th>
+                    <th class="text-right">Thành Tiền</th>
+                    <th class="col-ghi-chu text-center">Ghi Chú</th>
+                </tr>
+            </thead>
             <tbody id="products-list"></tbody>
         </table>
         <div class="bottom-section">
@@ -378,7 +397,7 @@
         }
 
 
-        // ------ CODE GỐC GIỮ NGUYÊN ------
+        // ------ CODE HỖ TRỢ ------
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name) || '';
@@ -419,11 +438,44 @@
             while (n > 0) { const group = n % 1000; if (group > 0) { result = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (result ? ' ' + result : ''); } n = Math.floor(n / 1000); scaleIndex++; }
             result = result.trim(); return result.charAt(0).toUpperCase() + result.slice(1) + ' đồng';
         }
+
+        // THAY ĐỔI: Cập nhật hàm displayProducts để thêm STT
         function displayProducts(productsJson) {
-            const tbody = document.getElementById('products-list'); tbody.innerHTML = ''; let products = [];
-            try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); } catch (error) { tbody.innerHTML = '<tr><td colspan="6" class="text-center">Lỗi dữ liệu sản phẩm. Vui lòng kiểm tra công thức JSON trong AppSheet.</td></tr>'; console.error("JSON Parse Error:", error, "Input:", decodeURIComponent(productsJson)); return; }
-            if (!products || products.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không có sản phẩm</td></tr>'; return; }
-            products.forEach(p => { const row = document.createElement('tr'); row.innerHTML = `<td class="product-name">${p.sanpham||''}</td><td class="col-dvt text-center">${p.dvt || ''}</td><td class="text-center">${p.soluong||0}</td><td class="text-right">${formatCurrency(p.dongia||0)}</td><td class="text-right">${formatCurrency(p.thanhtien||0)}</td><td class="col-ghi-chu">${p.ghi_chu || ''}</td>`; tbody.appendChild(row); });
+            const tbody = document.getElementById('products-list'); 
+            tbody.innerHTML = ''; 
+            let products = [];
+            
+            // Cập nhật colspan thành 7 do thêm cột STT
+            const colspan = 7; 
+            
+            try { 
+                if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); 
+            } catch (error) { 
+                tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center">Lỗi dữ liệu sản phẩm. Vui lòng kiểm tra công thức JSON trong AppSheet.</td></tr>`; 
+                console.error("JSON Parse Error:", error, "Input:", decodeURIComponent(productsJson)); 
+                return; 
+            }
+            
+            if (!products || products.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center">Không có sản phẩm</td></tr>`; 
+                return; 
+            }
+            
+            // Sử dụng forEach với index để tạo STT
+            products.forEach((p, index) => { 
+                const row = document.createElement('tr'); 
+                // Thêm <td> cho cột STT với giá trị là index + 1
+                row.innerHTML = `
+                    <td class="col-stt text-center">${index + 1}</td>
+                    <td class="product-name">${p.sanpham||''}</td>
+                    <td class="col-dvt text-center">${p.dvt || ''}</td>
+                    <td class="text-center">${p.soluong||0}</td>
+                    <td class="text-right">${formatCurrency(p.dongia||0)}</td>
+                    <td class="text-right">${formatCurrency(p.thanhtien||0)}</td>
+                    <td class="col-ghi-chu">${p.ghi_chu || ''}</td>
+                `; 
+                tbody.appendChild(row); 
+            });
         }
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) { return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`; }
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) { 
