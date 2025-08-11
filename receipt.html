@@ -191,11 +191,11 @@
             document.getElementById('ten_cong_ty').textContent = data.tenCongTy; document.getElementById('dia_chi').textContent = data.diaChi; document.getElementById('so_dien_thoai').textContent = data.soDienThoai; document.getElementById('email').textContent = data.email; document.getElementById('website').textContent = data.website;
             if (data.hangMuc.toLowerCase().includes('chi')) {
                 document.getElementById('voucher-title-vi').textContent = 'PHIẾU CHI'; document.getElementById('voucher-title-en').textContent = 'PAYMENT VOUCHER';
-                document.getElementById('payer-label-vi').textContent = 'Người nhận tiền'; document.getElementById('payer-label-en').textContent = 'Recipient\'s full name';
+                document.getElementById('payer-label-vi').textContent = 'Họ tên người nhận tiền'; document.getElementById('payer-label-en').textContent = 'Recipient\'s full name';
                 document.getElementById('recipient-label-vi').textContent = 'Người nhận tiền'; document.getElementById('recipient-label-en').textContent = 'Recipient';
             } else {
                 document.getElementById('voucher-title-vi').textContent = 'PHIẾU THU'; document.getElementById('voucher-title-en').textContent = 'RECEIPT VOUCHER';
-                document.getElementById('payer-label-vi').textContent = 'Người nộp tiền'; document.getElementById('payer-label-en').textContent = 'Payer\'s full name';
+                document.getElementById('payer-label-vi').textContent = 'Họ tên người nộp tiền'; document.getElementById('payer-label-en').textContent = 'Payer\'s full name';
                 document.getElementById('recipient-label-vi').textContent = 'Người nộp tiền'; document.getElementById('recipient-label-en').textContent = 'Payer';
             }
             const dateStr = data.ngay.includes('/') ? data.ngay.split('/').reverse().join('-') : data.ngay;
@@ -228,8 +228,7 @@
         }
 
         function loadDemoData() {
-            const demoSignatureBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAACBCAMAAADjsEVvAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKeUExURQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAAEBAQAAAGnC8gIAAAAniGVYSWZNTQAqAAAACAAFARIAAAEAAAABAAAAAAFARwADAAEAAAABAAAAAAAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNA+0AAAAAABAASAAAAAEAAQBIAAAAAQAB/+4ADkFkb2JlAGTAAAAAAf/bAEMABgQFBgUFBgYFBgcHBggKEAoKCQkKFA4PDBAXFBgYFxQWFhodJR8aGyMcFhYgLCAjJicpKikrLTc3OEGULARASLAH/AAEMABgQFBgUFBgYFBgcHBggKEAoKCQkKFA4PDBAXFBgYFxQWFhodJR8aGyMcFhYgLCAjJicpKikrLTc3OEGULARASLAH/wgARCAAjACADAREAAhEBAxEB/8QAaQABAQACAwEAAAAAAAAAAAAAAAECBAUGBwEAAgMAAAAAAAAAAAAAAAABAgMEAAUQEAEAAgECBQQDAQAAAAAAAAECAxEEITESQVFSYXEiFYGREQABBAECAwQCAwAAAAAAAAABAgMRACExEkFRYXEiE4HwgbHB8VKh0TIBAAMBAAAAAAAAAAAAAAAAARIAcBAh/9oADAMBAAIRAxEAPwD6hSoUoApUKUACpUKUABhSoUoA//9k=';
-            
+            const demoSignatureUrl = 'https://penstore.vn/wp-content/uploads/2018/11/Nhung-mau-chu-ky-dep-nhat-ten-Anh-hop-phong-thuy.png';
             populateVoucher({
                 tenCongTy: 'CÔNG TY TNHH GIẢI PHÁP SỐ EMS', diaChi: '93/4 Liên khu 5-6, P. Bình Tân, TP.HCM', soDienThoai: '0903375265', email: 'support@gpems.net', website: 'gpems.net',
                 soPhieu: 'PT250724102030', ngay: '24/07/2025', hangMuc: 'Thu', phanLoai: 'Bán Hàng',
@@ -244,14 +243,14 @@
             watermark.innerHTML = 'Demo<br>EMS Solution';
             document.getElementById('bill-container').appendChild(watermark);
             
-            document.getElementById('director-signature').innerHTML = `<img src="${demoSignatureBase64}" alt="Signature">`;
+            document.getElementById('director-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
             document.getElementById('director-name').textContent = 'Trần Văn Giám';
-            document.getElementById('accountant-signature').innerHTML = `<img src="${demoSignatureBase64}" alt="Signature">`;
+            document.getElementById('accountant-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
             document.getElementById('accountant-name').textContent = 'Lê Thị Sổ';
-            document.getElementById('cashier-signature').innerHTML = `<img src="${demoSignatureBase64}" alt="Signature">`;
+            document.getElementById('cashier-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
             document.getElementById('cashier-name').textContent = 'Phạm Hữu Tiền';
-            document.getElementById('creator-signature').innerHTML = `<img src="${demoSignatureBase64}" alt="Signature">`;
-            document.getElementById('recipient-signature').innerHTML = `<img src="${demoSignatureBase64}" alt="Signature">`;
+            document.getElementById('creator-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
+            document.getElementById('recipient-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
             document.getElementById('recipient-name').textContent = 'SQH Co., Ltd';
         }
 
