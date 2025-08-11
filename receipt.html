@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Phiếu Thu / Chi</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.3s; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { opacity: 0; pointer-events: none; }
+        .demo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 8vw; line-height: 1.1; color: rgba(255, 0, 0, 0.1); font-weight: bold; text-transform: uppercase; text-align: center; z-index: 1; pointer-events: none; white-space: nowrap; }
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; margin: 0 !important; padding: 0 !important; overflow: hidden; }
+            .no-print, #loading-overlay, .demo-watermark { display: none !important; }
+            .bill-container { margin: 0 !important; padding: 0 !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; border: none !important; page-break-inside: avoid; }
+            @page { margin: 0; } @page a4-portrait { size: A4 portrait; margin: 8mm; } @page a5-landscape { size: A5 landscape; margin: 5mm; }
+            body.format-a4 { page: a4-portrait; } body.format-a5 { page: a5-landscape; }
+            * { page-break-before: avoid; page-break-after: avoid; }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #eee; font-family: 'Times New Roman', Times, serif; }
+        .bill-container { background: white; color: #000; position: relative; visibility: hidden; display: flex; flex-direction: column; }
+        .text-right { text-align: right; } .text-center { text-align: center; } .text-bold { font-weight: bold; }
+        .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; }
+        .options-row { display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .print-options button { margin: 0; padding: 8px 12px; height: 44px; cursor: pointer; border: none; border-radius: 5px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; gap: 8px; }
+        .print-options button:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: translateY(-2px); filter: brightness(1.1); }
+        .print-options button.btn-a4 { background-color: #28a745; } .print-options button.btn-a5 { background-color: #ffc107; } .print-options button.btn-print { background-color: #6c757d; } .print-options button.btn-pdf { background-color: #dc3545; }
+        .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; } .icon-a4 { width: 14px; height: 20px; } .icon-a5 { width: 20px; height: 14px; }
+        .icon-print { position: relative; width: 24px; height: 22px; } .icon-print .printer-top { position: absolute; top: 0; left: 2px; width: 20px; height: 8px; border: 2px solid white; border-bottom: none; } .icon-print .printer-body { position: absolute; bottom: 0; left: 0; width: 24px; height: 12px; background: white; border-radius: 2px; } .icon-print .paper { position: absolute; top: 4px; left: 6px; width: 12px; height: 4px; background: #eee; }
+        .vi { font-weight: normal; font-style: normal; } .en { font-style: italic; font-weight: normal; font-size: 0.85em; }
+        .company-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+        .company-identity { display: flex; align-items: center; gap: 15px; } .logo { max-width: 60px; } .company-name { font-size: 1.1em; font-weight: bold; }
+        .company-contact { font-size: 0.9em; margin-top: 5px; }
+        #voucher-qr-code img { width: 64px; height: 64px; }
+        .invoice-body { flex-grow: 1; padding: 10px 0; }
+        .main-title-container { text-align: center; margin-bottom: 5px; font-weight: bold; line-height: 1.2; }
+        .voucher-info { display: flex; justify-content: space-between; margin: 15px 0; }
+        .main-content-wrapper { display: flex; gap: 20px; align-items: flex-start; }
+        .voucher-content { flex: 3; }
+        .voucher-content p { margin-bottom: 12px; line-height: 1.6; }
+        .voucher-content p strong { font-weight: normal; }
+        .voucher-content .data-field { border-bottom: 1px dotted #000; }
+        .footer { padding-top: 15px; }
+        .payment-qr-section { display: none; text-align: center; flex: 1; }
+        .payment-qr-section .text-bold { max-width: 180px; margin: 0 auto; } /* FIX: Wider QR title container */
+        .qr-code-container img { max-width: 150px; }
+        .signature-section { display: flex; flex-direction: column; gap: 30px; margin-top: 20px; page-break-inside: avoid; width: 100%; }
+        .signature-row { display: flex; justify-content: space-around; text-align: center; }
+        .signature-box { width: 30%; }
+        .signature-row.two-items .signature-box { width: 40%; }
+        .signature-box .signature-title { font-weight: bold; }
+        .signature-box .signature-name { margin-top: 5px; min-height: 20px; }
+        .signature-image { height: 50px; display: flex; align-items: center; justify-content: center; }
+        .signature-image img { max-height: 45px; opacity: 0.8; }
+        
+        body.format-a4 { font-size: 11pt; }
+        .format-a4 .bill-container { margin: 20px auto; max-width: 190mm; min-height: 270mm; padding: 10pt; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .format-a4 .main-title-container { font-size: 2em; }
+
+        body.format-a5 { font-size: 8.5pt; }
+        .format-a5 .bill-container { margin: 10px auto; max-width: 200mm; min-height: 135mm; padding: 5pt; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .format-a5 .company-header { padding-bottom: 2px; }
+        .format-a5 .logo { max-width: 48px; } /* FIX: Smaller logo */
+        #voucher-qr-code img { width: 51px; height: 51px; } /* FIX: Smaller header QR */
+        .format-a5 .company-name { font-size: 1em; }
+        .format-a5 .company-contact { font-size: 0.8em; margin-top: 2px; }
+        .format-a5 .main-title-container { font-size: 1.6em; }
+        .format-a5 .voucher-info { margin: 10px 0; }
+        .format-a5 .voucher-content p { margin-bottom: 6px; line-height: 1.4; } /* FIX: Tighter line spacing */
+        .format-a5 .qr-code-container img { max-width: 120px; } /* FIX: Smaller payment QR */
+        .format-a5 .signature-section { gap: 15px; margin-top: 10px; }
+        .format-a5 .signature-image { height: 35px; } .format-a5 .signature-image img { max-height: 30px; }
+        .format-a5 .signature-name { margin-top: 2px; }
+
+        @media (max-width: 768px) {
+            .print-options { top: 5px; right: 5px; gap: 8px; }
+            .options-row { display: contents; }
+            .print-options button { padding: 7px 10px; height: 40px; font-size: 13px; gap: 7px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-overlay"><div class="spinner"></div></div>
+
+    <div class="print-options no-print">
+        <div class="options-row"> <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc">A4<span class="icon icon-a4"></span></button> <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang">A5<span class="icon icon-a5"></span></button> </div>
+        <div class="options-row"> <button class="btn-print" onclick="window.print()" title="In Phiếu"><div class="icon-print"><div class="paper"></div><div class="printer-top"></div><div class="printer-body"></div></div></button> <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16"><path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/></svg></button> </div>
+    </div>
+
+    <div class="bill-container" id="bill-container">
+        <div class="company-header">
+            <div class="company-identity"> <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo" crossorigin="anonymous">
+                <div>
+                    <div class="company-name" id="ten_cong_ty"></div>
+                    <div><span class="text-bold">Địa chỉ / <span class="en">Address</span>:</span> <span id="dia_chi"></span></div>
+                    <div class="company-contact">
+                        <span class="text-bold">Hotline:</span> <span id="so_dien_thoai"></span> |
+                        <span class="text-bold">Email:</span> <span id="email"></span> |
+                        <span class="text-bold">Website:</span> <span id="website"></span>
+                    </div>
+                </div>
+            </div>
+            <div id="voucher-qr-code"></div>
+        </div>
+        <div class="invoice-body">
+            <div class="main-title-container">
+                <div id="voucher-title-vi"></div>
+                <div class="en" id="voucher-title-en"></div>
+            </div>
+            <div class="voucher-info">
+                <div><strong><span class="vi">Số</span> / <span class="en">No.</span>:</strong> <span id="voucher-number" class="text-bold"></span></div>
+                <div id="voucher-date-formatted"></div>
+            </div>
+            <div class="main-content-wrapper">
+                <div class="voucher-content">
+                    <p><strong><span id="payer-label-vi"></span> / <span class="en" id="payer-label-en"></span>:</strong> <span id="payer-name" class="data-field"></span></p>
+                    <p><strong><span class="vi">Địa chỉ</span> / <span class="en">Address</span>:</strong> <span id="payer-address" class="data-field"></span></p>
+                    <p><strong><span class="vi">Lý do</span> / <span class="en">Reason</span>:</strong> <span id="payment-reason" class="data-field"></span></p>
+                    <p><strong><span class="vi">Số tiền</span> / <span class="en">Amount</span>:</strong> <span id="amount-numeric" class="text-bold data-field"></span></p>
+                    <p><strong><span class="vi">Viết bằng chữ</span> / <span class="en">In words</span>:</strong> <span id="amount-words" class="text-bold data-field"></span></p>
+                    <p><strong><span class="vi">Kèm theo</span> / <span class="en">Attached</span>:</strong> <span id="attached-docs" class="data-field"></span> <strong><span class="vi">chứng từ gốc</span> / <span class="en">original documents</span></strong></p>
+                    <p><strong><span class="vi">Ghi chú</span> / <span class="en">Notes</span>:</strong> <span id="notes" class="data-field"></span></p>
+                </div>
+                <div class="payment-qr-section">
+                    <div class="text-bold"><span class="vi">QUÉT MÃ ĐỂ THANH TOÁN</span><br><span class="en">SCAN TO PAY</span></div>
+                    <div class="qr-code-container"></div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="signature-section">
+                <div class="signature-row">
+                    <div class="signature-box">
+                        <div class="signature-title"><span class="vi">Giám đốc</span><br><span class="en">Director</span></div>
+                        <div class="signature-image" id="director-signature"></div>
+                        <div class="signature-name" id="director-name"></div>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-title"><span class="vi">Kế toán trưởng</span><br><span class="en">Chief Accountant</span></div>
+                        <div class="signature-image" id="accountant-signature"></div>
+                        <div class="signature-name" id="accountant-name"></div>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-title"><span class="vi">Thủ quỹ</span><br><span class="en">Cashier</span></div>
+                         <div class="signature-image" id="cashier-signature"></div>
+                        <div class="signature-name" id="cashier-name"></div>
+                    </div>
+                </div>
+                <div class="signature-row two-items">
+                    <div class="signature-box">
+                        <div class="signature-title"><span class="vi">Người lập phiếu</span><br><span class="en">Preparer</span></div>
+                        <div class="signature-image" id="creator-signature"></div>
+                        <div class="signature-name text-bold" id="creator-name"></div>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-title"><span id="recipient-label-vi"></span><br><span class="en" id="recipient-label-en"></span></div>
+                        <div class="signature-image" id="recipient-signature"></div>
+                        <div class="signature-name" id="recipient-name"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function convertImageToBase64(imgElement) { if (!imgElement || !imgElement.src || imgElement.src.startsWith('data:image')) { return; } const originalSrc = imgElement.src; const processBlob = (blob) => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { imgElement.src = reader.result; resolve(reader.result); }; reader.onerror = reject; reader.readAsDataURL(blob); }); try { const response = await fetch(originalSrc); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); await processBlob(await response.blob()); } catch (error) { console.warn(`Direct image fetch failed, trying proxy. Error: ${error.message}`); const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalSrc)}`; try { const proxyResponse = await fetch(proxyUrl); if (!proxyResponse.ok) throw new Error(`Proxy HTTP error! status: ${proxyResponse.status}`); await processBlob(await proxyResponse.blob()); } catch (proxyError) { console.error(`Failed to fetch image via proxy. Error: ${proxyError.message}`); } } }
+        async function downloadPDF() { const element = document.querySelector('.bill-container'); const printOptionsPanel = document.querySelector('.print-options'); const voucherNumber = document.getElementById('voucher-number').textContent || 'unknown'; const filename = `Phieu-${voucherNumber}.pdf`; printOptionsPanel.style.display = 'none'; document.body.classList.add('export-mode'); const allImages = Array.from(document.querySelectorAll('#logo-img, #voucher-qr-code img, .signature-image img, .qr-code-container img')); await Promise.all(allImages.map(img => convertImageToBase64(img))); let jspdfConfig = { unit: 'mm', format: 'a4', orientation: 'portrait' }; if (document.body.classList.contains('format-a5')) { jspdfConfig = { unit: 'mm', format: 'a5', orientation: 'landscape' }; } const opt = { margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: jspdfConfig }; try { await html2pdf().from(element).set(opt).save(); } catch (error) { console.error("Error creating PDF:", error); } finally { document.body.classList.remove('export-mode'); printOptionsPanel.style.display = 'flex'; } }
+        function getUrlParameter(name) { return new URLSearchParams(window.location.search).get(name) || ''; }
+        function cleanNumberString(s) { if (typeof s !== 'string') return String(s); return s.replace(/[.,]/g, ''); }
+        function formatCurrency(amount) { const cleanAmount = cleanNumberString(amount); if (isNaN(cleanAmount) || cleanAmount === '') return '0'; return parseInt(cleanAmount).toLocaleString('vi-VN') + ' VNĐ'; }
+        function numberToWords(numStr) { const num = parseInt(cleanNumberString(numStr), 10); if (isNaN(num)) return ''; if (num === 0) return 'Không đồng.'; const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'], tens = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'], scales = ['', 'nghìn', 'triệu', 'tỷ']; function convertHundreds(n) { let r = ''; const h = Math.floor(n / 100), t = Math.floor((n % 100) / 10), o = n % 10; if (h > 0) r += ones[h] + ' trăm'; if (t > 0) { if (h > 0) r += ' '; if (t === 1) { r += 'mười'; if (o === 5) r += ' lăm'; else if (o > 0) r += ' ' + ones[o]; } else { r += tens[t]; if (o === 1) r += ' mốt'; else if (o === 5) r += ' lăm'; else if (o > 0) r += ' ' + ones[o]; } } else if (o > 0) { if (h > 0) r += ' linh '; r += ones[o]; } return r; } let r = '', scaleIndex = 0, n = num; while (n > 0) { const group = n % 1000; if (group > 0) { r = convertHundreds(group) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + (r ? ' ' + r : ''); } n = Math.floor(n / 1000); scaleIndex++; } r = r.trim(); return r.charAt(0).toUpperCase() + r.slice(1) + ' đồng chẵn.'; }
+        function numberToWords_EN(numStr) { let num = parseInt(cleanNumberString(numStr), 10); if (isNaN(num)) return ''; if (num === 0) return 'Zero VND.'; const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']; const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']; const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']; const scales = ['', 'thousand', 'million', 'billion']; function convertGroup(n) { if (n === 0) return ''; let str = ''; if (n >= 100) { str += ones[Math.floor(n / 100)] + ' hundred '; n %= 100; } if (n >= 10 && n <= 19) { return str + teens[n - 10] + ' '; } if (n >= 20) { str += tens[Math.floor(n / 10)] + ' '; n %= 10; } if (n > 0) { str += ones[n] + ' '; } return str; } let result = ''; let scaleIndex = 0; while (num > 0) { let group = num % 1000; if (group > 0) { result = convertGroup(group) + scales[scaleIndex] + ' ' + result; } scaleIndex++; num = Math.floor(num / 1000); } result = result.trim(); return result.charAt(0).toUpperCase() + result.slice(1) + ' VND only.'; }
+        function getBankCodeFromName(bankName) { if (!bankName) return null; const bankMap = { 'vietinbank': '970415', 'vtb': '970415', 'vcb': '970436', 'vietcombank': '970436', 'bidv': '970418', 'agribank': '970405', 'mbbank': '970422', 'mb': '970422', 'techcombank': '970407', 'tcb': '970407', 'acb': '970416', 'vpbank': '970432', 'tpbank': '970423', 'sacombank': '970403', 'kienlongbank': '970452', 'klb': '970452' }; const formattedName = bankName.toLowerCase().replace(/\s/g, ''); return bankMap[formattedName] || null; }
+        
+        function handleQRCode(data) { const qrSection = document.querySelector('.payment-qr-section'); const qrContainer = qrSection.querySelector('.qr-code-container'); const { bank_name, account_number, account_holder, soTien, soPhieu } = data; if (!bank_name || !account_number || !account_holder || !soTien) { qrSection.style.display = 'none'; return; } const bankCode = getBankCodeFromName(bank_name); if (!bankCode) { qrContainer.innerHTML = 'Bank not supported'; qrSection.style.display = 'block'; return; } const amount = cleanNumberString(soTien); const description = soPhieu || ''; const qrUrl = `https://img.vietqr.io/image/${bankCode}-${account_number}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(account_holder)}`; const qrImage = new Image(); qrImage.crossOrigin = 'anonymous'; qrImage.src = qrUrl; qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); qrSection.style.display = 'block'; }
+        function displayVoucherQRCode(voucherNumber) { const container = document.getElementById('voucher-qr-code'); if (container && voucherNumber) { const qrImg = new Image(); qrImg.crossOrigin = 'anonymous'; qrImg.src = `https://quickchart.io/qr?text=${encodeURIComponent(voucherNumber)}&size=128`; container.innerHTML = ''; container.appendChild(qrImg); } }
+
+        function populateVoucher(data) {
+            document.getElementById('ten_cong_ty').textContent = data.tenCongTy; document.getElementById('dia_chi').textContent = data.diaChi; document.getElementById('so_dien_thoai').textContent = data.soDienThoai; document.getElementById('email').textContent = data.email; document.getElementById('website').textContent = data.website;
+            if (data.hangMuc.toLowerCase().includes('chi')) {
+                document.getElementById('voucher-title-vi').textContent = 'PHIẾU CHI'; document.getElementById('voucher-title-en').textContent = 'PAYMENT VOUCHER';
+                document.getElementById('payer-label-vi').textContent = 'Họ tên người nhận tiền'; document.getElementById('payer-label-en').textContent = 'Recipient\'s full name';
+                document.getElementById('recipient-label-vi').textContent = 'Người nhận tiền'; document.getElementById('recipient-label-en').textContent = 'Recipient';
+            } else {
+                document.getElementById('voucher-title-vi').textContent = 'PHIẾU THU'; document.getElementById('voucher-title-en').textContent = 'RECEIPT VOUCHER';
+                document.getElementById('payer-label-vi').textContent = 'Họ tên người nộp tiền'; document.getElementById('payer-label-en').textContent = 'Payer\'s full name';
+                document.getElementById('recipient-label-vi').textContent = 'Người nộp tiền'; document.getElementById('recipient-label-en').textContent = 'Payer';
+            }
+            const dateStr = data.ngay.includes('/') ? data.ngay.split('/').reverse().join('-') : data.ngay;
+            const date = data.ngay ? new Date(dateStr) : new Date();
+            document.getElementById('voucher-date-formatted').textContent = `Ngày ${date.getDate()} tháng ${date.getMonth() + 1} năm ${date.getFullYear()}`;
+            document.getElementById('voucher-number').textContent = data.soPhieu || 'N/A';
+            document.getElementById('payer-name').textContent = data.khachHang || '';
+            document.getElementById('payer-address').textContent = data.diaChiKhachHang || '';
+            document.getElementById('payment-reason').textContent = data.noiDungChiTiet || '';
+            document.getElementById('amount-numeric').textContent = formatCurrency(data.soTien);
+            const vnmWords = numberToWords(data.soTien);
+            const engWords = numberToWords_EN(data.soTien);
+            document.getElementById('amount-words').innerHTML = `${vnmWords} <span class="en">/ ${engWords}</span>`;
+            document.getElementById('attached-docs').textContent = data.soDh || 'Không';
+            document.getElementById('notes').textContent = data.ghiChu || '';
+            document.getElementById('creator-name').textContent = data.nguoiTao || '';
+            displayVoucherQRCode(data.soPhieu);
+            handleQRCode(data);
+        }
+
+        function loadDataFromUrl() {
+            populateVoucher({
+                tenCongTy: getUrlParameter('ten_cong_ty'), diaChi: getUrlParameter('dia_chi'), soDienThoai: getUrlParameter('so_dien_thoai'), email: getUrlParameter('email'), website: getUrlParameter('website'),
+                soPhieu: getUrlParameter('so_phieu'), ngay: getUrlParameter('ngay'), hangMuc: getUrlParameter('hang_muc'), phanLoai: getUrlParameter('phan_loai'),
+                khachHang: getUrlParameter('khach_hang'), diaChiKhachHang: getUrlParameter('dia_chi_khach_hang'), soDh: getUrlParameter('so_dh'),
+                noiDungChiTiet: getUrlParameter('noi_dung_chi_tiet'), soTien: getUrlParameter('so_tien'), hinhThuc: getUrlParameter('hinh_thuc'),
+                ghiChu: getUrlParameter('ghi_chu'), nguoiTao: getUrlParameter('nguoi_tao'),
+                bank_name: getUrlParameter('bank_name'), account_number: getUrlParameter('account_number'), account_holder: getUrlParameter('account_holder'),
+            });
+        }
+
+        function loadDemoData() {
+            const demoSignatureUrl = 'https://penstore.vn/wp-content/uploads/2018/11/Nhung-mau-chu-ky-dep-nhat-ten-Anh-hop-phong-thuy.png';
+            populateVoucher({
+                tenCongTy: 'CÔNG TY TNHH GIẢI PHÁP SỐ EMS', diaChi: '93/4 Liên khu 5-6, P. Bình Tân, TP.HCM', soDienThoai: '0903375265', email: 'support@gpems.net', website: 'gpems.net',
+                soPhieu: 'PT250724102030', ngay: '24/07/2025', hangMuc: 'Thu', phanLoai: 'Bán Hàng',
+                khachHang: 'CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ SQH', diaChiKhachHang: '123 Đường ABC, Phường 4, Quận Tân Bình, TP.HCM',
+                soDh: '250624-SQH0032-01, 250712-SQH0032-01', noiDungChiTiet: 'Thu tiền bán Hàng ĐH: 250624-SQH0032-01, 250712-SQH0032-01',
+                soTien: '783580', hinhThuc: 'Tiền mặt', ghiChu: 'Thanh toán đúng hạn.', nguoiTao: 'Nguyễn Văn A (NV003)',
+                bank_name: 'VCB', account_number: '0123456789', account_holder: 'CONG TY TNHH GIAI PHAP SO EMS'
+            });
+            
+            const watermark = document.createElement('div');
+            watermark.className = 'demo-watermark';
+            watermark.innerHTML = 'Demo<br>EMS Solution';
+            document.getElementById('bill-container').appendChild(watermark);
+            
+            document.getElementById('director-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
+            document.getElementById('director-name').textContent = 'Trần Văn Giám';
+            document.getElementById('accountant-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
+            document.getElementById('accountant-name').textContent = 'Lê Thị Sổ';
+            document.getElementById('cashier-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
+            document.getElementById('cashier-name').textContent = 'Phạm Hữu Tiền';
+            document.getElementById('creator-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
+            document.getElementById('recipient-signature').innerHTML = `<img src="${demoSignatureUrl}" alt="Signature" crossorigin="anonymous">`;
+            document.getElementById('recipient-name').textContent = 'SQH Co., Ltd';
+        }
+
+        function changeFormat(format) {
+            document.body.classList.remove('format-a4', 'format-a5');
+            document.body.classList.add('format-' + format);
+        }
+        
+        async function initializeApp() {
+            const loader = document.getElementById('loading-overlay');
+            const container = document.getElementById('bill-container');
+            const formatFromUrl = getUrlParameter('format');
+            changeFormat(['a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : 'a4');
+            try {
+                if (window.location.search.length > 1) { loadDataFromUrl(); } else { loadDemoData(); }
+                const essentialImages = Array.from(document.querySelectorAll('#logo-img, #voucher-qr-code img, .qr-code-container img'));
+                await Promise.all(essentialImages.map(img => convertImageToBase64(img)));
+                container.style.visibility = 'visible';
+                loader.classList.add('hidden');
+            } catch (error) {
+                console.error("Failed to initialize the voucher:", error);
+                loader.innerHTML = `<h1>Lỗi tải phiếu</h1><p>${error.message}</p>`;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            window.addEventListener('beforeprint', () => document.querySelector('.no-print').style.display = 'none');
+            window.addEventListener('afterprint', () => document.querySelector('.no-print').style.display = 'flex');
+        });
+    </script>
+</body>
+</html>
