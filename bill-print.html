@@ -43,46 +43,57 @@
         .company-identity { display: flex; align-items: center; gap: 15px; }
         body.format-80mm { font-family: 'Courier New', monospace; font-size: 12px; width: 80mm; margin: 0 auto; color: #000; }
         .format-80mm .bill-container { padding: 3mm; } .format-80mm .logo { max-width: 40px; } .format-80mm .company-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; } .format-80mm .company-identity { justify-content: center; gap: 8px; } .format-80mm .company-details { text-align: left; } .format-80mm .order-qr-code { display: none; } .format-80mm .company-name { font-size: 12px; } .format-80mm .company-info { font-size: 8px; line-height: 1.2; }
-        .format-80mm .label-email { display: none; } /* FIX: Hide "Email:" label */
+        .format-80mm .label-email { display: none; }
         .format-80mm .main-title-container { text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; } .format-80mm .order-number-subtitle { font-size: 11px; text-align: center; margin-top: -10px; margin-bottom: 10px;} .format-80mm .customer-details { margin-bottom: 15px; font-size: 11px; }
         .format-80mm .customer-address-row { display: none; } 
         .format-80mm .customer-details-row { display: flex; justify-content: space-between; margin-bottom: 3px; } .format-80mm .row-stack-on-receipt { display: block; } .format-80mm .row-stack-on-receipt > span { display: block; margin-bottom: 3px; } .format-80mm .products-table { font-size: 10px; } .format-80mm .products-table th, .format-80mm .products-table td { padding: 3px 2px; border-bottom: 1px solid #ddd; word-break: break-all; } .format-80mm .col-stt, .format-80mm .col-dvt, .format-80mm .col-ghi-chu { display: none; } .format-80mm .col-soluong { width: 15%; }
-        .format-80mm .products-table .col-soluong { text-align: center; } /* FIX: Center quantity column */
+        .format-80mm .products-table .col-soluong { text-align: center; }
         .format-80mm .col-dongia, .format-80mm .col-thanhtien { width: 25%; } .format-80mm .products-table th { border-bottom-width: 1px; border-color: #000; }
         .format-80mm .products-table th.col-soluong { font-size: 0; }
         .format-80mm .products-table th.col-soluong::before { content: "SL"; font-size: 10px; }
         .format-80mm .bottom-section { display: block; } .format-80mm .left-bottom-section, .format-80mm .right-bottom-section { width: 100%; } .format-80mm .totals-box { border-top: 1px dashed #000; padding-top: 10px; } .format-80mm .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; } .format-80mm .total-final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; } .format-80mm .amount-in-words { font-size: 10px; font-style: italic; margin-top: 5px; text-align: center; } .format-80mm .notes-section { margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 10px; } .format-80mm .payment-section { margin-top: 15px; text-align: center; } .format-80mm .qr-code { margin-top: 5px; } .format-80mm .qr-code img { width: 180px; height: 180px; } .format-80mm .footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #000; padding-top: 8px; }
         body.format-a4, body.format-a5 { font-family: Arial, sans-serif; }
         .format-a4 .bill-container, .format-a5 .bill-container { margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-        .format-a4 .bill-container { max-width: 190mm; min-height: 280mm; padding: 10pt; } .format-a5 .bill-container { max-width: 280mm; min-height: 135mm; padding: 5pt; } .invoice-body { flex-grow: 1; }
+        .format-a4 .bill-container { max-width: 190mm; min-height: 280mm; padding: 10pt; }
         .format-a4 .company-header, .format-a5 .company-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding-bottom: 5px; border-bottom: 1px solid #ccc; z-index: 2; position: relative; }
-        .format-a4 .logo, .format-a5 .logo { max-width: 60px; } .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; } .format-a4 .main-title-container, .format-a5 .main-title-container { text-align: center; margin: 15px 0 0 0; font-size: 2em; font-weight: bold; letter-spacing: 2px; color: #333; z-index: 2; position: relative; } .order-number-subtitle { text-align: center; font-size: 0.9em; color: #555; margin-bottom: 15px; } .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 10px; margin-top: 10px; z-index: 2; position: relative; } .format-a4 .customer-details-row, .format-a5 .customer-details-row { display: flex; justify-content: space-between; padding: 3px 0; } .customer-address-row { padding: 3px 0; }
+        .format-a4 .logo, .format-a5 .logo { max-width: 60px; } .format-a4 .company-name, .format-a5 .company-name { font-size: 1.6em; color: #0056b3; } .format-a4 .main-title-container, .format-a5 .main-title-container { text-align: center; letter-spacing: 2px; color: #333; z-index: 2; position: relative; }
+        .format-a4 .main-title-container { font-size: 2em; font-weight: bold; margin: 15px 0 0 0; }
+        .order-number-subtitle { text-align: center; font-size: 0.9em; color: #555; margin-bottom: 15px; } .format-a4 .customer-details, .format-a5 .customer-details { margin-bottom: 10px; margin-top: 10px; z-index: 2; position: relative; } .format-a4 .customer-details-row, .format-a5 .customer-details-row { display: flex; justify-content: space-between; padding: 3px 0; } .customer-address-row { padding: 3px 0; }
+        .format-a4 .row-stack-on-receipt, .format-a5 .row-stack-on-receipt { display: none; } /* FIX: Hide empty row on A4/A5 */
         .format-a4 .products-table, .format-a5 .products-table { border: 0.5pt solid #ccc; border-radius: 0; border-collapse: collapse; overflow: hidden; font-size: 0.9em; z-index: 2; position: relative; }
         .format-a4 .products-table th, .format-a4 .products-table td, .format-a5 .products-table th, .format-a5 .products-table td { border: 0.5pt solid #ccc; }
-        .format-a4 .products-table thead tr, .format-a5 .products-table thead tr { background-color: #d6eaf8; color: #333; } /* FIX: Darker header background */
+        .format-a4 .products-table thead tr, .format-a5 .products-table thead tr { background-color: #d6eaf8; color: #333; }
         .format-a4 .products-table th, .format-a5 .products-table th { text-transform: uppercase; font-size: 0.85em; white-space: nowrap; }
         .format-a4 .products-table .col-stt, .format-a5 .products-table .col-stt { width: 45px; text-align: center;} .format-a4 .products-table .col-dvt, .format-a5 .products-table .col-dvt { width: 8%; text-align: center; }
         .format-a4 .products-table .col-soluong, .format-a5 .products-table .col-soluong { width: 12%; text-align: center; }
         .format-a4 .products-table .col-dongia, .format-a5 .products-table .col-dongia { width: 13%; text-align: right; }
         .format-a4 .products-table .col-thanhtien, .format-a5 .products-table .col-thanhtien { width: 15%; text-align: right; } .format-a4 .products-table .col-ghi-chu, .format-a5 .products-table .col-ghi-chu { width: 12%; }
         .format-a4 .products-table tbody tr:nth-child(even), .format-a5 .products-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
-        .format-a4 .bottom-section, .format-a5 .bottom-section { display: flex; justify-content: space-between; margin-top: 20px; gap: 30px; z-index: 2; position: relative; }
+        .format-a4 .bottom-section, .format-a5 .bottom-section { display: flex; justify-content: space-between; z-index: 2; position: relative; }
+        .format-a4 .bottom-section { margin-top: 20px; gap: 30px; }
         .format-a4 .left-bottom-section, .format-a5 .left-bottom-section { width: 40%; text-align: center; } .format-a4 .right-bottom-section, .format-a5 .right-bottom-section { width: 60%; } .format-a4 .totals-box, .format-a5 .totals-box { width: 100%; } .format-a4 .total-row, .format-a5 .total-row { border-bottom: 1px solid #eee; display: flex; justify-content: space-between; } .format-a4 .total-row span:first-child, .format-a5 .total-row span:first-child { color: #555; } .format-a4 .total-final, .format-a5 .total-final { display: flex; justify-content: space-between; background-color: #f8f9fa; } .format-a4 .total-final span, .format-a5 .total-final span { font-size: 1.2em; font-weight: bold; color: #0056b3; }
         .format-a4 .notes-section, .format-a5 .notes-section { margin-top: 20px; font-style: italic; font-size: 0.9em; text-align: left; }
-        .format-a4 .footer, .format-a5 .footer { clear: both; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; z-index: 2; position: relative; display: flex; justify-content: space-between; align-items: center; }
+        .format-a4 .footer, .format-a5 .footer { clear: both; z-index: 2; position: relative; display: flex; justify-content: space-between; align-items: center; }
+        .format-a4 .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 0.9em; color: #777; }
         body.format-a4 { font-size: 11pt; } .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; vertical-align: top; } .format-a4 .qr-code img { width: 140px; height: 140px; } .format-a4 .total-row, .format-a4 .total-final { padding: 10px; }
         .format-a4 .order-qr-code img, .format-a5 .order-qr-code img { width: 64px; height: 64px; }
-        /* FIX: Reduce spacing on A5 */
-        body.format-a5 { font-size: 8.5pt; } 
-        .format-a5 .products-table th, .format-a5 .products-table td { padding: 7px 8px; vertical-align: top; } 
+        /* FIX: A5 adjustments */
+        .format-a5 .bill-container { padding: 3pt; }
+        .format-a5 .main-title-container { font-size: 1.8em; font-weight: bold; margin: 10px 0 0 0; }
+        .format-a5 .customer-details-row, .customer-address-row { padding: 1px 0; }
+        body.format-a5 { font-size: 8pt; } 
+        .format-a5 .products-table th, .format-a5 .products-table td { padding: 4px 6px; vertical-align: top; } 
         .format-a5 .qr-code img { width: 110px; height: 110px; } 
-        .format-a5 .total-row, .format-a5 .total-final { padding: 6px; }
-        .format-a5 .bottom-section { margin-top: 15px; }
-        .format-a5 .footer { margin-top: 30px; }
-
+        .format-a5 .total-row, .format-a5 .total-final { padding: 4px; }
+        .format-a5 .bottom-section { margin-top: 10px; gap: 20px; }
+        .format-a5 .notes-section { margin-top: 10px; }
+        .format-a5 .footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #ccc; font-size: 0.85em; color: #777; }
+        
         body.export-mode { background: white !important; } .export-mode .bill-container { margin: 0 auto !important; box-shadow: none !important; border: none !important; } .export-mode.format-a4 .bill-container { padding: 10pt !important; } .export-mode.format-a5 .bill-container { padding: 5pt !important; } .export-mode.format-80mm .bill-container { padding: 3mm !important; } .export-mode .demo-watermark { display: block !important; }
         @media (max-width: 768px) {
-            .print-options { gap: 0; } .options-row { display: contents; } .print-options button { margin-bottom: 6px; padding: 6px 10px; height: 36px; font-size: 12px; gap: 6px; } .print-options button:last-child { margin-bottom: 0; }
+            .print-options { top: 5px; right: 5px; gap: 8px; }
+            .options-row { display: contents; }
+            .print-options button { padding: 7px 10px; height: 40px; font-size: 13px; gap: 7px; }
         }
     </style>
 </head>
@@ -99,7 +110,6 @@
             <div class="company-identity"> <img id="logo-img" src="https://gpems.net/logo-icon.png" alt="Logo" class="logo" crossorigin="anonymous">
                 <div class="company-details">
                     <div class="company-name" id="ten_cong_ty"></div>
-                    <!-- FIX: Added span for email label -->
                     <div class="company-info"> ĐC: <span id="dia_chi"></span><br> ĐT: <span id="so_dien_thoai"></span> | <span class="label-email">Email: </span><span id="email"></span> </div>
                 </div>
             </div>
@@ -109,7 +119,6 @@
             <div class="main-title-container">HÓA ĐƠN BÁN HÀNG</div>
             <div class="order-number-subtitle"> <span class="text-bold">Số Đơn Hàng:</span> <span id="order-number"></span> </div>
             <div class="customer-details">
-                <!-- FIX: Restructured rows for better alignment on 80mm -->
                 <div class="customer-details-row"> 
                     <span><span class="text-bold">Khách Hàng:</span> <span id="customer-name"></span></span> 
                     <span><span class="text-bold">Ngày Đặt:</span> <span id="order-date"></span></span> 
@@ -117,8 +126,9 @@
                 <div class="customer-address-row"> 
                     <span><span class="text-bold">Địa chỉ:</span> <span id="customer-address"></span></span> 
                 </div>
-                <div class="customer-details-row"> 
-                    <span></span> <!-- Empty span for alignment -->
+                <!-- This row now holds the Print Time and is hidden on A4/A5 by CSS -->
+                <div class="customer-details-row row-stack-on-receipt"> 
+                    <span></span>
                     <span><span class="text-bold">In Lúc:</span> <span id="print-time"></span></span> 
                 </div>
             </div>
@@ -153,8 +163,6 @@
     </div>
     
     <script>
-        // All JavaScript functions remain the same as the previous correct version.
-        // No logic changes are needed for these display adjustments.
         async function convertImageToBase64(imgElement) { if (!imgElement || !imgElement.src || imgElement.src.startsWith('data:image')) { return; } const originalSrc = imgElement.src; const processBlob = (blob) => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { imgElement.src = reader.result; resolve(reader.result); }; reader.onerror = reject; reader.readAsDataURL(blob); }); try { const response = await fetch(originalSrc); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); await processBlob(await response.blob()); } catch (error) { console.warn(`Direct image fetch failed, trying proxy. Error: ${error.message}`); const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalSrc)}`; try { const proxyResponse = await fetch(proxyUrl); if (!proxyResponse.ok) throw new Error(`Proxy HTTP error! status: ${proxyResponse.status}`); await processBlob(await proxyResponse.blob()); } catch (proxyError) { console.error(`Failed to fetch image via proxy. Error: ${proxyError.message}`); } } }
         async function downloadPDF() { const element = document.querySelector('.bill-container'); const printOptionsPanel = document.querySelector('.print-options'); const orderNumber = document.getElementById('order-number').textContent || 'unknown'; const filename = `HoaDon-${orderNumber}.pdf`; printOptionsPanel.style.display = 'none'; document.body.classList.add('export-mode'); const allImages = Array.from(document.querySelectorAll('#logo-img, #qr-code-container img, #order-qr-code img')); await Promise.all(allImages.map(img => convertImageToBase64(img))); let jspdfConfig = { unit: 'mm', format: 'a4', orientation: 'portrait' }; if (document.body.classList.contains('format-a5')) { jspdfConfig = { unit: 'mm', format: 'a5', orientation: 'landscape' }; } else if (document.body.classList.contains('format-80mm')) { jspdfConfig = { unit: 'mm', format: [80, 297], orientation: 'portrait' }; } const opt = { margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff' }, jsPDF: jspdfConfig, pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } }; try { await html2pdf().from(element).set(opt).save(); } catch (error) { console.error("Error creating PDF:", error); alert("Đã có lỗi xảy ra khi tạo file PDF. Vui lòng thử lại."); } finally { document.body.classList.remove('export-mode'); printOptionsPanel.style.display = 'flex'; } }
         function getUrlParameter(name) { const urlParams = new URLSearchParams(window.location.search); return urlParams.get(name) || ''; }
@@ -218,12 +226,38 @@
             return populateInvoice(data);
         }
 
-        function changeFormat(format) { document.body.classList.remove('format-80mm', 'format-a4', 'format-a5'); document.body.classList.add('format-' + format); }
+        // FIX: Reorder elements based on format
+        function changeFormat(format) {
+            document.body.classList.remove('format-80mm', 'format-a4', 'format-a5');
+            document.body.classList.add('format-' + format);
+
+            const paymentSection = document.querySelector('.payment-section');
+            if (!paymentSection) return;
+
+            if (format === '80mm') {
+                const totalsBox = document.querySelector('.totals-box');
+                // Move QR section after the totals box
+                if (totalsBox) {
+                    totalsBox.insertAdjacentElement('afterend', paymentSection);
+                }
+            } else {
+                // Move QR section back to its original parent
+                const leftBottomSection = document.querySelector('.left-bottom-section');
+                if (leftBottomSection) {
+                    leftBottomSection.prepend(paymentSection);
+                }
+            }
+        }
         
         async function initializeApp() {
             const loader = document.getElementById('loading-overlay');
             const container = document.getElementById('bill-container');
             const shouldAutoPrint = getUrlParameter('autoprint') !== 'false';
+            
+            const formatFromUrl = getUrlParameter('format');
+            const initialFormat = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : 'a4';
+            changeFormat(initialFormat);
+
             try {
                 await (window.location.search.length > 1 ? loadDataFromUrl() : loadDemoData());
                 const logo = document.getElementById('logo-img');
@@ -238,9 +272,6 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            const formatFromUrl = getUrlParameter('format');
-            const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : 'a4';
-            changeFormat(format);
             initializeApp();
             window.addEventListener('beforeprint', () => { document.querySelector('.no-print').style.display = 'none'; });
             window.addEventListener('afterprint', () => { document.querySelector('.no-print').style.display = 'flex'; });
