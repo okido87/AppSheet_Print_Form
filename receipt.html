@@ -81,7 +81,7 @@
         .format-a5 .post-content-section { margin-top: 5px; }
         .format-a5 .qr-code-container img { max-width: 120px; }
         .format-a5 .signature-section { gap: 15px; margin-top: 10px; }
-        .format-a5 .signature-image { height: 30px; } .format-a5 .signature-image img { max-height: 26px; }
+        .format-a5 .signature-image { height: 35px; } .format-a5 .signature-image img { max-height: 30px; }
         .format-a5 .signature-name { margin-top: 2px; }
 
         @media (max-width: 768px) {
@@ -191,11 +191,11 @@
             document.getElementById('ten_cong_ty').textContent = data.tenCongTy; document.getElementById('dia_chi').textContent = data.diaChi; document.getElementById('so_dien_thoai').textContent = data.soDienThoai; document.getElementById('email').textContent = data.email; document.getElementById('website').textContent = data.website;
             if (data.hangMuc.toLowerCase().includes('chi')) {
                 document.getElementById('voucher-title-vi').textContent = 'PHIẾU CHI'; document.getElementById('voucher-title-en').textContent = 'PAYMENT VOUCHER';
-                document.getElementById('payer-label-vi').textContent = 'Họ tên người nhận tiền'; document.getElementById('payer-label-en').textContent = 'Recipient\'s full name';
+                document.getElementById('payer-label-vi').textContent = 'Người nhận tiền'; document.getElementById('payer-label-en').textContent = 'Recipient\'s full name';
                 document.getElementById('recipient-label-vi').textContent = 'Người nhận tiền'; document.getElementById('recipient-label-en').textContent = 'Recipient';
             } else {
                 document.getElementById('voucher-title-vi').textContent = 'PHIẾU THU'; document.getElementById('voucher-title-en').textContent = 'RECEIPT VOUCHER';
-                document.getElementById('payer-label-vi').textContent = 'Họ tên người nộp tiền'; document.getElementById('payer-label-en').textContent = 'Payer\'s full name';
+                document.getElementById('payer-label-vi').textContent = 'Người nộp tiền'; document.getElementById('payer-label-en').textContent = 'Payer\'s full name';
                 document.getElementById('recipient-label-vi').textContent = 'Người nộp tiền'; document.getElementById('recipient-label-en').textContent = 'Payer';
             }
             const dateStr = data.ngay.includes('/') ? data.ngay.split('/').reverse().join('-') : data.ngay;
