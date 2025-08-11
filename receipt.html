@@ -16,7 +16,7 @@
         .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { opacity: 0; pointer-events: none; }
-        .demo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 8vw; line-height: 1.1; color: rgba(255, 0, 0, 0.1); font-weight: bold; text-transform: uppercase; text-align: center; z-index: 1; pointer-events: none; white-space: nowrap; }
+        .demo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 5vw; line-height: 1.1; color: rgba(255, 0, 0, 0.1); font-weight: bold; text-transform: uppercase; text-align: center; z-index: 1; pointer-events: none; }
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; margin: 0 !important; padding: 0 !important; overflow: hidden; }
             .no-print, #loading-overlay, .demo-watermark { display: none !important; }
@@ -50,6 +50,7 @@
         .voucher-content p strong { font-weight: normal; }
         .voucher-content .data-field { border-bottom: 1px dotted #000; }
         .footer { padding-top: 15px; }
+        .post-content-section { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
         .payment-qr-section { display: none; text-align: center; flex: 1; }
         .payment-qr-section .text-bold { max-width: 180px; margin: 0 auto; } /* FIX: Wider QR title container */
         .qr-code-container img { max-width: 150px; }
@@ -131,7 +132,7 @@
                     <p><strong><span class="vi">Ghi chú</span> / <span class="en">Notes</span>:</strong> <span id="notes" class="data-field"></span></p>
                 </div>
                 <div class="payment-qr-section">
-                    <div class="text-bold"><span class="vi">QUÉT MÃ ĐỂ THANH TOÁN</span><br><span class="en">SCAN TO PAY</span></div>
+                    <div class="text-bold"><span class="vi">QUÉT ĐỂ THANH TOÁN</span><br><span class="en">SCAN TO PAY</span></div>
                     <div class="qr-code-container"></div>
                 </div>
             </div>
