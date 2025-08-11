@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -43,7 +44,6 @@
         .print-options button.btn-a4 { background-color: #28a745; }
         .print-options button.btn-a5 { background-color: #ffc107; }
         .print-options button.btn-print { background-color: #6c757d; }
-        .print-options button.btn-image { background-color: #17a2b8; }
         .print-options button.btn-pdf { background-color: #dc3545; }
         .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; }
         .icon-a4 { width: 14px; height: 20px; }
@@ -126,7 +126,6 @@
         .format-a4 .products-table th, .format-a4 .products-table td { padding: 10px 12px; vertical-align: top; }
         .format-a4 .qr-code img { width: 140px; height: 140px; }
         .format-a4 .total-row, .format-a4 .total-final { padding: 10px; }
-        /* THAY ĐỔI: Giảm kích thước QR đơn hàng */
         .format-a4 .order-qr-code img, .format-a5 .order-qr-code img { width: 64px; height: 64px; }
         body.format-a5 { font-size: 9pt; }
         .format-a5 .products-table th, .format-a5 .products-table td { padding: 8px 10px; vertical-align: top; }
@@ -138,12 +137,43 @@
         .export-mode.format-a5 .bill-container { padding: 5pt !important; }
         .export-mode.format-80mm .bill-container { padding: 3mm !important; }
         .export-mode .demo-watermark { display: block !important; }
+
+        /* FIX 3: CSS for mobile devices */
+        @media (max-width: 768px) {
+            .print-options {
+                gap: 0;
+            }
+            /* This makes the buttons behave as direct children of the column-oriented parent */
+            .options-row {
+                display: contents;
+            }
+            .print-options button {
+                margin-bottom: 6px; /* Add vertical spacing */
+                
+                /* Reduce size by ~20% */
+                padding: 6px 10px;
+                height: 36px;
+                font-size: 12px;
+                gap: 6px;
+            }
+            .print-options button:last-child {
+                 margin-bottom: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="print-options no-print">
-        <div class="options-row"> <button class="btn-80mm" onclick="changeFormat('80mm')">80mm</button> <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc">A4<span class="icon icon-a4"></span></button> <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang">A5<span class="icon icon-a5"></span></button> </div>
-        <div class="options-row"> <button class="btn-print" onclick="window.print()" title="In Hóa Đơn"><div class="icon-print"><div class="paper"></div><div class="printer-top"></div><div class="printer-body"></div></div></button> <button class="btn-image" onclick="downloadImage()" title="Tải về file ảnh PNG"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/><path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3.5a.5.5 0 0 1 .5-.5h13z"/></svg></button> <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16"><path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/></svg></button> </div>
+        <div class="options-row">
+            <button class="btn-80mm" onclick="changeFormat('80mm')">80mm</button>
+            <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc">A4<span class="icon icon-a4"></span></button>
+            <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang">A5<span class="icon icon-a5"></span></button>
+        </div>
+        <div class="options-row">
+            <button class="btn-print" onclick="window.print()" title="In Hóa Đơn"><div class="icon-print"><div class="paper"></div><div class="printer-top"></div><div class="printer-body"></div></div></button>
+            <!-- FIX 1: Removed image download button -->
+            <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16"><path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/></svg></button>
+        </div>
     </div>
 
     <div class="bill-container" id="bill-container">
@@ -171,7 +201,7 @@
                     <span><span class="text-bold">Địa chỉ:</span> <span id="customer-address"></span></span>
                 </div>
                 <div class="customer-details-row row-stack-on-receipt">
-                    <span> </span>
+                    <span> </span>
                     <span><span class="text-bold">In Lúc:</span> <span id="print-time"></span></span>
                 </div>
             </div>
@@ -210,30 +240,87 @@
     </div>
     
     <script>
-        async function convertImageToBase64(imgElement) { try { const response = await fetch(imgElement.src); const blob = await response.blob(); return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { imgElement.src = reader.result; resolve(reader.result); }; reader.onerror = reject; reader.readAsDataURL(blob); }); } catch (error) { console.error('Failed to convert image to Base64:', error); } }
-        async function downloadImage() { const element = document.querySelector('.bill-container'); const printOptionsPanel = document.querySelector('.print-options'); const orderNumber = document.getElementById('order-number').textContent || 'unknown'; const filename = `HoaDon-${orderNumber}.png`; try { printOptionsPanel.style.display = 'none'; document.body.classList.add('export-mode'); const canvas = await html2canvas(element, { scale: 3, useCORS: true, logging: false, backgroundColor: null }); const link = document.createElement('a'); link.href = canvas.toDataURL('image/png'); link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); } catch (error) { console.error("Lỗi khi tạo ảnh:", error); alert("Đã có lỗi xảy ra khi tạo file ảnh. Vui lòng thử lại."); } finally { document.body.classList.remove('export-mode'); printOptionsPanel.style.display = 'flex'; } }
-        async function downloadPDF() { const element = document.querySelector('.bill-container'); const printOptionsPanel = document.querySelector('.print-options'); const orderNumber = document.getElementById('order-number').textContent || 'unknown'; const filename = `HoaDon-${orderNumber}.pdf`; let jspdfConfig = { unit: 'mm', format: 'a4', orientation: 'portrait' }; if (document.body.classList.contains('format-a5')) { jspdfConfig = { unit: 'mm', format: 'a5', orientation: 'landscape' }; } else if (document.body.classList.contains('format-80mm')) { jspdfConfig = { unit: 'mm', format: [80, 297], orientation: 'portrait' }; } const opt = { margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: jspdfConfig, pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } }; try { printOptionsPanel.style.display = 'none'; document.body.classList.add('export-mode'); await html2pdf().from(element).set(opt).save(); } catch (error) { console.error("Lỗi khi tạo PDF:", error); alert("Đã có lỗi xảy ra khi tạo file PDF. Vui lòng thử lại."); } finally { document.body.classList.remove('export-mode'); printOptionsPanel.style.display = 'flex'; } }
+        async function convertImageToBase64(imgElement) {
+            // If the src is already a data URL, no need to convert again
+            if (imgElement.src.startsWith('data:image')) {
+                return Promise.resolve(imgElement.src);
+            }
+            try {
+                const response = await fetch(imgElement.src);
+                const blob = await response.blob();
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        imgElement.src = reader.result; // Update the image src attribute directly
+                        resolve(reader.result);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (error) {
+                console.error('Failed to convert image to Base64:', error);
+                // Return a rejected promise if conversion fails
+                return Promise.reject(error);
+            }
+        }
+        
+        // FIX 1: Removed the downloadImage() function
+        
+        // FIX 2: Updated downloadPDF function to be more robust
+        async function downloadPDF() {
+            const element = document.querySelector('.bill-container');
+            const printOptionsPanel = document.querySelector('.print-options');
+            const orderNumber = document.getElementById('order-number').textContent || 'unknown';
+            const filename = `HoaDon-${orderNumber}.pdf`;
+        
+            // Ensure the logo is converted to Base64 BEFORE generating the PDF
+            const logo = document.getElementById('logo-img');
+            if (logo) {
+                try {
+                    await convertImageToBase64(logo);
+                } catch(e) {
+                    console.error("Could not convert logo to Base64. It may not appear in the PDF.", e);
+                }
+            }
+
+            let jspdfConfig = { unit: 'mm', format: 'a4', orientation: 'portrait' };
+            if (document.body.classList.contains('format-a5')) {
+                jspdfConfig = { unit: 'mm', format: 'a5', orientation: 'landscape' };
+            } else if (document.body.classList.contains('format-80mm')) {
+                jspdfConfig = { unit: 'mm', format: [80, 297], orientation: 'portrait' };
+            }
+        
+            const opt = {
+                margin: 0,
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 3, useCORS: true, logging: false },
+                jsPDF: jspdfConfig,
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+        
+            try {
+                printOptionsPanel.style.display = 'none';
+                document.body.classList.add('export-mode');
+                await html2pdf().from(element).set(opt).save();
+            } catch (error) {
+                console.error("Lỗi khi tạo PDF:", error);
+                alert("Đã có lỗi xảy ra khi tạo file PDF. Vui lòng thử lại.");
+            } finally {
+                document.body.classList.remove('export-mode');
+                printOptionsPanel.style.display = 'flex';
+            }
+        }
+
         function getUrlParameter(name) { const urlParams = new URLSearchParams(window.location.search); return urlParams.get(name) || ''; }
         function cleanNumberString(s) { if (typeof s !== 'string') return String(s); return s.replace(/,/g, ''); }
         function getBankCodeFromName(bankName) {
           if (!bankName) return null;
           const bankMap = {
-            'vietinbank': '970415',
-            'vtb': '970415',
-            'vcb': '970436',
-            'vietcombank': '970436',
-            'bidv': '970418',
-            'agribank': '970405',
-            'mbbank': '970422',
-            'mb': '970422',
-            'techcombank': '970407',
-            'tcb': '970407',
-            'acb': '970416',
-            'vpbank': '970432',
-            'tpbank': '970423',
-            'sacombank': '970403',
-            'kienlongbank': '970452',
-            'klb': '970452'
+            'vietinbank': '970415', 'vtb': '970415', 'vcb': '970436', 'vietcombank': '970436',
+            'bidv': '970418', 'agribank': '970405', 'mbbank': '970422', 'mb': '970422',
+            'techcombank': '970407', 'tcb': '970407', 'acb': '970416', 'vpbank': '970432',
+            'tpbank': '970423', 'sacombank': '970403', 'kienlongbank': '970452', 'klb': '970452'
           };
           const formattedName = bankName.toLowerCase().replace(/\s/g, '');
           return bankMap[formattedName] || null;
@@ -244,28 +331,13 @@
         function displayProducts(productsJson) { const tbody = document.getElementById('products-list'); tbody.innerHTML = ''; let products = []; const colspan = 7; try { if (productsJson) products = JSON.parse(decodeURIComponent(productsJson)); } catch (error) { tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center">Lỗi dữ liệu sản phẩm. Vui lòng kiểm tra công thức JSON trong AppSheet.</td></tr>`; console.error("JSON Parse Error:", error, "Input:", decodeURIComponent(productsJson)); return; } if (!products || products.length === 0) { tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center">Không có sản phẩm</td></tr>`; return; } products.forEach((p, index) => { const row = document.createElement('tr'); row.innerHTML = `<td class="col-stt">${index + 1}</td><td class="col-sanpham">${p.sanpham||''}</td><td class="col-dvt">${p.dvt || ''}</td><td class="col-soluong">${p.soluong||0}</td><td class="col-dongia">${formatCurrency(p.dongia||0)}</td><td class="col-thanhtien">${formatCurrency(p.thanhtien||0)}</td><td class="col-ghi-chu">${p.ghi_chu || ''}</td>`; tbody.appendChild(row); }); }
         function generateVietQR(bankCode, accountNumber, amount, description, accountHolder) { return `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountHolder)}`; }
         function updateQRCode(amount, orderNumber, bankCode, accountNumber, accountHolder) { return new Promise((resolve, reject) => { const qrContainer = document.getElementById('qr-code-container'); if (!amount || !bankCode || !accountNumber || isNaN(parseInt(amount)) || parseInt(amount) <= 0) { qrContainer.innerHTML = '<div class="error-message">Lỗi: Dữ liệu thanh toán không hợp lệ.</div>'; reject('Dữ liệu QR không hợp lệ'); return; } const description = orderNumber || ''; const qrUrl = generateVietQR(bankCode, accountNumber, amount, description, accountHolder); const qrImage = new Image(); qrContainer.innerHTML = '<p>Đang tạo mã QR...</p>'; qrImage.onload = () => { qrContainer.innerHTML = ''; qrContainer.appendChild(qrImage); resolve(); }; qrImage.onerror = () => { qrContainer.innerHTML = '<div class="error-message">Không thể tạo mã QR.</div>'; reject('Lỗi tải ảnh QR'); }; qrImage.src = qrUrl; }); }
-        // THAY ĐỔI: Cập nhật size QR đơn hàng thành 64
         function displayOrderQRCode(orderNumber) { const container = document.getElementById('order-qr-code'); if (container && orderNumber) { const qrImg = new Image(); qrImg.src = `https://quickchart.io/qr?text=${encodeURIComponent(orderNumber)}&size=64`; container.innerHTML = ''; container.appendChild(qrImg); } }
         async function autoPrint(qrPromise) { try { await qrPromise; await new Promise(resolve => setTimeout(resolve, 1000)); window.print(); } catch (error) { console.error("Không thể tạo QR, nhưng vẫn tiếp tục in:", error); window.print(); } }
-        function populateInvoice(data) { try { let finalWebsite = data.website || 'N/A'; try { if (finalWebsite && finalWebsite.startsWith('{') && finalWebsite.endsWith('}')) { const websiteObj = JSON.parse(finalWebsite); finalWebsite = websiteObj.Url || finalWebsite; } } catch (e) {} const bankCode = getBankCodeFromName(data.bankName); document.getElementById('ten_cong_ty').textContent = data.tenCongTy || 'Tên Công Ty'; document.getElementById('dia_chi').textContent = data.diaChi || 'N/A'; document.getElementById('so_dien_thoai').textContent = data.soDienThoai || 'N/A'; document.getElementById('email').textContent = data.email || 'N/A'; document.getElementById('footer_so_dien_thoai').textContent = data.soDienThoai || 'N/A'; document.getElementById('website').textContent = finalWebsite; document.getElementById('order-number').textContent = data.orderNumber || 'N/A'; document.getElementById('order-date').textContent = formatDate(data.orderDate); document.getElementById('customer-name').textContent = data.customerName || 'Khách lẻ'; 
-            document.getElementById('customer-address').textContent = data.diaChiKhachHang || 'N/A';
-            const addressRow = document.querySelector('.customer-address-row'); if (!data.diaChiKhachHang) { addressRow.style.display = 'none'; } else { addressRow.style.display = 'flex'; }
-            document.getElementById('print-time').textContent = new Date().toLocaleString('vi-VN'); document.getElementById('subtotal').textContent = formatCurrency(data.subtotal) + ' VNĐ'; document.getElementById('discount').textContent = formatCurrency(data.discount) + ' VNĐ'; document.getElementById('total-after-discount').textContent = formatCurrency(data.totalAfterDiscount) + ' VNĐ'; document.getElementById('vat-percent').textContent = data.vatPercent || '0%'; document.getElementById('vat-amount').textContent = formatCurrency(data.vatAmount) + ' VNĐ'; document.getElementById('total-after-vat').textContent = formatCurrency(data.totalAfterVat) + ' VNĐ'; document.getElementById('amount-words').textContent = numberToWords(data.totalAfterVat); document.getElementById('ghi_chu').textContent = data.notes || 'Không có'; document.getElementById('bank-name').textContent = data.bankName || 'N/A'; document.getElementById('account-number').textContent = data.accountNumber || 'N/A'; document.getElementById('account-holder').textContent = data.accountHolder || 'N/A'; displayProducts(data.productsJson); displayOrderQRCode(data.orderNumber); const qrPromise = updateQRCode(cleanNumberString(data.totalAfterVat), data.orderNumber, bankCode, data.accountNumber, data.accountHolder); return qrPromise.then(() => { document.body.offsetHeight; return Promise.resolve(); }); } catch (error) { console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error); document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`; return Promise.reject(error); } }
-        function loadDataFromUrl() { const data = { orderNumber: getUrlParameter('so_don_hang'), orderDate: getUrlParameter('ngay_dat'), customerName: getUrlParameter('khach_hang'), 
-            diaChiKhachHang: getUrlParameter('dia_chi_khach_hang'),
-            subtotal: getUrlParameter('thanh_tien'), discount: getUrlParameter('giam_gia'), totalAfterDiscount: getUrlParameter('tong_tien_sau_ck'), vatPercent: getUrlParameter('phan_tram_vat'), vatAmount: getUrlParameter('tien_vat'), totalAfterVat: getUrlParameter('tong_tien_sau_vat'), notes: getUrlParameter('ghi_chu'), productsJson: getUrlParameter('products'), bankName: getUrlParameter('bank_name'), accountNumber: getUrlParameter('account_number'), accountHolder: getUrlParameter('account_holder'), tenCongTy: getUrlParameter('ten_cong_ty'), diaChi: getUrlParameter('dia_chi'), soDienThoai: getUrlParameter('so_dien_thoai'), email: getUrlParameter('email'), website: getUrlParameter('website') }; return populateInvoice(data); }
-        function loadDemoData() { const demoProducts = [ { sanpham: "Phần mềm quản lý bán hàng", dvt: "Gói", soluong: 1, dongia: "3500000", thanhtien: "3500000", ghi_chu: "Bản quyền vĩnh viễn" }, { sanpham: "Dịch vụ hỗ trợ kỹ thuật", dvt: "Năm", soluong: 1, dongia: "1200000", thanhtien: "1200000", ghi_chu: "" }, { sanpham: "Tích hợp cổng thanh toán", dvt: "Lần", soluong: 1, dongia: "1000000", thanhtien: "1000000", ghi_chu: "" }, ]; const subtotal = 5700000; const discount = 200000; const totalAfterDiscount = subtotal - discount; const vatPercent = "8%"; const vatAmount = totalAfterDiscount * 0.08; const totalAfterVat = totalAfterDiscount + vatAmount; 
-            const data = { 
-                tenCongTy: 'CÔNG TY TNHH GIẢI PHÁP SỐ EMS', 
-                diaChi: '93/4 Liên khu 5-6, P. Bình Tân, TP.HCM', 
-                soDienThoai: '0903375265', email: 'nguyentanhien87@gmail.com', website: 'www.gpems.net', orderNumber: 'DEMO-EMS-001', orderDate: new Date().toISOString(), customerName: 'Khách hàng Demo', 
-                diaChiKhachHang: '25/10 Hậu Giang, Phường 4, Quận Tân Bình, TP.HCM',
-                subtotal: subtotal.toString(), discount: discount.toString(), totalAfterDiscount: totalAfterDiscount.toString(), vatPercent: vatPercent, vatAmount: vatAmount.toString(), totalAfterVat: totalAfterVat.toString(), notes: 'MST: 0316870151. Đại diện pháp luật: Nguyễn Tấn Hiền.', productsJson: encodeURIComponent(JSON.stringify(demoProducts)), bankName: 'ACB', accountNumber: '181119878', accountHolder: 'CONG TY TNHH GIAI PHAP SO EMS' 
-            }; 
-            const watermark = document.createElement('div'); watermark.className = 'demo-watermark'; watermark.innerHTML = 'Bản Demo<br><span style="font-size: 0.5em; letter-spacing: 1px;">EMS SOLUTION</span>'; document.getElementById('bill-container').appendChild(watermark); return populateInvoice(data); 
-        }
+        function populateInvoice(data) { try { let finalWebsite = data.website || 'N/A'; try { if (finalWebsite && finalWebsite.startsWith('{') && finalWebsite.endsWith('}')) { const websiteObj = JSON.parse(finalWebsite); finalWebsite = websiteObj.Url || finalWebsite; } } catch (e) {} const bankCode = getBankCodeFromName(data.bankName); document.getElementById('ten_cong_ty').textContent = data.tenCongTy || 'Tên Công Ty'; document.getElementById('dia_chi').textContent = data.diaChi || 'N/A'; document.getElementById('so_dien_thoai').textContent = data.soDienThoai || 'N/A'; document.getElementById('email').textContent = data.email || 'N/A'; document.getElementById('footer_so_dien_thoai').textContent = data.soDienThoai || 'N/A'; document.getElementById('website').textContent = finalWebsite; document.getElementById('order-number').textContent = data.orderNumber || 'N/A'; document.getElementById('order-date').textContent = formatDate(data.orderDate); document.getElementById('customer-name').textContent = data.customerName || 'Khách lẻ'; document.getElementById('customer-address').textContent = data.diaChiKhachHang || 'N/A'; const addressRow = document.querySelector('.customer-address-row'); if (!data.diaChiKhachHang) { addressRow.style.display = 'none'; } else { addressRow.style.display = 'flex'; } document.getElementById('print-time').textContent = new Date().toLocaleString('vi-VN'); document.getElementById('subtotal').textContent = formatCurrency(data.subtotal) + ' VNĐ'; document.getElementById('discount').textContent = formatCurrency(data.discount) + ' VNĐ'; document.getElementById('total-after-discount').textContent = formatCurrency(data.totalAfterDiscount) + ' VNĐ'; document.getElementById('vat-percent').textContent = data.vatPercent || '0%'; document.getElementById('vat-amount').textContent = formatCurrency(data.vatAmount) + ' VNĐ'; document.getElementById('total-after-vat').textContent = formatCurrency(data.totalAfterVat) + ' VNĐ'; document.getElementById('amount-words').textContent = numberToWords(data.totalAfterVat); document.getElementById('ghi_chu').textContent = data.notes || 'Không có'; document.getElementById('bank-name').textContent = data.bankName || 'N/A'; document.getElementById('account-number').textContent = data.accountNumber || 'N/A'; document.getElementById('account-holder').textContent = data.accountHolder || 'N/A'; displayProducts(data.productsJson); displayOrderQRCode(data.orderNumber); const qrPromise = updateQRCode(cleanNumberString(data.totalAfterVat), data.orderNumber, bankCode, data.accountNumber, data.accountHolder); return qrPromise.then(() => { document.body.offsetHeight; return Promise.resolve(); }); } catch (error) { console.error('Lỗi nghiêm trọng khi tải dữ liệu hóa đơn:', error); document.body.innerHTML = `<h1>Lỗi khi hiển thị hóa đơn</h1><p>${error.message}</p>`; return Promise.reject(error); } }
+        function loadDataFromUrl() { const data = { orderNumber: getUrlParameter('so_don_hang'), orderDate: getUrlParameter('ngay_dat'), customerName: getUrlParameter('khach_hang'), diaChiKhachHang: getUrlParameter('dia_chi_khach_hang'), subtotal: getUrlParameter('thanh_tien'), discount: getUrlParameter('giam_gia'), totalAfterDiscount: getUrlParameter('tong_tien_sau_ck'), vatPercent: getUrlParameter('phan_tram_vat'), vatAmount: getUrlParameter('tien_vat'), totalAfterVat: getUrlParameter('tong_tien_sau_vat'), notes: getUrlParameter('ghi_chu'), productsJson: getUrlParameter('products'), bankName: getUrlParameter('bank_name'), accountNumber: getUrlParameter('account_number'), accountHolder: getUrlParameter('account_holder'), tenCongTy: getUrlParameter('ten_cong_ty'), diaChi: getUrlParameter('dia_chi'), soDienThoai: getUrlParameter('so_dien_thoai'), email: getUrlParameter('email'), website: getUrlParameter('website') }; return populateInvoice(data); }
+        function loadDemoData() { const demoProducts = [ { sanpham: "Phần mềm quản lý bán hàng", dvt: "Gói", soluong: 1, dongia: "3500000", thanhtien: "3500000", ghi_chu: "Bản quyền vĩnh viễn" }, { sanpham: "Dịch vụ hỗ trợ kỹ thuật", dvt: "Năm", soluong: 1, dongia: "1200000", thanhtien: "1200000", ghi_chu: "" }, { sanpham: "Tích hợp cổng thanh toán", dvt: "Lần", soluong: 1, dongia: "1000000", thanhtien: "1000000", ghi_chu: "" }, ]; const subtotal = 5700000; const discount = 200000; const totalAfterDiscount = subtotal - discount; const vatPercent = "8%"; const vatAmount = totalAfterDiscount * 0.08; const totalAfterVat = totalAfterDiscount + vatAmount; const data = { tenCongTy: 'CÔNG TY TNHH GIẢI PHÁP SỐ EMS', diaChi: '93/4 Liên khu 5-6, P. Bình Tân, TP.HCM', soDienThoai: '0903375265', email: 'nguyentanhien87@gmail.com', website: 'www.gpems.net', orderNumber: 'DEMO-EMS-001', orderDate: new Date().toISOString(), customerName: 'Khách hàng Demo', diaChiKhachHang: '25/10 Hậu Giang, Phường 4, Quận Tân Bình, TP.HCM', subtotal: subtotal.toString(), discount: discount.toString(), totalAfterDiscount: totalAfterDiscount.toString(), vatPercent: vatPercent, vatAmount: vatAmount.toString(), totalAfterVat: totalAfterVat.toString(), notes: 'MST: 0316870151. Đại diện pháp luật: Nguyễn Tấn Hiền.', productsJson: encodeURIComponent(JSON.stringify(demoProducts)), bankName: 'ACB', accountNumber: '181119878', accountHolder: 'CONG TY TNHH GIAI PHAP SO EMS' }; const watermark = document.createElement('div'); watermark.className = 'demo-watermark'; watermark.innerHTML = 'Bản Demo<br><span style="font-size: 0.5em; letter-spacing: 1px;">EMS SOLUTION</span>'; document.getElementById('bill-container').appendChild(watermark); return populateInvoice(data); }
         function changeFormat(format) { document.body.classList.remove('format-80mm', 'format-a4', 'format-a5'); document.body.classList.add('format-' + format); }
-        document.addEventListener('DOMContentLoaded', async () => { const logo = document.getElementById('logo-img'); if (logo) { await convertImageToBase64(logo); } const formatFromUrl = getUrlParameter('format'); const shouldAutoPrint = getUrlParameter('autoprint'); const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : 'a4'; changeFormat(format); if (window.location.search.length > 1) { const dataPromise = loadDataFromUrl(); if (shouldAutoPrint !== 'false') { dataPromise.then(qrPromise => autoPrint(qrPromise)).catch(err => console.error("Không thể tự động in do lỗi tải dữ liệu:", err)); } } else { loadDemoData(); } window.addEventListener('beforeprint', () => { document.querySelector('.no-print').style.display = 'none'; }); window.addEventListener('afterprint', () => { document.querySelector('.no-print').style.display = 'flex'; }); });
+        document.addEventListener('DOMContentLoaded', async () => { const logo = document.getElementById('logo-img'); if (logo) { try { await convertImageToBase64(logo); } catch (e) { console.error("Failed to pre-convert logo on initial load", e); } } const formatFromUrl = getUrlParameter('format'); const shouldAutoPrint = getUrlParameter('autoprint'); const format = ['80mm', 'a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : 'a4'; changeFormat(format); if (window.location.search.length > 1) { const dataPromise = loadDataFromUrl(); if (shouldAutoPrint !== 'false') { dataPromise.then(qrPromise => autoPrint(qrPromise)).catch(err => console.error("Không thể tự động in do lỗi tải dữ liệu:", err)); } } else { loadDemoData(); } window.addEventListener('beforeprint', () => { document.querySelector('.no-print').style.display = 'none'; }); window.addEventListener('afterprint', () => { document.querySelector('.no-print').style.display = 'flex'; }); });
     </script>
 </body>
 </html>
