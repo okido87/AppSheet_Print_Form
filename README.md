@@ -15,13 +15,11 @@ CONCATENATE(
     "&hinh_thuc=", ENCODEURL([Hình thức]),
     "&ghi_chu=", ENCODEURL([Ghi chú]),
     "&nguoi_tao=", ENCODEURL(LOOKUP([_THISROW].[Người tạo], "Nhan_Vien", "Mã NV", "Tên NV")),
-
     "&ten_cong_ty=", ENCODEURL(LOOKUP("ten_cong_ty", "Thong_Tin_Cong_Ty", "ID", "Gia_Tri")),
     "&dia_chi=", ENCODEURL(LOOKUP("dia_chi", "Thong_Tin_Cong_Ty", "ID", "Gia_Tri")),
     "&so_dien_thoai=", ENCODEURL(LOOKUP("so_dien_thoai", "Thong_Tin_Cong_Ty", "ID", "Gia_Tri")),
     "&email=", ENCODEURL(LOOKUP("email", "Thong_Tin_Cong_Ty", "ID", "Gia_Tri")),
     "&website=", ENCODEURL(LOOKUP("website", "Thong_Tin_Cong_Ty", "ID", "Gia_Tri")),
-
     "&bank_name=", ENCODEURL(
         IF(
             [Hạng mục] = "Thu",
@@ -43,7 +41,6 @@ CONCATENATE(
             [Cột Chủ Tài Khoản Của Người Nhận]
         )
     ),
-
     "&format=a4",
     "&autoprint=false"
 )
