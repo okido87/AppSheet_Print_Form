@@ -8,124 +8,104 @@
     <meta http-equiv="Expires" content="0" />
     <title>Lệnh Sản Xuất</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
     
     <style>
-        /* --- CORE STYLES (FROM ORIGINAL TEMPLATE) --- */
+        /* --- CORE STYLES --- */
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.3s; }
         .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { opacity: 0; pointer-events: none; }
-        .demo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 5vw; line-height: 1.1; color: rgba(255, 0, 0, 0.1); font-weight: bold; text-transform: uppercase; text-align: center; z-index: 1; pointer-events: none; }
+        .demo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 8vw; line-height: 1.1; color: rgba(255, 0, 0, 0.08); font-weight: bold; text-transform: uppercase; text-align: center; z-index: 1; pointer-events: none; }
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; margin: 0 !important; padding: 0 !important; overflow: hidden; }
             .no-print, #loading-overlay, .demo-watermark { display: none !important; }
             .bill-container { margin: 0 !important; padding: 0 !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; border: none !important; page-break-inside: avoid; }
-            @page { margin: 0; } @page a4-portrait { size: A4 portrait; margin: 8mm; } @page a5-landscape { size: A5 landscape; margin: 5mm; }
-            body.format-a4 { page: a4-portrait; } body.format-a5 { page: a5-landscape; }
+            @page { size: A4 portrait; margin: 8mm; }
             * { page-break-before: avoid; page-break-after: avoid; }
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #eee; font-family: 'Times New Roman', Times, serif; }
-        .bill-container { background: white; color: #000; position: relative; visibility: hidden; display: flex; flex-direction: column; }
+        .bill-container { background: white; color: #000; position: relative; visibility: hidden; display: flex; flex-direction: column; margin: 20px auto; max-width: 190mm; min-height: 270mm; padding: 10pt; box-shadow: 0 0 10px rgba(0,0,0,0.1); font-size: 10pt; }
         .text-right { text-align: right; } .text-center { text-align: center; } .text-bold { font-weight: bold; }
         .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; }
-        .options-row { display: flex; justify-content: center; align-items: center; gap: 8px; }
         .print-options button { margin: 0; padding: 8px 12px; height: 44px; cursor: pointer; border: none; border-radius: 5px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; gap: 8px; }
         .print-options button:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: translateY(-2px); filter: brightness(1.1); }
-        .print-options button.btn-a4 { background-color: #28a745; } .print-options button.btn-a5 { background-color: #ffc107; } .print-options button.btn-print { background-color: #6c757d; } .print-options button.btn-pdf { background-color: #dc3545; }
-        .icon { display: block; background: white; border: 2px solid white; border-radius: 2px; } .icon-a4 { width: 14px; height: 20px; } .icon-a5 { width: 20px; height: 14px; }
+        .print-options button.btn-print { background-color: #6c757d; } .print-options button.btn-pdf { background-color: #dc3545; }
         .icon-print { position: relative; width: 24px; height: 22px; } .icon-print .printer-top { position: absolute; top: 0; left: 2px; width: 20px; height: 8px; border: 2px solid white; border-bottom: none; } .icon-print .printer-body { position: absolute; bottom: 0; left: 0; width: 24px; height: 12px; background: white; border-radius: 2px; } .icon-print .paper { position: absolute; top: 4px; left: 6px; width: 12px; height: 4px; background: #eee; }
-        .company-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; border-bottom: 2px solid #000; padding-bottom: 5px; }
-        .company-identity { display: flex; align-items: center; gap: 15px; } .logo { max-width: 60px; } .company-name { font-size: 1.1em; font-weight: bold; }
-        .company-contact { font-size: 0.9em; margin-top: 5px; }
-        .main-title-container { text-align: center; margin: 10px 0; font-weight: bold; line-height: 1.2; font-size: 2em; }
-        .footer { padding-top: 15px; margin-top: auto; } /* Push footer to bottom */
+        .footer { padding-top: 15px; margin-top: auto; }
         .signature-section { display: flex; justify-content: space-around; text-align: center; page-break-inside: avoid; margin-top: 20px; }
         .signature-box { width: 40%; }
         .signature-box .signature-title { font-weight: bold; }
         .signature-box .signature-name { margin-top: 60px; font-weight: bold; }
         
-        body.format-a4 { font-size: 10pt; }
-        .format-a4 .bill-container { margin: 20px auto; max-width: 190mm; min-height: 270mm; padding: 10pt; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        @media (max-width: 768px) { .print-options { top: 5px; right: 5px; gap: 8px; flex-direction: row; } }
         
-        body.format-a5 { font-size: 8pt; } /* A5 will be very cramped, A4 is recommended */
-        .format-a5 .bill-container { margin: 10px auto; max-width: 200mm; min-height: 135mm; padding: 5pt; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .format-a5 .main-title-container { font-size: 1.6em; }
-        .format-a5 .logo { max-width: 48px; }
-
-        @media (max-width: 768px) { .print-options { top: 5px; right: 5px; gap: 8px; } .options-row { display: contents; } .print-options button { padding: 7px 10px; height: 40px; font-size: 13px; gap: 7px; } }
-        
-        /* --- NEW STYLES FOR PRODUCTION ORDER --- */
+        /* --- UPDATED STYLES --- */
+        .company-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px;}
+        .logo { max-width: 100px; height: auto; flex-shrink: 0; } 
+        .header-title-block { text-align: center; flex-grow: 1; }
+        .main-title { font-size: 2.2em; font-weight: bold; line-height: 1.1; text-transform: uppercase; }
+        .order-info-line { display: flex; justify-content: center; gap: 20px; margin-top: 5px; font-size: 0.9em; }
+        .order-info-line span { white-space: nowrap; }
+        #order-qrcode { flex-shrink: 0; }
+        #order-qrcode img { width: 80px; height: 80px; }
         .section { border: 1px solid #ccc; padding: 8px; margin-bottom: 8px; border-radius: 4px; }
         .section-title { font-weight: bold; font-size: 1.2em; background-color: #f2f2f2; padding: 4px 8px; margin: -8px -8px 8px -8px; border-bottom: 1px solid #ccc; border-radius: 4px 4px 0 0; }
         .grid-container { display: grid; gap: 4px 12px; }
         .grid-2-col { grid-template-columns: repeat(2, 1fr); }
         .grid-3-col { grid-template-columns: repeat(3, 1fr); }
-        .info-item { display: flex; flex-wrap: wrap; }
+        .info-item { display: flex; flex-wrap: wrap; align-items: baseline; }
         .info-item label { font-weight: bold; margin-right: 5px; white-space: nowrap; }
-        .info-item span { border-bottom: 1px dotted #888; flex-grow: 1; min-width: 100px; }
+        .info-item span { border-bottom: 1px dotted #888; flex-grow: 1; min-width: 80px; }
         .full-width { grid-column: 1 / -1; }
         .spec-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 9.5pt; }
         .spec-table th, .spec-table td { border: 1px solid #999; padding: 4px; text-align: left; vertical-align: top; }
         .spec-table th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
         .spec-table td.center { text-align: center; }
-        .artwork-container { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 5px; }
-        .artwork-item { border: 1px solid #ccc; padding: 5px; text-align: center; }
-        .artwork-item img { max-width: 200px; max-height: 150px; object-fit: contain; }
-        #order-qrcode img { width: 72px; height: 72px; }
+        
+        /* Updated Layout for Section C */
+        .section-c-layout { display: flex; gap: 15px; align-items: flex-start; }
+        .section-c-layout .text-content { flex: 4; display: flex; flex-direction: column; gap: 4px;} /* 80% width */
+        .section-c-layout .image-content { flex: 1; } /* 20% width */
+        #artwork-image-container { width: 100%; aspect-ratio: 4 / 3; border: 1px solid #ccc; padding: 5px; display: flex; justify-content: center; align-items: center; background-color: #f9f9f9;}
+        #artwork-image-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
     </style>
 </head>
-<body>
+<body class="format-a4">
     <div id="loading-overlay"><div class="spinner"></div></div>
 
     <div class="print-options no-print">
-        <div class="options-row"> <button class="btn-a4" onclick="changeFormat('a4')" title="Khổ A4 dọc">A4<span class="icon icon-a4"></span></button> <button class="btn-a5" onclick="changeFormat('a5')" title="Khổ A5 ngang">A5<span class="icon icon-a5"></span></button> </div>
-        <div class="options-row"> <button class="btn-print" onclick="window.print()" title="In Phiếu"><div class="icon-print"><div class="paper"></div><div class="printer-top"></div><div class="printer-body"></div></div></button> <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16"><path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/></svg></button> </div>
+        <button class="btn-print" onclick="window.print()" title="In Phiếu"><div class="icon-print"><div class="paper"></div><div class="printer-top"></div><div class="printer-body"></div></div></button> 
+        <button class="btn-pdf" onclick="downloadPDF()" title="Tải về file PDF"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16"><path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0"/></svg></button> 
     </div>
 
     <div class="bill-container" id="bill-container">
         <!-- HEADER -->
         <div class="company-header">
-            <div class="company-identity"> 
-                <img id="logo-img" src="https://scontent.fsgn5-12.fna.fbcdn.net/v/t1.6435-9/90417587_101537181496969_1126778176115048448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=i78ZM_nEKuUQ7kNvwHHfkCD&_nc_oc=AdnJdasev9zMhHc6ELnEipIG6JFdhpW4HaMw0JPviIYxYXUQz8_Km6_azPRq-6KLN-AS92o4a9QQ5hx8WnGow6WR&_nc_zt=23&_nc_ht=scontent.fsgn5-12.fna&_nc_gid=TrGqWXWdJMMBEEwPYgKHtQ&oh=00_AfVRthaEuicfyGt0-D_0KheC0uskcmHmLiIvYhgnUFim5Q&oe=68C20A1E" alt="Logo" class="logo" crossorigin="anonymous">
-                <div>
-                    <div class="company-name" id="ten_cong_ty">CÔNG TY TNHH GIẢI PHÁP SỐ EMS</div>
-                    <div><span class="text-bold">Địa chỉ:</span> <span id="dia_chi"></span></div>
-                    <div class="company-contact">
-                        <span class="text-bold">Hotline:</span> <span id="so_dien_thoai"></span> |
-                        <span class="text-bold">Email:</span> <span id="email"></span>
-                    </div>
+            <img id="logo-img" src="https://scontent.fsgn5-12.fna.fbcdn.net/v/t1.6435-9/90417587_101537181496969_1126778176115048448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=i78ZM_nEKuUQ7kNvwHHfkCD&_nc_oc=AdnJdasev9zMhHc6ELnEipIG6JFdhpW4HaMw0JPviIYxYXUQz8_Km6_azPRq-6KLN-AS92o4a9QQ5hx8WnGow6WR&_nc_zt=23&_nc_ht=scontent.fsgn5-12.fna&_nc_gid=TrGqWXWdJMMBEEwPYgKHtQ&oh=00_AfVRthaEuicfyGt0-D_0KheC0uskcmHmLiIvYhgnUFim5Q&oe=68C20A1E" alt="Logo" class="logo" crossorigin="anonymous">
+            <div class="header-title-block">
+                <div class="main-title">Lệnh Sản Xuất</div>
+                <div class="order-info-line">
+                    <span><strong>Lệnh SX:</strong> <span id="lenh_sx" class="text-bold"></span></span>
+                    <span><strong>Ngày tạo:</strong> <span id="ngay_tao_lenh"></span></span>
+                    <span><strong>Loại đơn:</strong> <span id="loai_don"></span></span>
                 </div>
             </div>
             <div id="order-qrcode"></div>
         </div>
 
-        <!-- TITLE -->
-        <div class="main-title-container">LỆNH SẢN XUẤT</div>
-
         <!-- BODY -->
         <div class="invoice-body">
-            <!-- GENERAL INFO -->
-            <div class="section grid-container grid-3-col">
-                <div class="info-item"><label>Lệnh SX:</label><span id="lenh_sx" class="text-bold"></span></div>
-                <div class="info-item"><label>Ngày tạo:</label><span id="ngay_tao_lenh"></span></div>
-                <div class="info-item"><label>Loại đơn:</label><span id="loai_don"></span></div>
-            </div>
-
-            <!-- CUSTOMER & ORDER INFO -->
             <div class="section">
                 <div class="section-title">A. THÔNG TIN KHÁCH HÀNG & ĐƠN HÀNG</div>
                 <div class="grid-container grid-2-col">
-                    <div class="info-item"><label>Mã KH:</label><span id="ma_kh"></span></div>
-                    <div class="info-item"><label>Tên KH:</label><span id="ten_khach_hang"></span></div>
+                    <div class="info-item full-width"><label>Khách hàng:</label><span id="khach_hang"></span></div>
                     <div class="info-item full-width"><label>Số ĐH:</label><span id="so_dh"></span></div>
                     <div class="info-item full-width"><label>CT Đơn hàng:</label><span id="ctdonhang"></span></div>
                 </div>
             </div>
-            
-            <!-- PRODUCT INFO -->
             <div class="section">
                 <div class="section-title">B. THÔNG TIN SẢN PHẨM</div>
                 <table class="spec-table">
@@ -141,76 +121,37 @@
                 </table>
                 <div class="info-item full-width" style="margin-top: 5px;"><label>Quy trình sản xuất:</label><span id="quy_trinh_san_xuat"></span></div>
             </div>
-
-            <!-- ARTWORK INFO -->
             <div class="section">
                 <div class="section-title">C. BÌNH BÀI & FILE IN</div>
-                 <div class="grid-container grid-2-col">
-                    <div class="info-item"><label>Mã bài bình:</label><span id="ma_bai_binh"></span></div>
-                    <div class="info-item"><label>Khổ bài bình:</label><span id="kho_bai_binh"></span></div>
-                    <div class="info-item"><label>Tổng số SP/tờ:</label><span id="tong_so_sp_to"></span></div>
-                    <div class="info-item"><label>File in:</label><span id="file_in"></span></div>
+                <div class="section-c-layout">
+                    <div class="text-content">
+                        <div class="grid-container grid-2-col">
+                            <div class="info-item"><label>Mã bài bình:</label><span id="ma_bai_binh"></span></div>
+                            <div class="info-item"><label>Khổ bài bình:</label><span id="kho_bai_binh"></span></div>
+                            <div class="info-item"><label>Tổng số SP/tờ:</label><span id="tong_so_sp_to"></span></div>
+                            <div class="info-item"><label>File in:</label><span id="file_in"></span></div>
+                        </div>
+                        <div class="info-item"><label>Ghi chú bình bài:</label><span id="ghi_chu_binh_bai"></span></div>
+                    </div>
+                    <div class="image-content">
+                        <div id="artwork-image-container">
+                            <!-- Image will be inserted here by JS -->
+                        </div>
+                    </div>
                 </div>
-                <div class="artwork-container">
-                    <div class="artwork-item" id="hinh_bai_binh_1_container"></div>
-                    <div class="artwork-item" id="hinh_bai_binh_2_container"></div>
-                </div>
-                <div class="info-item full-width" style="margin-top: 5px;"><label>Ghi chú bình bài:</label><span id="ghi_chu_binh_bai"></span></div>
             </div>
-
-            <!-- MATERIAL & PRINTING SPECS -->
             <div class="section">
                  <div class="section-title">D. CHI TIẾT VẬT TƯ & IN ẤN</div>
                  <table class="spec-table">
-                     <thead>
-                         <tr>
-                             <th>Hạng mục</th>
-                             <th>Loại / Mã VT</th>
-                             <th>Khổ mua (cm)</th>
-                             <th>SL Cần (Tờ)</th>
-                             <th>Khổ in</th>
-                             <th>Kiểu / Màu in</th>
-                             <th>Ghi chú</th>
-                         </tr>
-                     </thead>
+                     <thead><tr><th>Hạng mục</th><th>Loại / Mã VT</th><th>Khổ mua (cm)</th><th>SL Cần (Tờ)</th><th>Khổ in</th><th>Kiểu / Màu in</th><th>Ghi chú</th></tr></thead>
                      <tbody>
-                         <tr>
-                             <td class="text-bold">Giấy Bìa</td>
-                             <td><span id="loai_giay_bia"></span> / <span id="ma_giay_bia"></span></td>
-                             <td class="center"><span id="kho_giay_bia_mua"></span></td>
-                             <td class="center text-bold"><span id="sl_giay_bia_can_to"></span></td>
-                             <td class="center"><span id="kho_in_bia"></span></td>
-                             <td class="center"><span id="kieu_in_bia"></span> / <span id="so_mau_in_bia"></span></td>
-                             <td><span id="ghi_chu_giay_bia"></span></td>
-                         </tr>
-                         <tr>
-                             <td class="text-bold">Giấy Ruột</td>
-                             <td><span id="loai_giay_ruot"></span> / <span id="ma_giay_ruot"></span></td>
-                             <td class="center"><span id="kho_giay_ruot_mua"></span></td>
-                             <td class="center text-bold"><span id="sl_giay_ruot_can_to"></span></td>
-                             <td class="center"><span id="kho_in_ruot"></span></td>
-                             <td class="center"><span id="kieu_in_ruot"></span> / <span id="so_mau_in_ruot"></span></td>
-                             <td><span id="ghi_chu_giay_ruot"></span></td>
-                         </tr>
-                         <tr>
-                             <td class="text-bold">Giấy Bồi</td>
-                             <td><span id="loai_giay_boi"></span> / <span id="ma_giay_boi"></span></td>
-                             <td class="center"><span id="kho_giay_boi_mua_dxr_cm"></span></td>
-                             <td class="center text-bold"><span id="sl_giay_boi_can_to"></span></td>
-                             <td class="center">-</td>
-                             <td class="center">-</td>
-                             <td><span id="ghi_chu_giay_boi"></span></td>
-                         </tr>
-                         <tr>
-                             <td class="text-bold">Kẽm</td>
-                             <td colspan="3" class="center"><span id="kho_kem"></span></td>
-                             <td colspan="3"><span id="ghi_chu_kem"></span></td>
-                         </tr>
+                         <tr><td class="text-bold">Giấy Bìa</td><td><span id="loai_giay_bia"></span> / <span id="ma_giay_bia"></span></td><td class="center"><span id="kho_giay_bia_mua"></span></td><td class="center text-bold"><span id="sl_giay_bia_can_to"></span></td><td class="center"><span id="kho_in_bia"></span></td><td class="center"><span id="kieu_in_bia"></span> / <span id="so_mau_in_bia"></span></td><td><span id="ghi_chu_giay_bia"></span></td></tr>
+                         <tr><td class="text-bold">Giấy Ruột</td><td><span id="loai_giay_ruot"></span> / <span id="ma_giay_ruot"></span></td><td class="center"><span id="kho_giay_ruot_mua"></span></td><td class="center text-bold"><span id="sl_giay_ruot_can_to"></span></td><td class="center"><span id="kho_in_ruot"></span></td><td class="center"><span id="kieu_in_ruot"></span> / <span id="so_mau_in_ruot"></span></td><td><span id="ghi_chu_giay_ruot"></span></td></tr>
+                         <tr><td class="text-bold">Giấy Bồi</td><td><span id="loai_giay_boi"></span> / <span id="ma_giay_boi"></span></td><td class="center"><span id="kho_giay_boi_mua_dxr_cm"></span></td><td class="center text-bold"><span id="sl_giay_boi_can_to"></span></td><td class="center">-</td><td class="center">-</td><td><span id="ghi_chu_giay_boi"></span></td></tr>
+                         <tr><td class="text-bold">Kẽm</td><td colspan="3" class="center"><span id="kho_kem"></span></td><td colspan="3"><span id="ghi_chu_kem"></span></td></tr>
                      </tbody>
                  </table>
             </div>
-            
-            <!-- FINISHING SPECS -->
             <div class="section">
                 <div class="section-title">E. CÁC CÔNG ĐOẠN THÀNH PHẨM</div>
                 <div class="grid-container grid-3-col">
@@ -230,8 +171,6 @@
                     <div class="info-item full-width"><label>Ghi chú TP:</label><span id="ghi_chu_thanh_pham"></span></div>
                 </div>
             </div>
-
-            <!-- DELIVERY & NOTES -->
             <div class="section">
                 <div class="section-title">F. GIAO HÀNG & GHI CHÚ</div>
                 <div class="grid-container grid-3-col">
@@ -247,255 +186,74 @@
         <!-- FOOTER -->
         <div class="footer">
             <div class="signature-section">
-                <div class="signature-box">
-                    <div class="signature-title">Người Lập Phiếu</div>
-                    <div class="signature-name" id="nguoi_lap_phieu"></div>
-                </div>
-                <div class="signature-box">
-                    <div class="signature-title">Người Duyệt</div>
-                    <div class="signature-name" id="nguoi_duyet"></div>
-                </div>
+                <div class="signature-box"><div class="signature-title">Người Lập Phiếu</div><div class="signature-name" id="nguoi_lap_phieu"></div></div>
+                <div class="signature-box"><div class="signature-title">Người Duyệt</div><div class="signature-name" id="nguoi_duyet"></div></div>
             </div>
         </div>
     </div>
     
     <script>
-        // --- CORE FUNCTIONS (FROM ORIGINAL TEMPLATE, MOSTLY UNCHANGED) ---
-        async function convertImageToBase64(imgElement) { if (!imgElement || !imgElement.src || imgElement.src.startsWith('data:image')) { return; } const originalSrc = imgElement.src; const processBlob = (blob) => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { imgElement.src = reader.result; resolve(reader.result); }; reader.onerror = reject; reader.readAsDataURL(blob); }); try { const response = await fetch(originalSrc); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); await processBlob(await response.blob()); } catch (error) { console.warn(`Direct image fetch failed, trying proxy. Error: ${error.message}`); const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalSrc)}`; try { const proxyResponse = await fetch(proxyUrl); if (!proxyResponse.ok) throw new Error(`Proxy HTTP error! status: ${proxyResponse.status}`); await processBlob(await proxyResponse.blob()); } catch (proxyError) { console.error(`Failed to fetch image via proxy. Error: ${proxyError.message}`); } } }
-        async function downloadPDF() { const element = document.querySelector('.bill-container'); const printOptionsPanel = document.querySelector('.print-options'); const orderId = document.getElementById('lenh_sx').textContent || 'unknown'; const filename = `LSX-${orderId}.pdf`; printOptionsPanel.style.display = 'none'; document.body.classList.add('export-mode'); const allImages = Array.from(document.querySelectorAll('#logo-img, #order-qrcode img, .artwork-item img')); await Promise.all(allImages.map(img => convertImageToBase64(img))); let jspdfConfig = { unit: 'mm', format: 'a4', orientation: 'portrait' }; if (document.body.classList.contains('format-a5')) { jspdfConfig = { unit: 'mm', format: 'a5', orientation: 'landscape' }; } const opt = { margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: jspdfConfig }; try { await html2pdf().from(element).set(opt).save(); } catch (error) { console.error("Error creating PDF:", error); } finally { document.body.classList.remove('export-mode'); printOptionsPanel.style.display = 'flex'; } }
+        // --- CORE FUNCTIONS ---
+        async function convertImageToBase64(imgElement) { if (!imgElement || !imgElement.src || imgElement.src.startsWith('data:image')) return; const originalSrc = imgElement.src; try { const response = await fetch(originalSrc, { cache: 'force-cache' }); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const blob = await response.blob(); return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { imgElement.src = reader.result; resolve(true); }; reader.onerror = reject; reader.readAsDataURL(blob); }); } catch (error) { console.error(`Failed to fetch or convert image: ${originalSrc}`, error); return false; } }
+        async function downloadPDF() { const loader = document.getElementById('loading-overlay'); loader.classList.remove('hidden'); const element = document.querySelector('.bill-container'); const printOptionsPanel = document.querySelector('.print-options'); const orderId = document.getElementById('lenh_sx').textContent || 'unknown'; const filename = `LSX-${orderId}.pdf`; printOptionsPanel.style.display = 'none'; const allImages = Array.from(document.querySelectorAll('#logo-img, #order-qrcode img, #artwork-image-container img')); await Promise.all(allImages.map(img => convertImageToBase64(img))); const jspdfConfig = { unit: 'mm', format: 'a4', orientation: 'portrait' }; const opt = { margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: jspdfConfig }; try { await html2pdf().from(element).set(opt).save(); } catch (error) { console.error("Error creating PDF:", error); } finally { printOptionsPanel.style.display = 'flex'; loader.classList.add('hidden'); } }
         function getUrlParameter(name) { return decodeURIComponent((new URLSearchParams(window.location.search).get(name) || '').replace(/\+/g, ' ')); }
-        function changeFormat(format) { document.body.classList.remove('format-a4', 'format-a5'); document.body.classList.add('format-' + format); }
         
-        function displayOrderQRCode(qrCodeData) {
-            const container = document.getElementById('order-qrcode');
-            if (container && qrCodeData) {
-                // AppSheet QR code URLs might be thumbnail links, try to get a better quality one
-                const highResUrl = qrCodeData.replace(/=s\d+$/, '=s256');
-                const qrImg = new Image();
-                qrImg.crossOrigin = 'anonymous';
-                qrImg.src = highResUrl;
-                container.innerHTML = '';
-                container.appendChild(qrImg);
-            }
-        }
-        
-        function displayImage(containerId, imageUrl) {
+        function displayImage(containerId, imageUrl, altText = 'Image') {
             const container = document.getElementById(containerId);
             if (container && imageUrl) {
-                // AppSheet image URLs can be complex, use proxy if direct fails
                 const img = new Image();
                 img.crossOrigin = 'anonymous';
                 img.src = imageUrl;
+                img.alt = altText;
                 container.innerHTML = '';
                 container.appendChild(img);
+            } else if (container) {
+                container.innerHTML = '<i>Không có hình ảnh</i>';
             }
         }
 
         // --- DATA POPULATION FUNCTIONS ---
         function populateProductionOrder(data) {
-            // Helper to set text content
             const setText = (id, value) => { document.getElementById(id).textContent = value || ''; };
-            
-            // Header
-            setText('dia_chi', data.dia_chi);
-            setText('so_dien_thoai', data.so_dien_thoai);
-            setText('email', data.email);
-            if (data.qr_code) displayOrderQRCode(data.qr_code);
-            
-            // General Info
-            setText('lenh_sx', data.lenh_sx);
-            if (data.ngay_tao_lenh) {
-                const date = new Date(data.ngay_tao_lenh);
-                setText('ngay_tao_lenh', date.toLocaleDateString('vi-VN'));
-            }
-            setText('loai_don', data.loai_don);
-            
-            // Customer & Order
-            setText('ma_kh', data.ma_kh);
-            setText('ten_khach_hang', data.ten_khach_hang);
-            setText('so_dh', data.so_dh);
-            setText('ctdonhang', data.ctdonhang);
-
-            // Product
-            setText('ma_sp', data.ma_sp);
-            setText('ten_san_pham', data.ten_san_pham);
-            setText('loai_hang', data.loai_hang);
-            setText('nhom_san_pham', data.nhom_san_pham);
-            setText('dvt', data.dvt);
-            setText('sl_tong', data.sl_tong);
-            setText('quy_trinh_san_xuat', data.quy_trinh_san_xuat);
-
-            // Artwork
-            setText('ma_bai_binh', data.ma_bai_binh);
-            setText('kho_bai_binh', data.kho_bai_binh);
-            setText('tong_so_sp_to', data.tong_so_sp_to);
-            setText('file_in', data.file_in);
-            setText('ghi_chu_binh_bai', data.ghi_chu_binh_bai);
-            displayImage('hinh_bai_binh_1_container', data.hinh_bai_binh_1);
-            displayImage('hinh_bai_binh_2_container', data.hinh_bai_binh_2);
-
-            // Materials & Printing
-            setText('loai_giay_bia', data.loai_giay_bia);
-            setText('ma_giay_bia', data.ma_giay_bia);
-            setText('kho_giay_bia_mua', data.kho_giay_bia_mua);
-            setText('sl_giay_bia_can_to', data.sl_giay_bia_can_to);
-            setText('kho_in_bia', data.kho_in_bia);
-            setText('kieu_in_bia', data.kieu_in_bia);
-            setText('so_mau_in_bia', data.so_mau_in_bia);
-            setText('ghi_chu_giay_bia', data.ghi_chu_giay_bia);
-            
-            setText('loai_giay_ruot', data.loai_giay_ruot);
-            setText('ma_giay_ruot', data.ma_giay_ruot);
-            setText('kho_giay_ruot_mua', data.kho_giay_ruot_mua);
-            setText('sl_giay_ruot_can_to', data.sl_giay_ruot_can_to);
-            setText('kho_in_ruot', data.kho_in_ruot);
-            setText('kieu_in_ruot', data.kieu_in_ruot);
-            setText('so_mau_in_ruot', data.so_mau_in_ruot);
-            setText('ghi_chu_giay_ruot', data.ghi_chu_giay_ruot);
-
-            setText('loai_giay_boi', data.loai_giay_boi);
-            setText('ma_giay_boi', data.ma_giay_boi);
-            setText('kho_giay_boi_mua_dxr_cm', data.kho_giay_boi_mua_dxr_cm);
-            setText('sl_giay_boi_can_to', data.sl_giay_boi_can_to);
-            setText('ghi_chu_giay_boi', data.ghi_chu_giay_boi);
-
-            setText('kho_kem', data.kho_kem);
-            setText('ghi_chu_kem', data.ghi_chu_kem);
-
-            // Finishing
-            setText('ma_mang', data.ma_mang);
-            setText('kho_mang', data.kho_mang);
-            setText('sl_mang_m', data.sl_mang_m);
-            setText('dien_tich_ep_kim', data.dien_tich_ep_kim);
-            setText('ma_nhu', data.ma_nhu);
-            setText('trang_phu', data.trang_phu);
-            setText('chiet_quang', data.chiet_quang);
-            setText('boi', data.boi);
-            setText('kieu_be', data.kieu_be);
-            setText('so_khuon_be', data.so_khuon_be);
-            setText('khuon_be', data.khuon_be);
-            setText('so_con_khuon', data.so_con_khuon);
-            setText('be_noi', data.be_noi);
-            setText('xe', data.xe);
-            setText('dan', data.dan);
-            setText('cat_thanh_pham', data.cat_thanh_pham);
-            setText('thanh_pham_khac', data.thanh_pham_khac);
-            setText('ghi_chu_thanh_pham', data.ghi_chu_thanh_pham);
-
-            // Delivery & Notes
-            setText('sl_thanh_pham', data.sl_thanh_pham);
-            setText('sl_da_giao', data.sl_da_giao);
-             if (data.ngay_hoan_tat) {
-                const date = new Date(data.ngay_hoan_tat);
-                setText('ngay_hoan_tat', date.toLocaleDateString('vi-VN'));
-            }
-            setText('ghi_chu_giao_hang', data.ghi_chu_giao_hang);
-            setText('ghi_chu', data.ghi_chu);
-
-            // Footer
-            setText('nguoi_lap_phieu', data.nguoi_lap_phieu);
-            setText('nguoi_duyet', data.nguoi_duyet);
+            setText('lenh_sx', data.lenh_sx); if (data.ngay_tao_lenh) { setText('ngay_tao_lenh', new Date(data.ngay_tao_lenh).toLocaleDateString('vi-VN')); } setText('loai_don', data.loai_don);
+            const ma_kh = data.ma_kh || ''; const ten_kh = data.ten_khach_hang || '';
+            setText('khach_hang', ma_kh && ten_kh ? `${ma_kh} - ${ten_kh}` : (ma_kh || ten_kh));
+            setText('so_dh', data.so_dh); setText('ctdonhang', data.ctdonhang);
+            setText('ma_sp', data.ma_sp); setText('ten_san_pham', data.ten_san_pham); setText('loai_hang', data.loai_hang); setText('nhom_san_pham', data.nhom_san_pham); setText('dvt', data.dvt); setText('sl_tong', data.sl_tong); setText('quy_trinh_san_xuat', data.quy_trinh_san_xuat);
+            setText('ma_bai_binh', data.ma_bai_binh); setText('kho_bai_binh', data.kho_bai_binh); setText('tong_so_sp_to', data.tong_so_sp_to); setText('file_in', data.file_in); setText('ghi_chu_binh_bai', data.ghi_chu_binh_bai);
+            setText('loai_giay_bia', data.loai_giay_bia); setText('ma_giay_bia', data.ma_giay_bia); setText('kho_giay_bia_mua', data.kho_giay_bia_mua); setText('sl_giay_bia_can_to', data.sl_giay_bia_can_to); setText('kho_in_bia', data.kho_in_bia); setText('kieu_in_bia', data.kieu_in_bia); setText('so_mau_in_bia', data.so_mau_in_bia); setText('ghi_chu_giay_bia', data.ghi_chu_giay_bia);
+            setText('loai_giay_ruot', data.loai_giay_ruot); setText('ma_giay_ruot', data.ma_giay_ruot); setText('kho_giay_ruot_mua', data.kho_giay_ruot_mua); setText('sl_giay_ruot_can_to', data.sl_giay_ruot_can_to); setText('kho_in_ruot', data.kho_in_ruot); setText('kieu_in_ruot', data.kieu_in_ruot); setText('so_mau_in_ruot', data.so_mau_in_ruot); setText('ghi_chu_giay_ruot', data.ghi_chu_giay_ruot);
+            setText('loai_giay_boi', data.loai_giay_boi); setText('ma_giay_boi', data.ma_giay_boi); setText('kho_giay_boi_mua_dxr_cm', data.kho_giay_boi_mua_dxr_cm); setText('sl_giay_boi_can_to', data.sl_giay_boi_can_to); setText('ghi_chu_giay_boi', data.ghi_chu_giay_boi);
+            setText('kho_kem', data.kho_kem); setText('ghi_chu_kem', data.ghi_chu_kem);
+            setText('ma_mang', data.ma_mang); setText('kho_mang', data.kho_mang); setText('sl_mang_m', data.sl_mang_m); setText('dien_tich_ep_kim', data.dien_tich_ep_kim); setText('ma_nhu', data.ma_nhu); setText('trang_phu', data.trang_phu); setText('chiet_quang', data.chiet_quang); setText('boi', data.boi); setText('kieu_be', data.kieu_be); setText('so_khuon_be', data.so_khuon_be); setText('khuon_be', data.khuon_be); setText('so_con_khuon', data.so_con_khuon); setText('be_noi', data.be_noi); setText('xe', data.xe); setText('dan', data.dan); setText('cat_thanh_pham', data.cat_thanh_pham); setText('thanh_pham_khac', data.thanh_pham_khac); setText('ghi_chu_thanh_pham', data.ghi_chu_thanh_pham);
+            setText('sl_thanh_pham', data.sl_thanh_pham); setText('sl_da_giao', data.sl_da_giao); if (data.ngay_hoan_tat) { setText('ngay_hoan_tat', new Date(data.ngay_hoan_tat).toLocaleDateString('vi-VN')); }
+            setText('ghi_chu_giao_hang', data.ghi_chu_giao_hang); setText('ghi_chu', data.ghi_chu);
+            setText('nguoi_lap_phieu', data.nguoi_lap_phieu); setText('nguoi_duyet', data.nguoi_duyet);
+            displayImage('order-qrcode', data.qr_code ? data.qr_code.replace(/=s\d+$/, '=s256') : '', 'QR Code');
+            const fallbackArtworkUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://boxprintingcompany.com/Technical-Supports/images/Why-need-the-Box-Design.jpg');
+            const finalArtworkUrl = data.hinh_bai_binh_1 || data.file_in || fallbackArtworkUrl;
+            displayImage('artwork-image-container', finalArtworkUrl, 'Hình bài bình');
         }
         
         function loadDataFromUrl() {
-            // Tạo một đối tượng data bằng cách lấy từng tham số từ URL
-            const data = {
-                // Giả sử thông tin công ty được truyền vào hoặc có thể set cứng
-                dia_chi: getUrlParameter('dia_chi'), so_dien_thoai: getUrlParameter('so_dien_thoai'), email: getUrlParameter('email'),
-                
-                // Các trường dữ liệu của lệnh sản xuất
-                lenh_sx: getUrlParameter('lenh_sx'), ngay_tao_lenh: getUrlParameter('ngay_tao_lenh'), loai_don: getUrlParameter('loai_don'),
-                ma_bai_binh: getUrlParameter('ma_bai_binh'), ma_kh: getUrlParameter('ma_kh'), ten_khach_hang: getUrlParameter('ten_khach_hang'),
-                so_dh: getUrlParameter('so_dh'), ctdonhang: getUrlParameter('ctdonhang'), ma_sp: getUrlParameter('ma_sp'),
-                ten_san_pham: getUrlParameter('ten_san_pham'), loai_hang: getUrlParameter('loai_hang'), nhom_san_pham: getUrlParameter('nhom_san_pham'),
-                quy_trinh_san_xuat: getUrlParameter('quy_trinh_san_xuat'), dvt: getUrlParameter('dvt'), sl_tong: getUrlParameter('sl_tong'),
-                kho_bai_binh: getUrlParameter('kho_bai_binh'), tong_so_sp_to: getUrlParameter('tong_so_sp_to'),
-                hinh_bai_binh_1: getUrlParameter('hinh_bai_binh_1'), hinh_bai_binh_2: getUrlParameter('hinh_bai_binh_2'),
-                ghi_chu_binh_bai: getUrlParameter('ghi_chu_binh_bai'), loai_giay_bia: getUrlParameter('loai_giay_bia'),
-                ma_giay_bia: getUrlParameter('ma_giay_bia'), kho_giay_bia_mua: getUrlParameter('kho_giay_bia_mua'),
-                sl_giay_bia_can_to: getUrlParameter('sl_giay_bia_can_to'), kho_in_bia: getUrlParameter('kho_in_bia'),
-                kieu_in_bia: getUrlParameter('kieu_in_bia'), so_mau_in_bia: getUrlParameter('so_mau_in_bia'),
-                ghi_chu_giay_bia: getUrlParameter('ghi_chu_giay_bia'), loai_giay_ruot: getUrlParameter('loai_giay_ruot'),
-                ma_giay_ruot: getUrlParameter('ma_giay_ruot'), kho_giay_ruot_mua: getUrlParameter('kho_giay_ruot_mua'),
-                sl_giay_ruot_can_to: getUrlParameter('sl_giay_ruot_can_to'), kho_in_ruot: getUrlParameter('kho_in_ruot'),
-                kieu_in_ruot: getUrlParameter('kieu_in_ruot'), so_mau_in_ruot: getUrlParameter('so_mau_in_ruot'),
-                ghi_chu_giay_ruot: getUrlParameter('ghi_chu_giay_ruot'), kho_kem: getUrlParameter('kho_kem'),
-                ghi_chu_kem: getUrlParameter('ghi_chu_kem'), loai_giay_boi: getUrlParameter('loai_giay_boi'),
-                ma_giay_boi: getUrlParameter('ma_giay_boi'), kho_giay_boi_mua_dxr_cm: getUrlParameter('kho_giay_boi_mua_dxr_cm'),
-                sl_giay_boi_can_to: getUrlParameter('sl_giay_boi_can_to'), ghi_chu_giay_boi: getUrlParameter('ghi_chu_giay_boi'),
-                ma_mang: getUrlParameter('ma_mang'), kho_mang: getUrlParameter('kho_mang'), sl_mang_m: getUrlParameter('sl_mang_m'),
-                trang_phu: getUrlParameter('trang_phu'), dien_tich_ep_kim: getUrlParameter('dien_tich_ep_kim'), ma_nhu: getUrlParameter('ma_nhu'),
-                chiet_quang: getUrlParameter('chiet_quang'), boi: getUrlParameter('boi'), kieu_be: getUrlParameter('kieu_be'),
-                so_khuon_be: getUrlParameter('so_khuon_be'), khuon_be: getUrlParameter('khuon_be'), so_con_khuon: getUrlParameter('so_con_khuon'),
-                be_noi: getUrlParameter('be_noi'), xe: getUrlParameter('xe'), dan: getUrlParameter('dan'), cat_thanh_pham: getUrlParameter('cat_thanh_pham'),
-                thanh_pham_khac: getUrlParameter('thanh_pham_khac'), ghi_chu_thanh_pham: getUrlParameter('ghi_chu_thanh_pham'),
-                sl_thanh_pham: getUrlParameter('sl_thanh_pham'), sl_da_giao: getUrlParameter('sl_da_giao'), ngay_hoan_tat: getUrlParameter('ngay_hoan_tat'),
-                ghi_chu_giao_hang: getUrlParameter('ghi_chu_giao_hang'), ghi_chu: getUrlParameter('ghi_chu'), file_in: getUrlParameter('file_in'),
-                qr_code: getUrlParameter('qr_code'), nguoi_lap_phieu: getUrlParameter('nguoi_lap_phieu'), nguoi_duyet: getUrlParameter('nguoi_duyet')
-            };
+            const data = {};
+            const fields = ['lenh_sx','ngay_tao_lenh','loai_don','ma_bai_binh','ma_kh','ten_khach_hang','so_dh','ctdonhang','ma_sp','ten_san_pham','loai_hang','nhom_san_pham','quy_trinh_san_xuat','dvt','sl_tong','kho_bai_binh','tong_so_sp_to','hinh_bai_binh_1','ghi_chu_binh_bai','loai_giay_bia','ma_giay_bia','kho_giay_bia_mua','sl_giay_bia_can_to','kho_in_bia','kieu_in_bia','so_mau_in_bia','ghi_chu_giay_bia','loai_giay_ruot','ma_giay_ruot','kho_giay_ruot_mua','sl_giay_ruot_can_to','kho_in_ruot','kieu_in_ruot','so_mau_in_ruot','ghi_chu_giay_ruot','kho_kem','ghi_chu_kem','loai_giay_boi','ma_giay_boi','kho_giay_boi_mua_dxr_cm','sl_giay_boi_can_to','ghi_chu_giay_boi','ma_mang','kho_mang','sl_mang_m','trang_phu','dien_tich_ep_kim','ma_nhu','chiet_quang','boi','kieu_be','so_khuon_be','khuon_be','so_con_khuon','be_noi','xe','dan','cat_thanh_pham','thanh_pham_khac','ghi_chu_thanh_pham','sl_thanh_pham','sl_da_giao','ngay_hoan_tat','ghi_chu_giao_hang','ghi_chu','file_in','qr_code','nguoi_lap_phieu','nguoi_duyet'];
+            fields.forEach(field => data[field] = getUrlParameter(field));
             populateProductionOrder(data);
         }
 
         function loadDemoData() {
-            const demoData = {
-                dia_chi: '93/4 Liên khu 5-6, P. Bình Tân, TP.HCM', so_dien_thoai: '0903375265', email: 'admin@gpems.net',
-                lenh_sx: 'LSX-2407-00123', ngay_tao_lenh: '2024-07-25', loai_don: 'Sản xuất mới',
-                ma_bai_binh: 'BB-HOP-055', ma_kh: 'KH-SQH', ten_khach_hang: 'CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ SQH',
-                so_dh: 'DH-240720-01, DH-240720-02', ctdonhang: 'Hộp cứng nắp gập, Hộp giấy mềm', ma_sp: 'SP001, SP002',
-                ten_san_pham: 'Hộp quà tặng cao cấp size M (Đỏ), Túi giấy đựng sản phẩm', loai_hang: 'Hộp cứng, Túi giấy', nhom_san_pham: 'Bao bì',
-                quy_trinh_san_xuat: 'In Offset -> Cán Màng -> Bế -> Dán thành phẩm', dvt: 'Cái', sl_tong: '5000',
-                kho_bai_binh: '79x54 cm', tong_so_sp_to: '4',
-                hinh_bai_binh_1: 'https://via.placeholder.com/300x200.png?text=Hinh+Bai+Binh+1',
-                hinh_bai_binh_2: 'https://via.placeholder.com/300x200.png?text=Hinh+Bai+Binh+2',
-                ghi_chu_binh_bai: 'Canh màu theo mẫu duyệt ngày 24/07. Chú ý các chi tiết nhỏ.',
-                loai_giay_bia: 'Ivory', ma_giay_bia: 'IVY-350', kho_giay_bia_mua: '79x109', sl_giay_bia_can_to: '1300',
-                kho_in_bia: '72x102', kieu_in_bia: 'Offset', so_mau_in_bia: '4 màu CMYK', ghi_chu_giay_bia: 'Nhập kho ngày 20/07',
-                loai_giay_ruot: 'Ford', ma_giay_ruot: 'FORD-80', kho_giay_ruot_mua: '65x86', sl_giay_ruot_can_to: '2500',
-                kho_in_ruot: '60x84', kieu_in_ruot: 'Offset', so_mau_in_ruot: '1 màu (Đen)', ghi_chu_giay_ruot: 'Giấy có sẵn trong kho',
-                kho_kem: '1030*770*0.3', ghi_chu_kem: 'Xuất 5 tấm kẽm mới',
-                loai_giay_boi: 'Carton', ma_giay_boi: 'CAR-1200', kho_giay_boi_mua_dxr_cm: '79x109', sl_giay_boi_can_to: '1250',
-                ghi_chu_giay_boi: 'Kiểm tra độ phẳng của giấy', ma_mang: 'Màng mờ', kho_mang: '75', sl_mang_m: '1500',
-                trang_phu: 'UV định hình logo', dien_tich_ep_kim: '25', ma_nhu: 'Vàng gold 12',
-                chiet_quang: 'Không', boi: 'Bồi lên carton 2mm', kieu_be: 'Bế gân, bế đứt',
-                so_khuon_be: '1', khuon_be: 'Khuôn có sẵn (Mã K-021)', so_con_khuon: '4',
-                be_noi: 'Có', xe: 'Có', dan: 'Dán máy tự động', cat_thanh_pham: 'Cắt xén 4 cạnh',
-                thanh_pham_khac: 'Gắn nam châm hít', ghi_chu_thanh_pham: 'Kiểm tra lực hít của nam châm',
-                sl_thanh_pham: '5000', sl_da_giao: '0', ngay_hoan_tat: '2024-08-15',
-                ghi_chu_giao_hang: 'Giao làm 2 đợt, mỗi đợt 2500 cái.', ghi_chu: 'Ưu tiên sản xuất gấp.',
-                file_in: 'File_HopQua_Final_v3.ai', qr_code: 'https://quickchart.io/qr?text=LSX-2407-00123&size=128',
-                nguoi_lap_phieu: 'Nguyễn Thị An (KHSX)', nguoi_duyet: 'Trần Văn Bình (Trưởng phòng SX)'
-            };
+            const demoData = {lenh_sx: 'LSX-DEMO-001', ngay_tao_lenh: '2024-07-25', loai_don: 'Sản xuất mới',ma_bai_binh: 'BB-HOP-055', ma_kh: 'KH-SQH', ten_khach_hang: 'CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ SQH',so_dh: 'DH-240720-01, DH-240720-02', ctdonhang: 'Hộp cứng nắp gập, Hộp giấy mềm', ma_sp: 'SP001, SP002',ten_san_pham: 'Hộp quà tặng cao cấp size M (Đỏ), Túi giấy đựng sản phẩm', loai_hang: 'Hộp cứng, Túi giấy', nhom_san_pham: 'Bao bì',quy_trinh_san_xuat: 'In Offset -> Cán Màng -> Bế -> Dán thành phẩm', dvt: 'Cái', sl_tong: '5000',kho_bai_binh: '79x54 cm', tong_so_sp_to: '4',hinh_bai_binh_1: '', ghi_chu_binh_bai: 'Canh màu theo mẫu duyệt ngày 24/07. Chú ý các chi tiết nhỏ.',loai_giay_bia: 'Ivory', ma_giay_bia: 'IVY-350', kho_giay_bia_mua: '79x109', sl_giay_bia_can_to: '1300',kho_in_bia: '72x102', kieu_in_bia: 'Offset', so_mau_in_bia: '4 màu CMYK', ghi_chu_giay_bia: 'Nhập kho ngày 20/07',loai_giay_ruot: 'Ford', ma_giay_ruot: 'FORD-80', kho_giay_ruot_mua: '65x86', sl_giay_ruot_can_to: '2500',kho_in_ruot: '60x84', kieu_in_ruot: 'Offset', so_mau_in_ruot: '1 màu (Đen)', ghi_chu_giay_ruot: 'Giấy có sẵn trong kho',kho_kem: '1030*770*0.3', ghi_chu_kem: 'Xuất 5 tấm kẽm mới',loai_giay_boi: 'Carton', ma_giay_boi: 'CAR-1200', kho_giay_boi_mua_dxr_cm: '79x109', sl_giay_boi_can_to: '1250',ghi_chu_giay_boi: 'Kiểm tra độ phẳng của giấy', ma_mang: 'Màng mờ', kho_mang: '75', sl_mang_m: '1500',trang_phu: 'UV định hình logo', dien_tich_ep_kim: '25', ma_nhu: 'Vàng gold 12',chiet_quang: 'Không', boi: 'Bồi lên carton 2mm', kieu_be: 'Bế gân, bế đứt',so_khuon_be: '1', khuon_be: 'Khuôn có sẵn (Mã K-021)', so_con_khuon: '4',be_noi: 'Có', xe: 'Có', dan: 'Dán máy tự động', cat_thanh_pham: 'Cắt xén 4 cạnh',thanh_pham_khac: 'Gắn nam châm hít', ghi_chu_thanh_pham: 'Kiểm tra lực hít của nam châm',sl_thanh_pham: '5000', sl_da_giao: '0', ngay_hoan_tat: '2024-08-15',ghi_chu_giao_hang: 'Giao làm 2 đợt, mỗi đợt 2500 cái.', ghi_chu: 'Ưu tiên sản xuất gấp.',file_in: '', qr_code: 'https://quickchart.io/qr?text=LSX-DEMO-001&size=128',nguoi_lap_phieu: 'Nguyễn Thị An (KHSX)', nguoi_duyet: 'Trần Văn Bình (Trưởng phòng SX)'};
             populateProductionOrder(demoData);
-            
             const watermark = document.createElement('div');
-            watermark.className = 'demo-watermark';
-            watermark.innerHTML = 'Demo<br>LSX';
+            watermark.className = 'demo-watermark'; watermark.innerHTML = 'LỆNH NHÁP';
             document.getElementById('bill-container').appendChild(watermark);
         }
 
         // --- INITIALIZATION ---
-        async function initializeApp() {
-            const loader = document.getElementById('loading-overlay');
-            const container = document.getElementById('bill-container');
-            const formatFromUrl = getUrlParameter('format');
-            changeFormat(['a4', 'a5'].includes(formatFromUrl) ? formatFromUrl : 'a4');
-            try {
-                if (window.location.search.length > 1) { loadDataFromUrl(); } else { loadDemoData(); }
-                const essentialImages = Array.from(document.querySelectorAll('#logo-img, #order-qrcode img, .artwork-item img'));
-                await Promise.all(essentialImages.map(img => convertImageToBase64(img)));
-                container.style.visibility = 'visible';
-                loader.classList.add('hidden');
-            } catch (error) {
-                console.error("Failed to initialize:", error);
-                loader.innerHTML = `<h1>Lỗi tải phiếu</h1><p>${error.message}</p>`;
-            }
-        }
+        function initializeApp() { const loader = document.getElementById('loading-overlay'); const container = document.getElementById('bill-container'); try { if (window.location.search.length > 1) { loadDataFromUrl(); } else { loadDemoData(); } container.style.visibility = 'visible'; loader.classList.add('hidden'); } catch (error) { console.error("Failed to initialize:", error); loader.innerHTML = `<h1>Lỗi tải phiếu</h1><p>${error.message}</p>`; } }
         
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeApp();
-            window.addEventListener('beforeprint', () => document.querySelector('.no-print').style.display = 'none');
-            window.addEventListener('afterprint', () => document.querySelector('.no-print').style.display = 'flex');
-        });
+        document.addEventListener('DOMContentLoaded', () => { initializeApp(); window.addEventListener('beforeprint', () => document.querySelector('.no-print').style.display = 'none'); window.addEventListener('afterprint', () => document.querySelector('.no-print').style.display = 'flex'); });
     </script>
 </body>
 </html>
