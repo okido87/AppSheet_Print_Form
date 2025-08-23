@@ -12,7 +12,6 @@
     <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
 
     <style>
-        /* Toàn bộ CSS giữ nguyên như cũ, không thay đổi */
         body {
             background-color: #f0f0f0;
             font-family: 'Times New Roman', Times, serif;
@@ -29,7 +28,7 @@
             border: 1px #D3D3D3 solid;
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
             box-sizing: border-box;
-            line-height: 1.15;
+            line-height: 1.035;
             text-align: justify;
             position: relative;
             overflow: visible;
@@ -40,42 +39,49 @@
         .indented-block { padding-left: 20px; }
         
         .watermark {
-            position: absolute;
-            top: 40%;
-            left: 50%;
+            position: absolute; top: 40%; left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 100pt;
-            color: rgba(0, 0, 0, 0.08);
-            font-weight: bold;
-            pointer-events: none;
-            z-index: 0;
-            text-align: center;
-            display: none;
+            font-size: 100pt; color: rgba(0, 0, 0, 0.08); font-weight: bold;
+            pointer-events: none; z-index: 0; text-align: center; display: none;
         }
         
         body.demo-mode .watermark { display: block; }
         #contract-document > *:not(.watermark) { position: relative; z-index: 1; }
-        .header-table, .signature-section { text-align: center; }
+        
+        .header-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 15px;
+        }
+        .header-table td { vertical-align: top; }
+        .header-left { text-align: center; }
+        .header-right { text-align: center; }
+        .national-motto { font-weight: bold; white-space: nowrap; }
+
         p, h1, .list-item { text-align: justify; }
-        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .header-table td { vertical-align: top; width: 50%; }
+        
         .company-name { text-transform: uppercase; font-weight: bold; }
-        .national-motto { font-weight: bold; }
         .divider { border-top: 1px solid black; width: 40%; margin: 0 auto; }
         .main-title { text-align: center; font-size: 16pt; font-weight: bold; margin-top: 30px; margin-bottom: 20px; }
         .section-title { text-transform: uppercase; font-weight: bold; text-decoration: underline; margin-top: 15px; }
         .sub-section-title { font-weight: bold; font-style: italic; }
         .list-item { padding-left: 20px; text-indent: -20px; }
         .signature-section { display: flex; justify-content: space-around; margin-top: 20px; }
-        .signature-block { width: 45%; }
+        .signature-block { width: 45%; text-align: center; }
         .signature-block p { margin-bottom: 0; text-align: center; }
         .signature-title { font-weight: bold; }
         .signature-note { font-style: italic; font-size: 11pt; }
-        .demo-signature-container { margin-top: 50px; display: none; }
-        body.demo-mode .demo-signature-container { display: block; }
-        .demo-signature { font-family: "Brush Script MT", "Brush Script Std", "Lucida Calligraphy", cursive; font-size: 22pt; color: #000080; margin-bottom: 5px; }
-        .demo-fullname { font-weight: bold; }
-        .placeholder { color: #0000FF; font-weight: bold; }
+
+        /* Cập nhật khu vực chữ ký */
+        .signature-content { margin-top: 50px; }
+        .demo-signature { font-family: "Brush Script MT", "Brush Script Std", "Lucida Calligraphy", cursive; font-size: 22pt; color: #000080; margin-bottom: 5px; display: none; }
+        body.demo-mode .demo-signature { display: block; }
+        .signature-fullname { font-weight: bold; }
+        
+        /* === MÀU CHỮ ĐÃ ĐƯỢC CHỈNH LẠI SÁNG HƠN === */
+        .placeholder {
+            color: #0000FF; /* Xanh dương sáng */
+            font-weight: bold;
+        }
+
         .actions { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
         .actions button { padding: 10px 15px; font-size: 14px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background-color 0.3s; }
         .btn-print { background-color: #4CAF50; } .btn-pdf { background-color: #f44336; } .btn-docx { background-color: #2196F3; }
@@ -97,18 +103,16 @@
         <button class="btn-docx" onclick="downloadDOCX()">📜 Tải DOCX</button>
     </div>
 
-    <!-- Nội dung HTML của hợp đồng giữ nguyên -->
     <div id="contract-document">
-        <!-- ... toàn bộ nội dung hợp đồng của bạn ở đây ... -->
         <div class="watermark">BẢN DEMO</div>
         
         <table class="header-table">
             <tr>
-                <td>
+                <td class="header-left">
                     <p class="company-name">CÔNG TY CỔ PHẦN QUẢN LÝ<br>DỰ ÁN VÀ ĐẦU TƯ-CPMI</p>
                     <p>Số: <span class="placeholder" id="contract_number">01-DEMO/2025/HĐLĐ/CPMI-HCNS</span></p>
                 </td>
-                <td>
+                <td class="header-right">
                     <p class="national-motto">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập – Tự do – Hạnh phúc</p>
                     <div class="divider"></div>
                 </td>
@@ -195,95 +199,91 @@
         <p class="list-item">- Những vấn đề về lao động không được ghi trong hợp đồng này thì áp dụng quy định của Công ty, thỏa ước lao động tập thể (nếu có) và quy định của pháp luật lao động.</p>
         <p class="list-item">- Hợp đồng lao động này có hiệu lực kể từ ngày ký, được lập thành 02 bản có giá trị như nhau, mỗi bên giữ 01 bản.</p>
 
+        <!-- === CẬP NHẬT KHU VỰC CHỮ KÝ === -->
         <div class="signature-section">
             <div class="signature-block">
                 <p class="signature-title">Người lao động</p>
                 <p class="signature-note">(Ký, ghi rõ họ tên)</p>
-                <div class="demo-signature-container">
+                <div class="signature-content">
                     <p class="demo-signature">Nguyễn Tiến Nam</p>
-                    <p class="demo-fullname">NGUYỄN TIẾN NAM</p>
+                    <p class="signature-fullname">
+                        <span id="employee_name_uppercase" class="placeholder">NGUYỄN TIẾN NAM</span>
+                    </p>
                 </div>
             </div>
             <div class="signature-block">
                 <p class="signature-title">Người sử dụng lao động</p>
                 <p class="signature-note">(Ký tên, đóng dấu)</p>
-                 <div class="demo-signature-container">
+                 <div class="signature-content">
                     <p class="demo-signature">Nguyễn Huy Chính</p>
-                    <p class="demo-fullname">Nguyễn Huy Chính</p>
+                    <p class="signature-fullname">
+                        <span id="employer_name_uppercase" class="placeholder">NGUYỄN HUY CHÍNH</span>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
 <script>
-    // === HÀM MỚI ĐỂ GẮN CSS VÀO TỪNG THẺ HTML ===
-    /**
-     * Duyệt qua một element và tất cả các con của nó, sao chép các thuộc tính CSS
-     * được tính toán bởi trình duyệt vào thuộc tính style inline.
-     * @param {HTMLElement} element - Element để xử lý.
-     */
-    function applyInlineStyles(element) {
-        // Danh sách các thuộc tính CSS quan trọng cần giữ lại
-        const properties = [
-            'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'color', 
-            'textAlign', 'textDecorationLine', 'textTransform',
-            'lineHeight', 'paddingLeft', 'textIndent'
-        ];
-        const computedStyle = window.getComputedStyle(element);
-
-        // Áp dụng các style đã tính toán vào thuộc tính style của element
-        for (const prop of properties) {
-            element.style[prop] = computedStyle[prop];
-        }
-
-        // Lặp lại quy trình này cho tất cả các element con
-        for (const child of element.children) {
-            applyInlineStyles(child);
-        }
-    }
-
-    // Các hàm cũ giữ nguyên
+    function applyInlineStyles(element) { const properties = [ 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'color', 'textAlign', 'textDecorationLine', 'textTransform', 'lineHeight', 'paddingLeft', 'textIndent' ]; const computedStyle = window.getComputedStyle(element); for (const prop of properties) { element.style[prop] = computedStyle[prop]; } for (const child of element.children) { applyInlineStyles(child); } }
     function numberToVietnameseWords(n) { const s = n.toString().replace(/[\.,]/g, ''); if (s === '0') return 'Không'; const a = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín']; const b = ['', 'mươi', 'trăm']; const c = ['', 'nghìn', 'triệu', 'tỷ']; let i = s.length; if (i === 0) return ''; let j = 0; let str = ''; const group = []; while (i > 0) { group.push(s.substring(i - 3 > 0 ? i - 3 : 0, i)); i -= 3; } j = group.length - 1; for (; j >= 0; j--) { const g = group[j]; if (g !== '000') { const tram = parseInt(g[0], 10); const chuc = parseInt(g[1], 10); const donvi = parseInt(g[2], 10); if (tram > 0 || g.length > 3 || (j < group.length - 1 && g.length === 3)) { str += a[tram] + ' ' + b[2] + ' '; } if (chuc > 1) { str += a[chuc] + ' ' + b[1] + ' '; } else if (chuc === 1) { str += 'mười '; } else if (tram > 0 && donvi > 0) { str += 'lẻ '; } if (donvi === 5 && chuc > 0) { str += 'lăm '; } else if (donvi === 1 && chuc > 1) { str += 'mốt '; } else if (donvi > 0) { str += a[donvi] + ' '; } str += c[j] + ' '; } } str = str.trim(); return str.charAt(0).toUpperCase() + str.slice(1); }
-    function populateFormFromURL(urlParams) { const paramsMap = { so_hd: 'contract_number', ngay_hd: 'contract_day', thang_hd: 'contract_month', nam_hd: 'contract_year', ngay_ky: 'signing_day', thang_ky: 'signing_month', nam_ky: 'signing_year', ngay_bat_dau: 'contract_start_date', nguoi_dai_dien: 'employer_representative', chuc_vu_dai_dien: 'employer_position', fax_cong_ty: 'employer_fax', ho_ten_nlđ: 'employee_name', quoc_tich: 'employee_nationality', ngay_sinh: 'employee_dob', dia_chi_thuong_tru: 'employee_permanent_address', dia_chi_lien_he: 'employee_contact_address', so_cmnd: 'employee_id_card', ngay_cap_cmnd: 'employee_id_issue_date', noi_cap_cmnd: 'employee_id_issue_place', trinh_do: 'employee_qualification', mst_ca_nhan: 'employee_personal_tax_code', bo_phan: 'employee_department', chuc_danh: 'employee_job_title', luong_co_ban: 'employee_salary' }; for (const [param, id] of Object.entries(paramsMap)) { if (urlParams.has(param)) { const element = document.getElementById(id); if (element) { const value = decodeURIComponent(urlParams.get(param).replace(/\+/g, ' ')); element.textContent = value; if (id === 'employee_salary') { const salaryWordsElement = document.getElementById('employee_salary_words'); if (salaryWordsElement) { salaryWordsElement.textContent = numberToVietnameseWords(value) + " đồng chẵn."; } } } } } }
-    function downloadPDF() { const element = document.getElementById('contract-document'); const employeeName = document.getElementById('employee_name').textContent.trim().replace(/\s+/g, '-'); const filename = `HDLD-${employeeName}.pdf`; const opt = { margin: [1, 1.5, 1, 1], filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas:  { scale: 2, useCORS: true }, jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } }; document.querySelector('.actions').style.display = 'none'; html2pdf().from(element).set(opt).save().then(() => { document.querySelector('.actions').style.display = 'flex'; }); }
+    
+    // === CẬP NHẬT HÀM POPULATEFORMFROMURL ===
+    function populateFormFromURL(urlParams) {
+        const paramsMap = {
+            so_hd: 'contract_number', ngay_hd: 'contract_day', thang_hd: 'contract_month', nam_hd: 'contract_year',
+            ngay_ky: 'signing_day', thang_ky: 'signing_month', nam_ky: 'signing_year', ngay_bat_dau: 'contract_start_date',
+            nguoi_dai_dien: 'employer_representative', chuc_vu_dai_dien: 'employer_position', fax_cong_ty: 'employer_fax',
+            ho_ten_nlđ: 'employee_name', quoc_tich: 'employee_nationality', ngay_sinh: 'employee_dob',
+            dia_chi_thuong_tru: 'employee_permanent_address', dia_chi_lien_he: 'employee_contact_address',
+            so_cmnd: 'employee_id_card', ngay_cap_cmnd: 'employee_id_issue_date', noi_cap_cmnd: 'employee_id_issue_place',
+            trinh_do: 'employee_qualification', mst_ca_nhan: 'employee_personal_tax_code', bo_phan: 'employee_department',
+            chuc_danh: 'employee_job_title', luong_co_ban: 'employee_salary'
+        };
 
-    // === HÀM TẢI DOCX ĐÃ ĐƯỢC NÂNG CẤP TOÀN DIỆN ===
-    function downloadDOCX() {
-        if (document.body.classList.contains('demo-mode')) {
-            alert("Lưu ý: Watermark 'BẢN DEMO' sẽ không được hiển thị trong file DOCX do giới hạn kỹ thuật.");
+        for (const [param, id] of Object.entries(paramsMap)) {
+            if (urlParams.has(param)) {
+                const element = document.getElementById(id);
+                if (element) {
+                    const value = decodeURIComponent(urlParams.get(param).replace(/\+/g, ' '));
+                    element.textContent = value;
+                    
+                    // Xử lý các trường hợp đặc biệt
+                    if (id === 'employee_salary') {
+                        document.getElementById('employee_salary_words').textContent = numberToVietnameseWords(value) + " đồng chẵn.";
+                    }
+                    if (id === 'employee_name') {
+                        document.getElementById('employee_name_uppercase').textContent = value.toUpperCase();
+                    }
+                    if (id === 'employer_representative') {
+                        document.getElementById('employer_name_uppercase').textContent = value.toUpperCase();
+                    }
+                }
+            }
         }
-        const employeeName = document.getElementById('employee_name').textContent.trim().replace(/\s+/g, '-');
-        const filename = `HDLD-${employeeName}.docx`;
-
-        // 1. Sao chép nội dung gốc để xử lý
-        const contentClone = document.getElementById('contract-document').cloneNode(true);
-        
-        // 2. **BƯỚC QUAN TRỌNG:** Áp dụng toàn bộ CSS vào inline style cho bản sao
-        applyInlineStyles(contentClone);
-
-        // 3. Xử lý khu vực ký tên (vẫn cần chuyển sang table để tương thích tốt nhất)
-        const signatureSectionDiv = contentClone.querySelector('.signature-section');
-        if (signatureSectionDiv) {
-            const signatureBlocks = signatureSectionDiv.querySelectorAll('.signature-block');
-            let signatureHtmlCells = '';
-            signatureBlocks.forEach(block => {
-                // Nội dung bên trong block đã được gắn inline style từ bước 2
-                signatureHtmlCells += `<td style="width: 50%; vertical-align: top;">${block.innerHTML}</td>`;
-            });
-            const signatureTableHtml = `<table style="width:100%; margin-top: 50px; border-collapse: collapse;"><tbody><tr>${signatureHtmlCells}</tr></tbody></table>`;
-            signatureSectionDiv.outerHTML = signatureTableHtml;
-        }
-
-        // 4. Xóa watermark
-        contentClone.querySelectorAll('.watermark').forEach(el => el.remove());
-
-        // 5. Tạo file DOCX từ nội dung đã được xử lý hoàn chỉnh
-        const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${contentClone.innerHTML}</body></html>`;
-        var converted = htmlDocx.asBlob(fullHtml);
-        saveAs(converted, filename);
     }
 
-    window.onload = function() { const urlParams = new URLSearchParams(window.location.search); if (urlParams.toString() === "") { document.body.classList.add('demo-mode'); const demoSalary = document.getElementById('employee_salary').textContent; document.getElementById('employee_salary_words').textContent = numberToVietnameseWords(demoSalary) + " đồng chẵn."; } else { populateFormFromURL(urlParams); } };
+    function downloadPDF() { const element = document.getElementById('contract-document'); const employeeName = document.getElementById('employee_name').textContent.trim().replace(/\s+/g, '-'); const filename = `HDLD-${employeeName}.pdf`; const opt = { margin: [1, 1.5, 1, 1], filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas:  { scale: 2, useCORS: true }, jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } }; document.querySelector('.actions').style.display = 'none'; html2pdf().from(element).set(opt).save().then(() => { document.querySelector('.actions').style.display = 'flex'; }); }
+    function downloadDOCX() { if (document.body.classList.contains('demo-mode')) { alert("Lưu ý: Watermark 'BẢN DEMO' sẽ không được hiển thị trong file DOCX do giới hạn kỹ thuật."); } const employeeName = document.getElementById('employee_name').textContent.trim().replace(/\s+/g, '-'); const filename = `HDLD-${employeeName}.docx`; const contentClone = document.getElementById('contract-document').cloneNode(true); applyInlineStyles(contentClone); const signatureSectionDiv = contentClone.querySelector('.signature-section'); if (signatureSectionDiv) { const signatureBlocks = signatureSectionDiv.querySelectorAll('.signature-block'); let signatureHtmlCells = ''; signatureBlocks.forEach(block => { signatureHtmlCells += `<td style="width: 50%; vertical-align: top;">${block.innerHTML}</td>`; }); const signatureTableHtml = `<table style="width:100%; margin-top: 50px; border-collapse: collapse;"><tbody><tr>${signatureHtmlCells}</tr></tbody></table>`; signatureSectionDiv.outerHTML = signatureTableHtml; } contentClone.querySelectorAll('.watermark').forEach(el => el.remove()); const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${contentClone.innerHTML}</body></html>`; var converted = htmlDocx.asBlob(fullHtml); saveAs(converted, filename); }
+    
+    // === CẬP NHẬT WINDOW.ONLOAD ===
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.toString() === "") {
+            document.body.classList.add('demo-mode');
+            // Cập nhật các trường đặc biệt cho chế độ demo
+            const demoSalary = document.getElementById('employee_salary').textContent;
+            document.getElementById('employee_salary_words').textContent = numberToVietnameseWords(demoSalary) + " đồng chẵn.";
+            
+            const demoEmployeeName = document.getElementById('employee_name').textContent;
+            document.getElementById('employee_name_uppercase').textContent = demoEmployeeName.toUpperCase();
+            
+            const demoEmployerName = document.getElementById('employer_representative').textContent;
+            document.getElementById('employer_name_uppercase').textContent = demoEmployerName.toUpperCase();
+        } else {
+            populateFormFromURL(urlParams);
+        }
+    };
 </script>
 </body>
 </html>
