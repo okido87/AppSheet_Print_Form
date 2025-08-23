@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lệnh Sản Xuất - Royal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+    <style>
+        :root { --accent-color: #0056b3; --title-color: #d35400; --section-bg: #f2f2f2; --border-color: #ccc; }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden-item { display: none !important; }
+        .demo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-30deg); font-size: 7vw; color: rgba(255,0,0,0.07); font-weight: bold; text-transform: uppercase; z-index: 1; pointer-events: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #eee; font-family: 'Times New Roman', Times, serif; }
+        .bill-container { background: white; color: #000; position: relative; visibility: hidden; display: flex; flex-direction: column; margin: 20px auto; max-width: 190mm; min-height: 270mm; padding: 8pt; box-shadow: 0 0 10px rgba(0,0,0,0.1); font-size: 9.5pt; }
+        .company-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 6px; }
+        .logo { max-width: 120px; height: auto; flex-shrink: 0; }
+        .header-title-block { text-align: center; flex-grow: 1; }
+        .main-title { font-size: 2em; font-weight: bold; text-transform: uppercase; color: var(--title-color); }
+        .company-name-title { font-size: 1.2em; font-weight: bold; }
+        .order-info-line { display: flex; justify-content: center; gap: 15px; margin-top: 5px; font-size: 11pt; font-weight: bold; }
+        #order-qrcode img { width: 70px; height: 70px; }
+        .section { border: 1px solid var(--border-color); padding: 6px; margin-bottom: 6px; border-radius: 4px; page-break-inside: avoid; }
+        .section-title { font-weight: bold; font-size: 1.1em; background: var(--section-bg); padding: 4px 8px; margin: -6px -6px 6px -6px; border-bottom: 1px solid var(--border-color); border-radius: 4px 4px 0 0; }
+        .grid-container { display: grid; gap: 3px 12px; }
+        .grid-3-col { grid-template-columns: repeat(3, 1fr); }
+        .info-item { display: flex; align-items: baseline; line-height: 1.4; }
+        .info-item label { font-weight: bold; margin-right: 4px; white-space: nowrap; color: #333; }
+        .info-item span { border-bottom: 1px dotted #888; flex-grow: 1; min-width: 50px; color: var(--accent-color); font-weight: 500; }
+        .full-width { grid-column: 1 / -1; }
+        .merged-section-layout { display: flex; gap: 10px; align-items: flex-start; }
+        .merged-section-layout .text-content { flex: 2.5; }
+        .merged-section-layout .image-content { flex: 1; }
+        #artwork-image-container { width: 100%; aspect-ratio: 4/3; border: 1px solid var(--border-color); padding: 5px; display: flex; justify-content: center; align-items: center; background: #f9f9f9; }
+        #artwork-image-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .spec-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 9pt; }
+        .spec-table th, .spec-table td { border: 1px solid #999; padding: 3px; text-align: left; vertical-align: top; }
+        .spec-table th { background: #e9ecef; font-weight: bold; text-align: center; }
+        .spec-table .label-col { font-weight: bold; background: #f8f9fa; width: 12%; }
+        .text-bold { font-weight: bold; }
+        .footer { padding-top: 10px; margin-top: auto; page-break-before: auto; }
+        .signature-section { display: flex; justify-content: space-around; text-align: center; }
+        .signature-box { width: 30%; }
+        .signature-box .signature-title { font-weight: bold; }
+        .signature-box .signature-name { margin-top: 50px; font-weight: bold; }
+        .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; }
+        .print-options button { min-width: 120px; padding: 8px 12px; cursor: pointer; border: none; border-radius: 5px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-weight: bold; }
+        .print-options .btn-print { background: #6c757d; } .print-options .btn-pdf { background: #dc3545; }
+        @media print { body{background:white!important} .no-print{display:none!important} .bill-container{margin:0;box-shadow:none} @page{size:A4 portrait;margin:8mm} }
+    </style>
+</head>
+<body>
+    <div id="loading-overlay"><div class="spinner"></div></div>
+    <div class="print-options no-print"><button class="btn-print" onclick="window.print()">In</button><button id="btn-pdf" class="btn-pdf" onclick="downloadPDF()">Tải PDF</button></div>
+
+    <div class="bill-container" id="bill-container">
+        <!-- HEADER -->
+        <div class="company-header">
+            <img id="logo-img" src="https://teamkcn.com/uploads/2255/news/2023/06/11/logo-thinh-in-1686458201.jpg" alt="Logo Royal" class="logo" crossorigin="anonymous">
+            <div class="header-title-block"><div class="company-name-title">CÔNG TY IN ẤN ROYAL</div><div class="main-title">Lệnh Sản Xuất</div><div class="order-info-line"><span>HĐ: <span id="so_hd"></span></span> | <span>LSX: <span id="lenh_sx" class="text-bold"></span></span></div></div>
+            <div id="order-qrcode"></div>
+        </div>
+
+        <!-- BODY -->
+        <div class="invoice-body">
+            <!-- THÔNG TIN CHUNG & HÌNH ẢNH -->
+            <div class="merged-section-layout">
+                <div class="text-content">
+                    <div class="section">
+                        <div class="section-title">A. THÔNG TIN ĐƠN HÀNG</div>
+                        <div class="grid-container grid-3-col">
+                            <div class="info-item full-width"><label>Sản phẩm:</label><span id="ten_san_pham" class="text-bold"></span></div>
+                            <div class="info-item full-width"><label>Khách hàng:</label><span id="ten_khach_hang" class="text-bold"></span></div>
+                            <div class="info-item"><label>SL Đặt:</label><span id="so_luong_dat" class="text-bold"></span></div><div class="info-item"><label>SL Ghép:</label><span id="so_luong_ghep"></span></div><div class="info-item"><label>Loại hàng:</label><span id="loai_hang"></span></div>
+                            <div class="info-item"><label>Ngày nhận:</label><span id="ngay_nhan_don"></span></div><div class="info-item"><label>Hạn giao:</label><span id="han_giao_hang" class="text-bold"></span></div><div class="info-item"><label>Người nhận:</label><span id="nguoi_nhan_don"></span></div>
+                            <div class="info-item"><label>Tình trạng:</label><span id="tinh_trang"></span></div><div class="info-item"><label>Tiến độ:</label><span id="tien_do"></span></div><div class="info-item"><label>% Giao:</label><span id="phan_tram_giao_hang"></span></div>
+                            <div class="info-item full-width"><label>Quy cách:</label><span id="quy_cach" style="white-space: pre-wrap; line-height: 1.2;"></span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-content"><div class="section" style="padding:2px; height:100%;"><div class="section-title" style="margin:0; border-radius:4px 4px 0 0;">HÌNH BÀI BÌNH</div><div id="artwork-image-container" style="height: calc(100% - 25px);"></div></div></div>
+            </div>
+            
+            <!-- CHẾ BẢN & KHUÔN -->
+            <div class="section">
+                <div class="section-title">B. CHẾ BẢN & KHUÔN</div>
+                <div class="grid-container grid-3-col">
+                    <div class="info-item full-width"><label>Quy trình SX:</label><span id="quy_trinh_san_xuat"></span></div>
+                    <div class="info-item"><label>Hạn bình file:</label><span id="thoi_han_binh_file"></span></div><div class="info-item"><label>Ngày bình:</label><span id="ngay_binh_file"></span></div><div class="info-item"><label>Người làm lệnh:</label><span id="nguoi_lam_lenh"></span></div>
+                    <div class="info-item"><label>Hạn kẽm về:</label><span id="thoi_han_out_kem"></span></div><div class="info-item"><label>Ngày kẽm về:</label><span id="ngay_kem_ve"></span></div><div class="info-item"><label>Loại kẽm:</label><span id="kem_film"></span> <span id="kt_kem"></span> (<span id="so_kem"></span> kẽm)</div>
+                    <div class="info-item" id="parent_loai_khuon_be"><label>Khuôn bế:</label><span><span id="loai_khuon_be"></span> (<span id="ma_khuon_be"></span>) - <span id="ncc_khuon_be"></span></span></div>
+                    <div class="info-item" id="parent_loai_khuon_nhu"><label>Khuôn nhũ:</label><span><span id="loai_khuon_nhu"></span> (<span id="ma_khuon_nhu"></span>) - <span id="ncc_khuon_nhu"></span></span></div>
+                    <div class="info-item" id="parent_loai_khuon_thuc_noi"><label>Khuôn thúc nổi:</label><span><span id="loai_khuon_thuc_noi"></span> (<span id="ma_khuon_thuc_noi"></span>) - <span id="ncc_khuon_thuc_noi"></span></span></div>
+                    <div class="info-item full-width"><label>Ghi chú bình file:</label><span id="ghi_chu_binh_file"></span></div>
+                </div>
+            </div>
+
+            <!-- KẾ HOẠCH VẬT TƯ -->
+            <div class="section">
+                <div class="section-title">C. KẾ HOẠCH VẬT TƯ</div>
+                <table class="spec-table">
+                    <tr id="parent_loai_giay"><td class="label-col">Giấy chính</td><td><span id="loai_giay"></span> | Khổ: <span id="kho_giay"></span> | SL: <span id="sl_giay" class="text-bold"></span> + <span id="bu_hao"></span> bù hao</td></tr>
+                    <tr id="parent_loai_vt2"><td class="label-col">Sóng/Bồi</td><td><span id="loai_vt2"></span> | Khổ: <span id="quy_cach_vt2"></span> | SL: <span id="sl_vt2" class="text-bold"></span> + <span id="bu_hao_vt2"></span> bù hao</td></tr>
+                    <tr id="parent_loai_vt3"><td class="label-col">Vật tư 3</td><td><span id="loai_vt3"></span> | QC: <span id="quy_cach_vt3"></span> | SL: <span id="sl_vt3" class="text-bold"></span> + <span id="bu_hao_vt3"></span> bù hao</td></tr>
+                </table>
+            </div>
+
+            <!-- KẾ HOẠCH SẢN XUẤT -->
+            <div class="section">
+                <div class="section-title">D. KẾ HOẠCH SẢN XUẤT CHI TIẾT</div>
+                <table class="spec-table">
+                    <thead><tr><th class="label-col">Công đoạn</th><th>Quy cách / Yêu cầu</th><th>Máy</th><th>SL YC</th><th>Người TH</th><th>Ngày TH</th><th>Ghi chú</th></tr></thead>
+                    <tbody>
+                        <tr id="parent_in_offset"><td class="label-col">In Offset</td><td><span id="quy_cach_in"></span></td><td><span id="noi_in"></span></td><td><span id="so_luong_in"></span></td><td><span id="nguoi_in"></span></td><td><span id="ngay_in"></span></td><td><span id="ghi_chu_in"></span></td></tr>
+                        <tr id="parent_in_flexo"><td class="label-col">In Flexo</td><td><span id="quy_cach_in_flexo"></span></td><td><span id="may_in_flexo"></span></td><td><span id="so_luong_in_flexo"></span></td><td><span id="nguoi_in_flexo"></span></td><td><span id="ngay_in_flexo"></span></td><td><span id="ghi_chu_in_flexo"></span></td></tr>
+                        <tr id="parent_can"><td class="label-col">Cán</td><td><span id="quy_cach_can"></span></td><td><span id="may_can"></span></td><td><span id="so_luong_can"></span></td><td><span id="nguoi_can"></span></td><td><span id="ngay_can"></span></td><td><span id="ghi_chu_can"></span></td></tr>
+                        <tr id="parent_ep_nhu"><td class="label-col">Ép nhũ</td><td><span id="quy_cach_ep_nhu"></span></td><td><span id="may_ep_nhu"></span></td><td><span id="so_luong_ep_nhu"></span></td><td><span id="nguoi_ep_nhu"></span></td><td><span id="ngay_ep_nhu"></span></td><td><span id="ghi_chu_ep_nhu"></span></td></tr>
+                        <tr id="parent_thuc_noi"><td class="label-col">Thúc nổi</td><td><span id="quy_cach_thuc_noi"></span></td><td><span id="may_thuc_noi"></span></td><td><span id="so_luong_thuc_noi"></span></td><td><span id="nguoi_thuc_noi"></span></td><td><span id="ngay_thuc_noi"></span></td><td><span id="ghi_chu_thuc_noi"></span></td></tr>
+                        <tr id="parent_boi"><td class="label-col">Bồi</td><td><span id="quy_cach_boi"></span></td><td><span id="may_boi"></span></td><td><span id="so_luong_boi"></span></td><td><span id="nguoi_boi"></span></td><td><span id="ngay_boi"></span></td><td><span id="ghi_chu_boi"></span></td></tr>
+                        <tr id="parent_cat"><td class="label-col">Cắt</td><td><span id="quy_cach_cat"></span></td><td><span id="may_cat"></span></td><td><span id="sl_tp_cat"></span></td><td><span id="nguoi_cat"></span></td><td><span id="ngay_cat"></span></td><td><span id="ghi_chu_cat"></span></td></tr>
+                        <tr id="parent_be"><td class="label-col">Bế</td><td><span id="quy_cach_be"></span></td><td><span id="may_be"></span></td><td><span id="so_luong_tp_be"></span></td><td><span id="nguoi_be"></span></td><td><span id="ngay_be"></span></td><td><span id="ghi_chu_be"></span></td></tr>
+                        <tr id="parent_chia_cuon"><td class="label-col">Chia cuộn</td><td><span id="quy_cach_chia_cuon"></span></td><td><span id="may_chia_cuon"></span></td><td><span id="so_luong_nhan_chia"></span></td><td><span id="nguoi_chia_cuon"></span></td><td><span id="ngay_chia_cuon"></span></td><td><span id="ghi_chu_chia_cuon"></span></td></tr>
+                        <tr id="parent_khoan"><td class="label-col">Khoan</td><td><span id="quy_cach_khoan"></span></td><td><span id="may_khoan"></span></td><td><span id="so_luong_khoan"></span></td><td><span id="nguoi_khoan"></span></td><td><span id="ngay_khoan"></span></td><td><span id="ghi_chu_khoan"></span></td></tr>
+                        <tr id="parent_dan"><td class="label-col">Dán</td><td><span id="quy_cach_dan"></span></td><td><span id="may_dan"></span></td><td><span id="so_luong_dan"></span></td><td><span id="nguoi_dan"></span></td><td><span id="ngay_dan"></span></td><td><span id="ghi_chu_dan"></span></td></tr>
+                        <tr id="parent_kcs"><td class="label-col">KCS</td><td><span id="to_kcs"></span></td><td></td><td><span id="so_luong_kiem_dat"></span></td><td><span id="nguoi_kiem"></span></td><td><span id="ngay_kiem"></span></td><td><span id="ghi_chu_kcs"></span></td></tr>
+                        <tr id="parent_dong_goi"><td class="label-col">Đóng gói</td><td><span id="quy_cach_dong_goi"></span></td><td><span id="to_dong_goi"></span></td><td><span id="so_luong_thanh_pham"></span></td><td><span id="nguoi_dong_goi"></span></td><td><span id="ngay_dong_goi"></span></td><td><span id="ghi_chu_dong_goi"></span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- GIAO HÀNG -->
+            <div class="section">
+                <div class="section-title">E. GIAO HÀNG</div>
+                 <div class="grid-container grid-3-col">
+                    <div class="info-item"><label>SL Giao:</label><span id="so_luong_giao_hang" class="text-bold"></span></div>
+                    <div class="info-item"><label>SL Tồn:</label><span id="so_luong_ton"></span></div>
+                    <div class="info-item"><label>Ngày giao:</label><span id="ngay_giao_hang"></span></div>
+                    <div class="info-item full-width"><label>Ghi chú giao hàng:</label><span id="ghi_chu_giao_hang"></span></div>
+                </div>
+            </div>
+        </div>
+        <!-- FOOTER -->
+        <div class="footer"><div class="signature-section"><div class="signature-box"><div class="signature-title">Người Tạo Đơn</div><div class="signature-name" id="nguoi_tao_don"></div></div><div class="signature-box"><div class="signature-title">Kế Hoạch Sản Xuất</div><div class="signature-name"></div></div><div class="signature-box"><div class="signature-title">Giám Đốc</div><div class="signature-name"></div></div></div></div>
+    </div>
+    
+    <script>
+        const formatNumber = (v) => (v && !isNaN(Number(v))) ? Number(v).toLocaleString('vi-VN') : v;
+        const formatDate = (d) => { try { if (!d) return ''; const date = new Date(d); return isNaN(date.getTime()) ? d : date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch (e) { return d; } };
+        
+        function setTextOrHide(id, value) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const parent = el.closest('tr') || el.closest('.info-item');
+            const val = (typeof value === 'number' && !isNaN(value)) ? formatNumber(value) : (value || '');
+            if (val && String(val).trim() !== '' && String(val).trim() !== '0') {
+                el.innerHTML = val;
+                if (parent) parent.classList.remove('hidden-item');
+            } else if(parent && parent.tagName === 'TR') { // Only hide table rows, not info-items
+                parent.classList.add('hidden-item');
+            }
+        }
+
+        function populateOrder(data) {
+            document.title = `LSX ${data.lenh_sx || 'Mới'} - Royal`;
+            const fields = {
+                so_hd: data.so_hd, lenh_sx: data.lenh_sx, ten_san_pham: data.ten_san_pham, ten_khach_hang: data.ten_khach_hang, so_luong_dat: data.so_luong_dat, so_luong_ghep: data.so_luong_ghep, loai_hang: data.loai_hang, ngay_nhan_don: formatDate(data.ngay_nhan_don), han_giao_hang: formatDate(data.han_giao_hang), nguoi_nhan_don: data.nguoi_nhan_don, tinh_trang: data.tinh_trang, tien_do: data.tien_do, phan_tram_giao_hang: data.phan_tram_giao_hang, quy_cach: data.quy_cach,
+                quy_trinh_san_xuat: data.quy_trinh_san_xuat, thoi_han_binh_file: formatDate(data.thoi_han_binh_file), ngay_binh_file: formatDate(data.ngay_binh_file), nguoi_lam_lenh: data.nguoi_lam_lenh, thoi_han_out_kem: formatDate(data.thoi_han_out_kem), ngay_kem_ve: formatDate(data.ngay_kem_ve), kem_film: data.kem_film, kt_kem: data.kt_kem, so_kem: data.so_kem, loai_khuon_be: data.loai_khuon_be, ma_khuon_be: data.ma_khuon_be, ncc_khuon_be: data.ncc_khuon_be, loai_khuon_nhu: data.loai_khuon_nhu, ma_khuon_nhu: data.ma_khuon_nhu, ncc_khuon_nhu: data.ncc_khuon_nhu, loai_khuon_thuc_noi: data.loai_khuon_thuc_noi, ma_khuon_thuc_noi: data.ma_khuon_thuc_noi, ncc_khuon_thuc_noi: data.ncc_khuon_thuc_noi, ghi_chu_binh_file: data.ghi_chu_binh_file,
+                loai_giay: data.loai_giay, kho_giay: data.kho_giay, sl_giay: data.sl_giay, bu_hao: data.bu_hao, loai_vt2: data.loai_vt2, quy_cach_vt2: data.quy_cach_vt2, sl_vt2: data.sl_vt2, bu_hao_vt2: data.bu_hao_vt2, loai_vt3: data.loai_vt3, quy_cach_vt3: data.quy_cach_vt3, sl_vt3: data.sl_vt3, bu_hao_vt3: data.bu_hao_vt3,
+                quy_cach_in: data.quy_cach_in, noi_in: data.noi_in, so_luong_in: data.so_luong_in, nguoi_in: data.nguoi_in, ngay_in: formatDate(data.ngay_in), ghi_chu_in: data.ghi_chu_in,
+                quy_cach_in_flexo: data.quy_cach_in_flexo, may_in_flexo: data.may_in_flexo, so_luong_in_flexo: data.so_luong_in_flexo, nguoi_in_flexo: data.nguoi_in_flexo, ngay_in_flexo: formatDate(data.ngay_in_flexo), ghi_chu_in_flexo: data.ghi_chu_in_flexo,
+                quy_cach_can: data.quy_cach_can, may_can: data.may_can, so_luong_can: data.so_luong_can, nguoi_can: data.nguoi_can, ngay_can: formatDate(data.ngay_can), ghi_chu_can: data.ghi_chu_can,
+                quy_cach_ep_nhu: data.quy_cach_ep_nhu, may_ep_nhu: data.may_ep_nhu, so_luong_ep_nhu: data.so_luong_ep_nhu, nguoi_ep_nhu: data.nguoi_ep_nhu, ngay_ep_nhu: formatDate(data.ngay_ep_nhu), ghi_chu_ep_nhu: data.ghi_chu_ep_nhu,
+                quy_cach_thuc_noi: data.quy_cach_thuc_noi, may_thuc_noi: data.may_thuc_noi, so_luong_thuc_noi: data.so_luong_thuc_noi, nguoi_thuc_noi: data.nguoi_thuc_noi, ngay_thuc_noi: formatDate(data.ngay_thuc_noi), ghi_chu_thuc_noi: data.ghi_chu_thuc_noi,
+                quy_cach_boi: data.quy_cach_boi, may_boi: data.may_boi, so_luong_boi: data.so_luong_boi, nguoi_boi: data.nguoi_boi, ngay_boi: formatDate(data.ngay_boi), ghi_chu_boi: data.ghi_chu_boi,
+                quy_cach_cat: data.quy_cach_cat, may_cat: data.may_cat, sl_tp_cat: data.sl_tp_cat, nguoi_cat: data.nguoi_cat, ngay_cat: formatDate(data.ngay_cat), ghi_chu_cat: data.ghi_chu_cat,
+                quy_cach_be: data.quy_cach_be, may_be: data.may_be, so_luong_tp_be: data.so_luong_tp_be, nguoi_be: data.nguoi_be, ngay_be: formatDate(data.ngay_be), ghi_chu_be: data.ghi_chu_be,
+                quy_cach_chia_cuon: data.quy_cach_chia_cuon, may_chia_cuon: data.may_chia_cuon, so_luong_nhan_chia: data.so_luong_nhan_chia, nguoi_chia_cuon: data.nguoi_chia_cuon, ngay_chia_cuon: formatDate(data.ngay_chia_cuon), ghi_chu_chia_cuon: data.ghi_chu_chia_cuon,
+                quy_cach_khoan: data.quy_cach_khoan, may_khoan: data.may_khoan, so_luong_khoan: data.so_luong_khoan, nguoi_khoan: data.nguoi_khoan, ngay_khoan: formatDate(data.ngay_khoan), ghi_chu_khoan: data.ghi_chu_khoan,
+                quy_cach_dan: data.quy_cach_dan, may_dan: data.may_dan, so_luong_dan: data.so_luong_dan, nguoi_dan: data.nguoi_dan, ngay_dan: formatDate(data.ngay_dan), ghi_chu_dan: data.ghi_chu_dan,
+                to_kcs: data.to_kcs, so_luong_kiem_dat: data.so_luong_kiem_dat, nguoi_kiem: data.nguoi_kiem, ngay_kiem: formatDate(data.ngay_kiem), ghi_chu_kcs: data.ghi_chu_kcs,
+                quy_cach_dong_goi: data.quy_cach_dong_goi, to_dong_goi: data.to_dong_goi, so_luong_thanh_pham: data.so_luong_thanh_pham, nguoi_dong_goi: data.nguoi_dong_goi, ngay_dong_goi: formatDate(data.ngay_dong_goi), ghi_chu_dong_goi: data.ghi_chu_dong_goi,
+                so_luong_giao_hang: data.so_luong_giao_hang, so_luong_ton: data.so_luong_ton, ngay_giao_hang: formatDate(data.ngay_giao_hang), ghi_chu_giao_hang: data.ghi_chu_giao_hang, nguoi_tao_don: data.nguoi_tao_don
+            };
+            for (const [id, value] of Object.entries(fields)) setTextOrHide(id, value);
+            const qrUrl = data.qr_code ? `https://quickchart.io/qr?text=${encodeURIComponent(data.qr_code)}&size=128` : '';
+            document.getElementById('order-qrcode').innerHTML = qrUrl ? `<img src="${qrUrl}" alt="QR">` : '';
+            const imageUrl = data.hinh_anh_bai_binh || '';
+            document.getElementById('artwork-image-container').innerHTML = imageUrl ? `<img src="${imageUrl}" alt="Artwork" crossOrigin="anonymous">` : '<i>Không có hình ảnh</i>';
+        }
+
+        function loadDemoData() {
+            document.getElementById('bill-container').insertAdjacentHTML('afterbegin', '<div class="demo-watermark">LỆNH NHÁP</div>');
+            return {
+                loai_hang: 'Offset', ten_san_pham: 'Hộp quà Tết cao cấp 2025', quy_cach: '- KT: 35x25x10cm\n- Hộp âm dương, có khay\n- Giấy mỹ thuật bồi carton 2mm\n- Ép kim logo, thúc nổi hoa văn', ten_khach_hang: 'CÔNG TY TNHH QUÀ TẶNG VIỆT', so_hd: 'HD24-0815', lenh_sx: 'LSX-2408-001', ngay_nhan_don: '2024-08-01', han_giao_hang: '2024-08-30', nguoi_nhan_don: 'Ms. Lan (KD)', tinh_trang: 'Đang sản xuất', so_luong_dat: 2500,
+                quy_trinh_san_xuat: 'In Offset -> Cán -> Ép kim -> Thúc nổi -> Bồi -> Bế -> Dán -> Khoan -> KCS -> Đóng gói', nguoi_lam_lenh: 'Thoại', ngay_binh_file: '2024-08-02', kem_film: 'Kẽm', kt_kem: '79*109', so_kem: 4, loai_khuon_be: 'Khuôn mới', ncc_khuon_be: 'Khuôn A', loai_khuon_nhu: 'Khuôn đồng', ncc_khuon_nhu: 'Khuôn B', loai_khuon_thuc_noi: 'Khuôn đồng', ncc_khuon_thuc_noi: 'Khuôn B',
+                loai_giay: 'Giấy mỹ thuật Econo 120gsm', kho_giay: '79x109', sl_giay: 1500, bu_hao: '50', loai_vt2: 'Carton 2.5mm', quy_cach_vt2: '78x108', sl_vt2: 1400, bu_hao_vt2: '50',
+                quy_cach_in: 'In Offset 2 màu Pantone', noi_in: 'Máy 16 Royal', nguoi_in: 'Hạnh, Thưởng', so_luong_in: 1550, ngay_in: '2024-08-05',
+                quy_cach_in_flexo: 'In Flexo 1 màu logo thùng carton', may_in_flexo: 'Máy Flexo #2', nguoi_in_flexo: 'Tổ Flexo', so_luong_in_flexo: 500, ngay_in_flexo: '2024-08-20',
+                quy_cach_can: 'Cán màng lụa (soft touch)', may_can: 'Cán nhiệt tự động', nguoi_can: 'Deo', so_luong_can: 1550, ngay_can: '2024-08-06',
+                quy_cach_ep_nhu: 'Ép kim logo vàng gold', may_ep_nhu: 'Máy ép tự động', nguoi_ep_nhu: 'Tổ TP', so_luong_ep_nhu: 1520, ngay_ep_nhu: '2024-08-08',
+                quy_cach_thuc_noi: 'Thúc nổi hoa văn theo file', may_thuc_noi: 'Máy ép tự động', nguoi_thuc_noi: 'Tổ TP', so_luong_thuc_noi: 1520, ngay_thuc_noi: '2024-08-09',
+                quy_cach_boi: 'Bồi giấy vào carton', may_boi: 'Bồi máy', nguoi_boi: 'Hưng', so_luong_boi: 1500, ngay_boi: '2024-08-12',
+                quy_cach_cat: 'Cắt khay định hình', may_cat: 'Máy cắt JMC5', nguoi_cat: 'Quốc Anh', sl_tp_cat: 2600, ngay_cat: '2024-08-13',
+                quy_cach_be: 'Bế hộp và khay', may_be: 'Máy bế tự động', nguoi_be: 'Nghiệp', so_luong_tp_be: 2550, ngay_be: '2024-08-15',
+                quy_cach_chia_cuon: 'Chia cuộn ruy băng', may_chia_cuon: 'Máy chia ZL', nguoi_chia_cuon: 'Tổ Decal', so_luong_nhan_chia: 50, ngay_chia_cuon: '2024-08-16',
+                quy_cach_khoan: 'Khoan 2 lỗ xỏ dây', may_khoan: 'Máy khoan tay', nguoi_khoan: 'Tổ TP', so_luong_khoan: 2550, ngay_khoan: '2024-08-19',
+                quy_cach_dan: 'Dán hộp âm dương', may_dan: 'Dán tay', nguoi_dan: 'Tổ dán', so_luong_dan: 2520, ngay_dan: '2024-08-22',
+                so_luong_kiem_dat: 2505, nguoi_kiem: 'Lan', ngay_kiem: '2024-08-23',
+                quy_cach_dong_goi: '10 hộp/thùng carton', nguoi_dong_goi: 'Hồng', so_luong_thanh_pham: 2500, ngay_dong_goi: '2024-08-25',
+                so_luong_giao_hang: 1000, so_luong_ton: 1500, ngay_giao_hang: '2024-08-26', nguoi_tao_don: 'ketoan@royal.com',
+                qr_code: 'LSX-2408-001', hinh_anh_bai_binh: 'https://api.allorigins.win/raw?url=https://i.imgur.com/8i22p1h.jpeg'
+            };
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = window.location.search.length > 1 ? Object.fromEntries(new URLSearchParams(window.location.search)) : loadDemoData();
+            populateOrder(data);
+            document.getElementById('bill-container').style.visibility = 'visible';
+            document.getElementById('loading-overlay').style.display = 'none';
+        });
+
+        async function downloadPDF() { /* PDF generation logic */ }
+    </script>
+</body>
+</html>
