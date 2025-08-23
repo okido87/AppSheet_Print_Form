@@ -19,22 +19,23 @@
         .hidden { opacity: 0; pointer-events: none; }
         .hidden-item { display: none !important; }
         .demo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 8vw; line-height: 1.1; color: rgba(255, 0, 0, 0.08); font-weight: bold; text-transform: uppercase; text-align: center; z-index: 1; pointer-events: none; }
-        @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; margin: 0 !important; padding: 0 !important; overflow: hidden; } .no-print, #loading-overlay, .demo-watermark { display: none !important; } .bill-container { margin: 0 !important; padding: 0 !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; border: none !important; page-break-inside: avoid; } @page { size: A4 portrait; margin: 8mm; } * { page-break-before: avoid; page-break-after: avoid; } }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #eee; font-family: 'Times New Roman', Times, serif; }
         .bill-container { background: white; color: #000; position: relative; visibility: hidden; display: flex; flex-direction: column; margin: 20px auto; max-width: 190mm; min-height: 270mm; padding: 10pt; box-shadow: 0 0 10px rgba(0,0,0,0.1); font-size: 10pt; }
         .print-options { position: fixed; top: 10px; right: 10px; background: #f0f0f0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; }
         .print-options button { min-width: 120px; margin: 0; padding: 8px 12px; height: 44px; cursor: pointer; border: none; border-radius: 5px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; gap: 8px; }
+        .print-options button.btn-print { background-color: #6c757d; }
+        .print-options button.btn-pdf { background-color: #dc3545; }
         .company-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 8px;}
-        .footer { padding-top: 10px; margin-top: auto; }
+        .footer { padding-top: 10px; margin-top: auto; page-break-before: auto; }
         .signature-section { display: flex; justify-content: space-around; text-align: center; page-break-inside: avoid; margin-top: 0; }
         .logo { max-width: 100px; height: auto; flex-shrink: 0; } 
         .header-title-block { text-align: center; flex-grow: 1; }
         .main-title { font-size: 2.2em; font-weight: bold; line-height: 1.1; text-transform: uppercase; }
         .order-info-line { display: flex; justify-content: center; gap: 15px; margin-top: 5px; font-size: 1em; font-weight: bold; }
-        .order-info-line span { white-space: nowrap; }
         #order-qrcode { flex-shrink: 0; } #order-qrcode img { width: 80px; height: 80px; }
-        .section { border: 1px solid #ccc; padding: 8px; margin-bottom: 8px; border-radius: 4px; }
+        .section { border: 1px solid #ccc; padding: 8px; margin-bottom: 8px; border-radius: 4px; page-break-inside: avoid; }
         .section-title { font-weight: bold; font-size: 1.2em; background-color: #f2f2f2; padding: 4px 8px; margin: -8px -8px 8px -8px; border-bottom: 1px solid #ccc; border-radius: 4px 4px 0 0; }
         .grid-container { display: grid; gap: 4px 12px; }
         .grid-2-col { grid-template-columns: repeat(2, 1fr); }
@@ -48,7 +49,7 @@
         .spec-table th { background-color: #f2f2f2; font-weight: bold; text-align: center; } .spec-table td.center { text-align: center; } .spec-table tfoot td { background-color: #f2f2f2; }
         .text-bold { font-weight: bold; }
         .merged-section-layout { display: flex; gap: 15px; align-items: flex-start; }
-        .merged-section-layout .text-content { flex: 2; display: flex; flex-direction: column; gap: 4px; }
+        .merged-section-layout .text-content { flex: 2; }
         .merged-section-layout .image-content { flex: 1; }
         #artwork-image-container { width: 100%; aspect-ratio: 4 / 3; border: 1px solid #ccc; padding: 5px; display: flex; justify-content: center; align-items: center; background-color: #f9f9f9;}
         #artwork-image-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -56,6 +57,28 @@
         .signature-box .signature-title { font-weight: bold; }
         .signature-box .signature-name { margin-top: 60px; font-weight: bold; }
         .spinner-small { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+
+        @media print { 
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; margin: 0 !important; padding: 0 !important; overflow: visible; } 
+            .no-print, #loading-overlay, .demo-watermark { display: none !important; } 
+            .bill-container { margin: 0 !important; padding: 0 !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; border: none !important; } 
+            @page { size: A4 portrait; margin: 8mm; } 
+            * { page-break-before: avoid; page-break-after: avoid; } 
+            
+            /* *** HEADER REPEAT LOGIC *** */
+            .company-header {
+                position: fixed;
+                top: 0;
+                left: auto;
+                right: auto;
+                width: 190mm; /* Match container width */
+                background-color: white;
+                z-index: 100;
+            }
+            .invoice-body {
+                padding-top: 70px; /* Push content down to avoid overlap */
+            }
+        }
     </style>
 </head>
 <body class="format-a4">
@@ -65,15 +88,14 @@
     <div class="bill-container" id="bill-container">
         <!-- HEADER -->
         <div class="company-header">
-            <!-- *** LOGO FIXED HERE with a permanent link *** -->
-            <img id="logo-img" src="https://i.ibb.co/L8p5K1S/ems-logo.jpg" alt="Logo" class="logo" crossorigin="anonymous">
+            <!-- *** LOGO FIXED with a permanent link *** -->
+            <div class="company-identity"> <img id="logo-img" src="https://scontent.fsgn5-12.fna.fbcdn.net/v/t1.6435-9/90417587_101537181496969_1126778176115048448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=i78ZM_nEKuUQ7kNvwHHfkCD&_nc_oc=AdnJdasev9zMhHc6ELnEipIG6JFdhpW4HaMw0JPviIYxYXUQz8_Km6_azPRq-6KLN-AS92o4a9QQ5hx8WnGow6WR&_nc_zt=23&_nc_ht=scontent.fsgn5-12.fna&_nc_gid=TrGqWXWdJMMBEEwPYgKHtQ&oh=00_AfVRthaEuicfyGt0-D_0KheC0uskcmHmLiIvYhgnUFim5Q&oe=68C20A1E" alt="Logo" class="logo" crossorigin="anonymous">
             <div class="header-title-block"><div class="main-title">Lệnh Sản Xuất</div><div class="order-info-line"><span>Số: <span id="lenh_sx"></span></span><span>|</span><span>Ngày: <span id="ngay_tao_lenh"></span></span><span>|</span><span id="loai_don"></span></div></div><div id="order-qrcode"></div>
         </div>
 
         <!-- BODY -->
         <div class="invoice-body">
-            <!-- *** SECTION A RE-LAYOUTED *** -->
-            <div class="section"><div class="section-title">A. THÔNG TIN ĐƠN HÀNG</div><div class="merged-section-layout"><div class="text-content"><div class="info-item"><label>Khách hàng:</label><span id="khach_hang"></span></div><div class="grid-container grid-2-col"><div class="info-item"><label>Tổng SL:</label><span id="sl_tong" class="text-bold"></span></div><div class="info-item"><label>Hạn giao hàng:</label><span id="han_giao_hang"></span></div></div><div class="info-item"><label>Quy trình sản xuất:</label><span id="quy_trinh_san_xuat"></span></div><div class="info-item" id="parent_ghi_chu_binh_bai"><label>Ghi chú bình bài:</label><span id="ghi_chu_binh_bai"></span></div></div><div class="image-content"><div id="artwork-image-container"></div></div></div></div>
+            <div class="section"><div class="section-title">A. THÔNG TIN ĐƠN HÀNG</div><div class="merged-section-layout"><div class="text-content"><div class="grid-container grid-2-col"><div class="info-item full-width"><label>Khách hàng:</label><span id="khach_hang"></span></div><div class="info-item"><label>Hạn giao hàng:</label><span id="han_giao_hang"></span></div><div class="info-item"><label>Tổng SL:</label><span id="sl_tong" class="text-bold"></span></div><div class="info-item full-width"><label>Quy trình sản xuất:</label><span id="quy_trinh_san_xuat"></span></div><div class="info-item full-width" id="parent_ghi_chu_binh_bai"><label>Ghi chú bình bài:</label><span id="ghi_chu_binh_bai"></span></div></div></div><div class="image-content"><div id="artwork-image-container"></div></div></div></div>
             <div class="section"><div class="section-title">B. CHI TIẾT VẬT TƯ & IN ẤN</div><table class="spec-table"><thead><tr><th>Hạng mục</th><th>Loại / Mã VT</th><th>Khổ mua (cm)</th><th>SL Cần (Tờ)</th><th>Khổ in</th><th>Kiểu / Màu in</th><th>Ghi chú</th></tr></thead><tbody><tr id="parent_loai_giay_bia"><td class="text-bold">Giấy Bìa</td><td><span id="loai_giay_bia"></span> / <span id="ma_giay_bia"></span></td><td class="center"><span id="kho_giay_bia_mua"></span></td><td class="center text-bold"><span id="sl_giay_bia_can_to"></span></td><td class="center"><span id="kho_in_bia"></span></td><td class="center"><span id="kieu_in_bia"></span> / <span id="so_mau_in_bia"></span></td><td><span id="ghi_chu_giay_bia"></span></td></tr><tr id="parent_loai_giay_ruot"><td class="text-bold">Giấy Ruột</td><td><span id="loai_giay_ruot"></span> / <span id="ma_giay_ruot"></span></td><td class="center"><span id="kho_giay_ruot_mua"></span></td><td class="center text-bold"><span id="sl_giay_ruot_can_to"></span></td><td class="center"><span id="kho_in_ruot"></span></td><td class="center"><span id="kieu_in_ruot"></span> / <span id="so_mau_in_ruot"></span></td><td><span id="ghi_chu_giay_ruot"></span></td></tr><tr id="parent_loai_giay_boi"><td class="text-bold">Giấy Bồi</td><td><span id="loai_giay_boi"></span> / <span id="ma_giay_boi"></span></td><td class="center"><span id="kho_giay_boi_mua_dxr_cm"></span></td><td class="center text-bold"><span id="sl_giay_boi_can_to"></span></td><td class="center">-</td><td class="center">-</td><td><span id="ghi_chu_giay_boi"></span></td></tr><tr id="parent_kho_kem"><td class="text-bold">Kẽm</td><td colspan="3" class="center"><span id="kho_kem"></span></td><td colspan="3"><span id="ghi_chu_kem"></span></td></tr></tbody></table></div>
             <div class="section"><div class="section-title">C. THÀNH PHẨM</div><div class="grid-container grid-3-col"><div class="info-item" id="parent_ma_mang"><label>Cán màng:</label><span><span id="ma_mang"></span> / <span id="kho_mang"></span>cm / <span id="sl_mang_m"></span>m</span></div><div class="info-item" id="parent_dien_tich_ep_kim"><label>Ép kim:</label><span>DT: <span id="dien_tich_ep_kim"></span>cm², Mã nhũ: <span id="ma_nhu"></span></span></div><div class="info-item" id="parent_trang_phu"><label>Tráng phủ:</label><span id="trang_phu"></span></div><div class="info-item" id="parent_chiet_quang"><label>Chiết quang:</label><span id="chiet_quang"></span></div><div class="info-item" id="parent_boi"><label>Bồi:</label><span id="boi"></span></div><div class="info-item" id="parent_be_noi"><label>Bế nổi:</label><span id="be_noi"></span></div><div class="info-item" id="parent_kieu_be"><label>Kiểu bế:</label><span id="kieu_be"></span></div><div class="info-item" id="parent_so_khuon_be"><label>Khuôn bế:</label><span><span id="so_khuon_be"></span> khuôn (<span id="khuon_be"></span>)</span></div><div class="info-item" id="parent_so_con_khuon"><label>Số con/khuôn:</label><span id="so_con_khuon"></span></div><div class="info-item" id="parent_xe"><label>Xé:</label><span id="xe"></span></div><div class="info-item" id="parent_dan"><label>Dán:</label><span id="dan"></span></div><div class="info-item" id="parent_cat_thanh_pham"><label>Cắt TP:</label><span id="cat_thanh_pham"></span></div></div><div class="info-item full-width" style="margin-top: 5px;" id="parent_thanh_pham_khac"><label>TP Khác:</label><span id="thanh_pham_khac"></span></div><div class="info-item full-width" id="parent_ghi_chu_thanh_pham"><label>Ghi chú TP:</label><span id="ghi_chu_thanh_pham"></span></div></div>
             <div class="section"><div class="section-title">D. KẾ HOẠCH SẢN XUẤT</div><table class="spec-table"><thead><tr><th style="width:5%">STT</th><th>Công Đoạn / Mô tả</th><th style="width:10%">SL Yêu Cầu</th><th style="width:10%">SL Đạt</th><th style="width:10%">SL Hư</th><th style="width:12%">Hạn Hoàn Thành</th><th style="width:15%">Người Thực Hiện</th><th>Ghi Chú</th></tr></thead><tbody id="plan-table-body"></tbody></table></div>
@@ -86,7 +108,7 @@
     
     <script>
         async function convertImageToBase64(imgElement) { if (!imgElement || !imgElement.src || imgElement.src.startsWith('data:image')) return; const originalSrc = imgElement.src; try { const response = await fetch(originalSrc, { cache: 'force-cache' }); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const blob = await response.blob(); return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { imgElement.src = reader.result; resolve(true); }; reader.onerror = reject; reader.readAsDataURL(blob); }); } catch (error) { console.error(`Failed to fetch or convert image: ${originalSrc}`, error); return false; } }
-        async function downloadPDF() { const pdfBtn = document.getElementById('btn-pdf'); const originalBtnContent = pdfBtn.innerHTML; pdfBtn.disabled = true; pdfBtn.innerHTML = '<div class="spinner-small"></div><span>Đang tạo...</span>'; const element = document.querySelector('.bill-container'); const orderId = document.getElementById('lenh_sx').textContent || 'unknown'; const filename = `LSX-${orderId}.pdf`; const allImages = Array.from(document.querySelectorAll('#logo-img, #order-qrcode img, #artwork-image-container img')); await Promise.all(allImages.map(img => convertImageToBase64(img))); const opt = { margin: [10, 8, 10, 8], filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; try { await html2pdf().from(element).set(opt).save(); } catch (error) { console.error("Error creating PDF:", error); } finally { pdfBtn.disabled = false; pdfBtn.innerHTML = originalBtnContent; } }
+        async function downloadPDF() { const pdfBtn = document.getElementById('btn-pdf'); const originalBtnContent = pdfBtn.innerHTML; pdfBtn.disabled = true; pdfBtn.innerHTML = '<div class="spinner-small"></div><span>Đang tạo...</span>'; const element = document.querySelector('.bill-container'); const orderId = document.getElementById('lenh_sx').textContent || 'unknown'; const filename = `LSX-${orderId}.pdf`; const allImages = Array.from(document.querySelectorAll('#logo-img, #order-qrcode img, #artwork-image-container img')); await Promise.all(allImages.map(img => convertImageToBase64(img))); const opt = { margin: [8, 6, 8, 6], filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; try { await html2pdf().from(element).set(opt).save(); } catch (error) { console.error("Error creating PDF:", error); } finally { pdfBtn.disabled = false; pdfBtn.innerHTML = originalBtnContent; } }
         function getUrlParameter(name) { return decodeURIComponent((new URLSearchParams(window.location.search).get(name) || '').replace(/\+/g, ' ')); }
         function displayImage(containerId, imageUrl, altText = 'Image') { const container = document.getElementById(containerId); if (container && imageUrl) { const img = new Image(); img.crossOrigin = 'anonymous'; img.src = imageUrl; img.alt = altText; container.innerHTML = ''; container.appendChild(img); } else if (container) { container.innerHTML = '<i>Không có hình ảnh</i>'; } }
         const formatNumber = (value) => { if (!value || isNaN(Number(value))) return value; return Number(value).toLocaleString('vi-VN'); };
