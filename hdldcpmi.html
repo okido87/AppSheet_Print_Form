@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hợp đồng lao động</title>
-    <!-- Thư viện để tạo PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Thư viện để tạo DOCX -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
@@ -23,7 +21,7 @@
             background: white;
             width: 21cm;
             min-height: 29.7cm;
-            padding: 1cm 1cm 1cm 1.5cm;
+            padding: 1cm 1cm 2cm 1.5cm;
             margin: 1cm auto;
             border: 1px #D3D3D3 solid;
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
@@ -34,33 +32,45 @@
             overflow: visible;
         }
         
+        @page {
+            size: A4 portrait;
+            margin: 1cm 1cm 2cm 1.5cm; 
+            @bottom-center {
+                content: "Trang " counter(page) " / " counter(pages);
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 10pt;
+                color: #333;
+                vertical-align: top;
+            }
+        }
+
         .section-title, .sub-section-title { page-break-after: avoid; break-after: avoid; }
         .signature-section { page-break-inside: avoid; break-inside: avoid; }
         .indented-block { padding-left: 20px; }
         
-        .watermark {
-            position: absolute; top: 40%; left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 100pt; color: rgba(0, 0, 0, 0.08); font-weight: bold;
-            pointer-events: none; z-index: 0; text-align: center; display: none;
-        }
+        .watermark { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100pt; color: rgba(0, 0, 0, 0.08); font-weight: bold; pointer-events: none; z-index: 0; text-align: center; display: none; }
         
         body.demo-mode .watermark { display: block; }
         #contract-document > *:not(.watermark) { position: relative; z-index: 1; }
         
-        .header-table {
-            width: 100%; border-collapse: collapse; margin-bottom: 15px;
-        }
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .header-table td { vertical-align: top; }
-        .header-left { text-align: center; }
-        .header-right { text-align: center; }
+        
+        /* === CSS ĐÃ ĐƯỢC SỬA LỖI === */
+        .header-table p {
+            margin: 0; /* Xóa lề mặc định gây ra khoảng trống */
+            padding: 2px 0; /* Thêm một chút khoảng đệm nhỏ */
+            text-align: center; /* Ép buộc canh giữa, ghi đè quy tắc chung */
+        }
+        /* ============================ */
+
         .national-motto { font-weight: bold; white-space: nowrap; }
 
         p, h1, .list-item { text-align: justify; }
         
         .company-name { text-transform: uppercase; font-weight: bold; }
-        .divider { border-top: 1px solid black; width: 40%; margin: 0 auto; }
-        .main-title { text-align: center; font-size: 16pt; font-weight: bold; margin-top: 30px; margin-bottom: 20px; }
+        .divider { border-top: 1px solid black; width: 40%; margin: 5px auto 0 auto; } /* Thêm margin-top nhỏ */
+        .main-title { text-align: center; font-size: 16pt; font-weight: bold; margin-top: 20px; margin-bottom: 20px; } /* Giảm margin-top */
         .section-title { text-transform: uppercase; font-weight: bold; text-decoration: underline; margin-top: 15px; }
         .sub-section-title { font-weight: bold; font-style: italic; }
         .list-item { padding-left: 20px; text-indent: -20px; }
@@ -70,18 +80,12 @@
         .signature-title { font-weight: bold; }
         .signature-note { font-style: italic; font-size: 11pt; }
 
-        /* Cập nhật khu vực chữ ký */
         .signature-content { margin-top: 50px; }
         .demo-signature { font-family: "Brush Script MT", "Brush Script Std", "Lucida Calligraphy", cursive; font-size: 22pt; color: #000080; margin-bottom: 5px; display: none; }
         body.demo-mode .demo-signature { display: block; }
         .signature-fullname { font-weight: bold; }
         
-        /* === MÀU CHỮ ĐÃ ĐƯỢC CHỈNH LẠI SÁNG HƠN === */
-        .placeholder {
-            color: #0000FF; /* Xanh dương sáng */
-            font-weight: bold;
-        }
-
+        .placeholder { color: #0000FF; font-weight: bold; }
         .actions { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
         .actions button { padding: 10px 15px; font-size: 14px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background-color 0.3s; }
         .btn-print { background-color: #4CAF50; } .btn-pdf { background-color: #f44336; } .btn-docx { background-color: #2196F3; }
@@ -89,18 +93,27 @@
 
         @media print {
             body { background-color: #fff; }
-            #contract-document { margin: 0; border: none; box-shadow: none; width: auto; min-height: auto; }
+            #contract-document { margin: 0; border: none; box-shadow: none; width: auto; min-height: auto; padding: 0; }
             .actions { display: none; }
             body.demo-mode .watermark { display: block; }
+        }
+
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            .actions { flex-direction: row; justify-content: space-around; top: 0; left: 0; right: 0; width: 100%; background-color: #333; padding: 8px 0; border-radius: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.4); gap: 5px; }
+            .actions button { font-size: 12px; padding: 8px 12px; }
+            #contract-document { width: 100%; min-height: auto; margin: 0; padding: 15px; border: none; box-shadow: none; }
+            .main-title { font-size: 14pt; }
+            .national-motto { font-size: 10pt; }
         }
     </style>
 </head>
 
 <body>
     <div class="actions">
-        <button class="btn-print" onclick="window.print()">🖨️ In Hợp Đồng</button>
-        <button class="btn-pdf" onclick="downloadPDF()">📄 Tải PDF</button>
-        <button class="btn-docx" onclick="downloadDOCX()">📜 Tải DOCX</button>
+        <button class="btn-print" onclick="window.print()">🖨️ In</button>
+        <button class="btn-pdf" onclick="downloadPDF()">📄 Lưu PDF</button>
+        <button class="btn-docx" onclick="downloadDOCX()">📜 DOCX</button>
     </div>
 
     <div id="contract-document">
@@ -108,182 +121,55 @@
         
         <table class="header-table">
             <tr>
-                <td class="header-left">
+                <td> <!-- Bỏ class ở đây để quy tắc chung .header-table p xử lý -->
                     <p class="company-name">CÔNG TY CỔ PHẦN QUẢN LÝ<br>DỰ ÁN VÀ ĐẦU TƯ-CPMI</p>
                     <p>Số: <span class="placeholder" id="contract_number">01-DEMO/2025/HĐLĐ/CPMI-HCNS</span></p>
                 </td>
-                <td class="header-right">
+                <td>
                     <p class="national-motto">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập – Tự do – Hạnh phúc</p>
                     <div class="divider"></div>
                 </td>
             </tr>
         </table>
         
-        <p style="text-align: right; font-style: italic;">
-            Hà Nội, ngày <span class="placeholder" id="contract_day">03</span>
-            tháng <span class="placeholder" id="contract_month">03</span>
-            năm <span class="placeholder" id="contract_year">2025</span>
-        </p>
-
+        <p style="text-align: right; font-style: italic;">Hà Nội, ngày <span class="placeholder" id="contract_day">03</span> tháng <span class="placeholder" id="contract_month">03</span> năm <span class="placeholder" id="contract_year">2025</span></p>
         <h1 class="main-title">HỢP ĐỒNG LAO ĐỘNG</h1>
-        
         <p>Hôm nay, ngày <span class="placeholder" id="signing_day">03</span> tháng <span class="placeholder" id="signing_month">03</span> năm <span class="placeholder" id="signing_year">2025</span>, tại văn phòng Công ty cổ phần Quản lý dự án và Đầu tư-CPMI, chúng tôi gồm:</p>
-        
         <p class="section-title">NGƯỜI SỬ DỤNG LAO ĐỘNG:</p>
-        <div class="indented-block">
-            <p><strong>CÔNG TY CỔ PHẦN QUẢN LÝ DỰ ÁN VÀ ĐẦU TƯ-CPMI</strong></p>
-            <p>Địa chỉ: Tầng 3, tòa nhà 789, số 147 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, TP. Hà Nội</p>
-            <p>Mã số thuế: 0104766222</p>
-            <p>Đại diện: Ông <span class="placeholder" id="employer_representative">Nguyễn Huy Chính</span> &nbsp;&nbsp;&nbsp;&nbsp;Chức vụ: <span class="placeholder" id="employer_position">Tổng Giám đốc</span></p>
-            <p>Điện thoại: 024 6664 0634 &nbsp;&nbsp;&nbsp;&nbsp;Fax: <span class="placeholder" id="employer_fax">...</span></p>
-        </div>
-        
+        <div class="indented-block"><p><strong>CÔNG TY CỔ PHẦN QUẢN LÝ DỰ ÁN VÀ ĐẦU TƯ-CPMI</strong></p><p>Địa chỉ: Tầng 3, tòa nhà 789, số 147 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, TP. Hà Nội</p><p>Mã số thuế: 0104766222</p><p>Đại diện: Ông <span class="placeholder" id="employer_representative">Nguyễn Huy Chính</span> &nbsp;&nbsp;&nbsp;&nbsp;Chức vụ: <span class="placeholder" id="employer_position">Tổng Giám đốc</span></p><p>Điện thoại: 024 6664 0634 &nbsp;&nbsp;&nbsp;&nbsp;Fax: <span class="placeholder" id="employer_fax">...</span></p></div>
         <p class="section-title">VÀ NGƯỜI LAO ĐỘNG:</p>
-        <div class="indented-block">
-            <p>Ông: <span class="placeholder" id="employee_name">NGUYỄN TIẾN NAM</span> &nbsp;&nbsp;&nbsp;&nbsp;Quốc tịch: <span class="placeholder" id="employee_nationality">Việt Nam</span> &nbsp;&nbsp;&nbsp;&nbsp;Sinh ngày: <span class="placeholder" id="employee_dob">02/08/1988</span></p>
-            <p>Địa chỉ thường trú: <span class="placeholder" id="employee_permanent_address">Tháp thể tự Thăng Long, Kim Nỗ, Đông Anh, Hà Nội</span></p>
-            <p>Địa chỉ liên hệ: <span class="placeholder" id="employee_contact_address">Tháp thể vật tư Thăng Long, Kim Nỗ, Đông Anh, Hà Nội</span></p>
-            <p>Số chứng minh thư: <span class="placeholder" id="employee_id_card">001088030732</span> &nbsp;&nbsp;&nbsp;&nbsp;Ngày cấp: <span class="placeholder" id="employee_id_issue_date">17/08/2022</span></p>
-            <p>Nơi cấp: <span class="placeholder" id="employee_id_issue_place">Cục trưởng cục Cảnh Sát QLHC Về TTXH</span></p>
-            <p>Trình độ chuyên môn: <span class="placeholder" id="employee_qualification">Kỹ sư kỹ thuật xây dựng</span></p>
-            <p>MST cá nhân: <span class="placeholder" id="employee_personal_tax_code">8742372095</span></p>
-        </div>
+        <div class="indented-block"><p>Ông: <span class="placeholder" id="employee_name">NGUYỄN TIẾN NAM</span> &nbsp;&nbsp;&nbsp;&nbsp;Quốc tịch: <span class="placeholder" id="employee_nationality">Việt Nam</span> &nbsp;&nbsp;&nbsp;&nbsp;Sinh ngày: <span class="placeholder" id="employee_dob">02/08/1988</span></p><p>Địa chỉ thường trú: <span class="placeholder" id="employee_permanent_address">Tháp thể tự Thăng Long, Kim Nỗ, Đông Anh, Hà Nội</span></p><p>Địa chỉ liên hệ: <span class="placeholder" id="employee_contact_address">Tháp thể vật tư Thăng Long, Kim Nỗ, Đông Anh, Hà Nội</span></p><p>Số chứng minh thư: <span class="placeholder" id="employee_id_card">001088030732</span> &nbsp;&nbsp;&nbsp;&nbsp;Ngày cấp: <span class="placeholder" id="employee_id_issue_date">17/08/2022</span></p><p>Nơi cấp: <span class="placeholder" id="employee_id_issue_place">Cục trưởng cục Cảnh Sát QLHC Về TTXH</span></p><p>Trình độ chuyên môn: <span class="placeholder" id="employee_qualification">Kỹ sư kỹ thuật xây dựng</span></p><p>MST cá nhân: <span class="placeholder" id="employee_personal_tax_code">8742372095</span></p></div>
         <p>Thỏa thuận ký kết Hợp đồng lao động và cam kết thực hiện đúng những điều khoản sau đây:</p>
-        
         <p class="section-title">Điều 1: Thời hạn và công việc</p>
-        <p class="list-item">- Loại Hợp đồng lao động: Không xác định thời hạn kể từ ngày <span class="placeholder" id="contract_start_date">03 tháng 03 năm 2025</span>.</p>
-        <p class="list-item">- Địa điểm làm việc: Tại văn phòng Công ty, tầng 3, tòa nhà 789, số 147 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, TP. Hà Nội hoặc tại Công trường nơi thực hiện các công việc được phân công.</p>
-        <p class="list-item">- Bộ phận công tác: <span class="placeholder" id="employee_department">Khối tư vấn Quản lý dự án, tư vấn giám sát</span></p>
-        <p class="list-item">- Chức danh chuyên môn: <span class="placeholder" id="employee_job_title">Cán bộ tư vấn giám sát</span></p>
-        <p class="list-item">- Công việc phải làm: Theo công việc chuyên môn và các công việc do Ban lãnh đạo giao trực tiếp hoặc thông qua các cán bộ phụ trách trực tiếp.</p>
-
+        <p class="list-item">- Loại Hợp đồng lao động: Không xác định thời hạn kể từ ngày <span class="placeholder" id="contract_start_date">03 tháng 03 năm 2025</span>.</p><p class="list-item">- Địa điểm làm việc: Tại văn phòng Công ty, tầng 3, tòa nhà 789, số 147 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, TP. Hà Nội hoặc tại Công trường nơi thực hiện các công việc được phân công.</p><p class="list-item">- Bộ phận công tác: <span class="placeholder" id="employee_department">Khối tư vấn Quản lý dự án, tư vấn giám sát</span></p><p class="list-item">- Chức danh chuyên môn: <span class="placeholder" id="employee_job_title">Cán bộ tư vấn giám sát</span></p><p class="list-item">- Công việc phải làm: Theo công việc chuyên môn và các công việc do Ban lãnh đạo giao trực tiếp hoặc thông qua các cán bộ phụ trách trực tiếp.</p>
         <p class="section-title">Điều 2: Chế độ làm việc</p>
-        <p class="list-item">- Thời gian làm việc: 8h/ngày, 48h/tuần hoặc Tùy theo tình hình công việc thực tế phát sinh, khi cần thiết phải làm thêm giờ theo yêu cầu của cán bộ phụ trách trực tiếp.</p>
-        <p class="list-item">- Dụng cụ làm việc: Được cấp phát dụng cụ làm việc, bảo hộ lao động theo yêu cầu công việc.</p>
-
+        <p class="list-item">- Thời gian làm việc: 8h/ngày, 48h/tuần hoặc Tùy theo tình hình công việc thực tế phát sinh, khi cần thiết phải làm thêm giờ theo yêu cầu của cán bộ phụ trách trực tiếp.</p><p class="list-item">- Dụng cụ làm việc: Được cấp phát dụng cụ làm việc, bảo hộ lao động theo yêu cầu công việc.</p>
         <p class="section-title">Điều 3: Quyền lợi và nghĩa vụ của người lao động</p>
         <p class="sub-section-title">1. Quyền lợi:</p>
-        <p class="list-item">- Lương cơ bản: <span class="placeholder" id="employee_salary">5.456.000</span> VNĐ/ tháng dùng làm căn cứ đóng BHXH, BHYT, BHTN, TNLĐ và giải quyết các chế độ cho người lao động theo Luật Lao động
-            <br><i>(Bằng chữ: <span class="placeholder" id="employee_salary_words">Năm triệu bốn trăm năm mươi sáu nghìn đồng chẵn.</span>)</i>
-        </p>
-        <p style="padding-left: 20px;"><i>(Mức lương này có thể được điều chỉnh tăng theo quyết định tăng lương của doanh nghiệp đăng ký với cơ quan BHXH theo từng năm)</i></p>
-        <p class="list-item">- Đối với người lao động ký hợp đồng với CPMI là hợp đồng lao động thứ hai thì mức lương cơ bản này dùng làm căn cứ đóng BH TNLĐ tại CPMI</p>
-        <p class="list-item">- Các khoản phụ cấp: Theo quy định của Công ty.</p>
-        <p class="list-item">- Lương ngoài giờ: Theo quy định của Công ty.</p>
-        <p class="list-item">- Lương tháng 13: Theo quy định của Công ty.</p>
-        <p class="list-item">- Tiền thưởng và chế độ nâng lương: Theo quy định của Công ty.</p>
-        <p class="list-item">- Phương thức trả lương: Trả bằng một hoặc chuyển khoản.</p>
-        <p class="list-item">- Kỳ trả lương: 1 lần/tháng vào ngày từ 10 đến 15 của tháng sau.</p>
-        
-        <p class="list-item">- Phương tiện đi lại công tác và công tác phí: Theo quy định của công ty.</p>
-        <p class="list-item">- Phương tiện đi lại làm việc: Người lao động tự túc.</p>
-        <p class="list-item">- Chế độ nghỉ ngơi (Nghỉ lễ, nghỉ phép, nghỉ việc riêng ...): Theo quy định của Công ty và Luật lao động Việt Nam.</p>
-        <p class="list-item">- Chế độ đào tạo: Theo quy định của Công ty.</p>
-        <p class="list-item">- Quyền lợi khác: Theo quy định hiện hành của Công ty.</p>
-        <p class="list-item">- Lương cơ bản, lương năng suất và các khoản phụ cấp có thể được điều chỉnh theo Quy định của Công ty và Pháp luật hiện hành.</p>
-        
+        <p class="list-item">- Lương cơ bản: <span class="placeholder" id="employee_salary">5.456.000</span> VNĐ/ tháng dùng làm căn cứ đóng BHXH, BHYT, BHTN, TNLĐ và giải quyết các chế độ cho người lao động theo Luật Lao động<br><i>(Bằng chữ: <span class="placeholder" id="employee_salary_words">Năm triệu bốn trăm năm mươi sáu nghìn đồng chẵn.</span>)</i></p>
+        <p style="padding-left: 20px;"><i>(Mức lương này có thể được điều chỉnh tăng theo quyết định tăng lương của doanh nghiệp đăng ký với cơ quan BHXH theo từng năm)</i></p><p class="list-item">- Đối với người lao động ký hợp đồng với CPMI là hợp đồng lao động thứ hai thì mức lương cơ bản này dùng làm căn cứ đóng BH TNLĐ tại CPMI</p><p class="list-item">- Các khoản phụ cấp: Theo quy định của Công ty.</p><p class="list-item">- Lương ngoài giờ: Theo quy định của Công ty.</p><p class="list-item">- Lương tháng 13: Theo quy định của Công ty.</p><p class="list-item">- Tiền thưởng và chế độ nâng lương: Theo quy định của Công ty.</p><p class="list-item">- Phương thức trả lương: Trả bằng một hoặc chuyển khoản.</p><p class="list-item">- Kỳ trả lương: 1 lần/tháng vào ngày từ 10 đến 15 của tháng sau.</p>
+        <p class="list-item">- Phương tiện đi lại công tác và công tác phí: Theo quy định của công ty.</p><p class="list-item">- Phương tiện đi lại làm việc: Người lao động tự túc.</p><p class="list-item">- Chế độ nghỉ ngơi (Nghỉ lễ, nghỉ phép, nghỉ việc riêng ...): Theo quy định của Công ty và Luật lao động Việt Nam.</p><p class="list-item">- Chế độ đào tạo: Theo quy định của Công ty.</p><p class="list-item">- Quyền lợi khác: Theo quy định hiện hành của Công ty.</p><p class="list-item">- Lương cơ bản, lương năng suất và các khoản phụ cấp có thể được điều chỉnh theo Quy định của Công ty và Pháp luật hiện hành.</p>
         <p class="sub-section-title">2. Nghĩa vụ:</p>
-        <p class="list-item">- Hoàn thành những công việc được giao và các cam kết trong Hợp đồng lao động.</p>
-        <p class="list-item">- Chấp hành lệnh điều hành sản xuất kinh doanh, an toàn lao động, Nội quy, Quy chế và các quy định khác của Công ty.</p>
-        <p class="list-item">- Chấp hành các nội quy, quy định tại công trường nơi thực hiện các công việc được phân công.</p>
-        <p class="list-item">- Bồi thường vi phạm vật chất: Trong trường hợp gây thiệt hại cho công ty thì phải bồi thường 100% giá trị thiệt hại tại thời điểm vi phạm.</p>
-
+        <p class="list-item">- Hoàn thành những công việc được giao và các cam kết trong Hợp đồng lao động.</p><p class="list-item">- Chấp hành lệnh điều hành sản xuất kinh doanh, an toàn lao động, Nội quy, Quy chế và các quy định khác của Công ty.</p><p class="list-item">- Chấp hành các nội quy, quy định tại công trường nơi thực hiện các công việc được phân công.</p><p class="list-item">- Bồi thường vi phạm vật chất: Trong trường hợp gây thiệt hại cho công ty thì phải bồi thường 100% giá trị thiệt hại tại thời điểm vi phạm.</p>
         <p class="section-title">Điều 4: Nghĩa vụ và quyền hạn của người sử dụng lao động</p>
         <p class="sub-section-title">1. Nghĩa vụ:</p>
-        <p class="list-item">- Đảm bảo việc làm và thực hiện đầy đủ những điều đã cam kết trong Hợp đồng lao động.</p>
-        <p class="list-item">- Thanh toán đầy đủ các chế độ và quyền lợi cho người lao động theo Hợp đồng lao động và theo các quy định hiện hành khác của Công ty.</p>
+        <p class="list-item">- Đảm bảo việc làm và thực hiện đầy đủ những điều đã cam kết trong Hợp đồng lao động.</p><p class="list-item">- Thanh toán đầy đủ các chế độ và quyền lợi cho người lao động theo Hợp đồng lao động và theo các quy định hiện hành khác của Công ty.</p>
         <p class="sub-section-title">2. Quyền hạn:</p>
         <p class="list-item">- Có quyền điều chuyển tạm thời người lao động, tạm ngừng việc, thay đổi, tạm hoãn, chấm dứt Hợp đồng lao động và các biện pháp kỷ luật lao động theo quy định của Luật Lao động và quy định của Công ty.</p>
-
         <p class="section-title">Điều 5: Điều khoản thi hành</p>
-        <p class="list-item">- Những vấn đề về lao động không được ghi trong hợp đồng này thì áp dụng quy định của Công ty, thỏa ước lao động tập thể (nếu có) và quy định của pháp luật lao động.</p>
-        <p class="list-item">- Hợp đồng lao động này có hiệu lực kể từ ngày ký, được lập thành 02 bản có giá trị như nhau, mỗi bên giữ 01 bản.</p>
-
-        <!-- === CẬP NHẬT KHU VỰC CHỮ KÝ === -->
-        <div class="signature-section">
-            <div class="signature-block">
-                <p class="signature-title">Người lao động</p>
-                <p class="signature-note">(Ký, ghi rõ họ tên)</p>
-                <div class="signature-content">
-                    <p class="demo-signature">Nguyễn Tiến Nam</p>
-                    <p class="signature-fullname">
-                        <span id="employee_name_uppercase" class="placeholder">NGUYỄN TIẾN NAM</span>
-                    </p>
-                </div>
-            </div>
-            <div class="signature-block">
-                <p class="signature-title">Người sử dụng lao động</p>
-                <p class="signature-note">(Ký tên, đóng dấu)</p>
-                 <div class="signature-content">
-                    <p class="demo-signature">Nguyễn Huy Chính</p>
-                    <p class="signature-fullname">
-                        <span id="employer_name_uppercase" class="placeholder">NGUYỄN HUY CHÍNH</span>
-                    </p>
-                </div>
-            </div>
-        </div>
+        <p class="list-item">- Những vấn đề về lao động không được ghi trong hợp đồng này thì áp dụng quy định của Công ty, thỏa ước lao động tập thể (nếu có) và quy định của pháp luật lao động.</p><p class="list-item">- Hợp đồng lao động này có hiệu lực kể từ ngày ký, được lập thành 02 bản có giá trị như nhau, mỗi bên giữ 01 bản.</p>
+        
+        <div class="signature-section"><div class="signature-block"><p class="signature-title">Người lao động</p><p class="signature-note">(Ký, ghi rõ họ tên)</p><div class="signature-content"><p class="demo-signature">Nguyễn Tiến Nam</p><p class="signature-fullname"><span id="employee_name_uppercase" class="placeholder">NGUYỄN TIẾN NAM</span></p></div></div><div class="signature-block"><p class="signature-title">Người sử dụng lao động</p><p class="signature-note">(Ký tên, đóng dấu)</p><div class="signature-content"><p class="demo-signature">Nguyễn Huy Chính</p><p class="signature-fullname"><span id="employer_name_uppercase" class="placeholder">NGUYỄN HUY CHÍNH</span></p></div></div></div>
     </div>
 
 <script>
+    // Toàn bộ JavaScript giữ nguyên như phiên bản trước
     function applyInlineStyles(element) { const properties = [ 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'color', 'textAlign', 'textDecorationLine', 'textTransform', 'lineHeight', 'paddingLeft', 'textIndent' ]; const computedStyle = window.getComputedStyle(element); for (const prop of properties) { element.style[prop] = computedStyle[prop]; } for (const child of element.children) { applyInlineStyles(child); } }
     function numberToVietnameseWords(n) { const s = n.toString().replace(/[\.,]/g, ''); if (s === '0') return 'Không'; const a = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín']; const b = ['', 'mươi', 'trăm']; const c = ['', 'nghìn', 'triệu', 'tỷ']; let i = s.length; if (i === 0) return ''; let j = 0; let str = ''; const group = []; while (i > 0) { group.push(s.substring(i - 3 > 0 ? i - 3 : 0, i)); i -= 3; } j = group.length - 1; for (; j >= 0; j--) { const g = group[j]; if (g !== '000') { const tram = parseInt(g[0], 10); const chuc = parseInt(g[1], 10); const donvi = parseInt(g[2], 10); if (tram > 0 || g.length > 3 || (j < group.length - 1 && g.length === 3)) { str += a[tram] + ' ' + b[2] + ' '; } if (chuc > 1) { str += a[chuc] + ' ' + b[1] + ' '; } else if (chuc === 1) { str += 'mười '; } else if (tram > 0 && donvi > 0) { str += 'lẻ '; } if (donvi === 5 && chuc > 0) { str += 'lăm '; } else if (donvi === 1 && chuc > 1) { str += 'mốt '; } else if (donvi > 0) { str += a[donvi] + ' '; } str += c[j] + ' '; } } str = str.trim(); return str.charAt(0).toUpperCase() + str.slice(1); }
-    
-    // === CẬP NHẬT HÀM POPULATEFORMFROMURL ===
-    function populateFormFromURL(urlParams) {
-        const paramsMap = {
-            so_hd: 'contract_number', ngay_hd: 'contract_day', thang_hd: 'contract_month', nam_hd: 'contract_year',
-            ngay_ky: 'signing_day', thang_ky: 'signing_month', nam_ky: 'signing_year', ngay_bat_dau: 'contract_start_date',
-            nguoi_dai_dien: 'employer_representative', chuc_vu_dai_dien: 'employer_position', fax_cong_ty: 'employer_fax',
-            ho_ten_nlđ: 'employee_name', quoc_tich: 'employee_nationality', ngay_sinh: 'employee_dob',
-            dia_chi_thuong_tru: 'employee_permanent_address', dia_chi_lien_he: 'employee_contact_address',
-            so_cmnd: 'employee_id_card', ngay_cap_cmnd: 'employee_id_issue_date', noi_cap_cmnd: 'employee_id_issue_place',
-            trinh_do: 'employee_qualification', mst_ca_nhan: 'employee_personal_tax_code', bo_phan: 'employee_department',
-            chuc_danh: 'employee_job_title', luong_co_ban: 'employee_salary'
-        };
-
-        for (const [param, id] of Object.entries(paramsMap)) {
-            if (urlParams.has(param)) {
-                const element = document.getElementById(id);
-                if (element) {
-                    const value = decodeURIComponent(urlParams.get(param).replace(/\+/g, ' '));
-                    element.textContent = value;
-                    
-                    // Xử lý các trường hợp đặc biệt
-                    if (id === 'employee_salary') {
-                        document.getElementById('employee_salary_words').textContent = numberToVietnameseWords(value) + " đồng chẵn.";
-                    }
-                    if (id === 'employee_name') {
-                        document.getElementById('employee_name_uppercase').textContent = value.toUpperCase();
-                    }
-                    if (id === 'employer_representative') {
-                        document.getElementById('employer_name_uppercase').textContent = value.toUpperCase();
-                    }
-                }
-            }
-        }
-    }
-
-    function downloadPDF() { const element = document.getElementById('contract-document'); const employeeName = document.getElementById('employee_name').textContent.trim().replace(/\s+/g, '-'); const filename = `HDLD-${employeeName}.pdf`; const opt = { margin: [1, 1.5, 1, 1], filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas:  { scale: 2, useCORS: true }, jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } }; document.querySelector('.actions').style.display = 'none'; html2pdf().from(element).set(opt).save().then(() => { document.querySelector('.actions').style.display = 'flex'; }); }
-    function downloadDOCX() { if (document.body.classList.contains('demo-mode')) { alert("Lưu ý: Watermark 'BẢN DEMO' sẽ không được hiển thị trong file DOCX do giới hạn kỹ thuật."); } const employeeName = document.getElementById('employee_name').textContent.trim().replace(/\s+/g, '-'); const filename = `HDLD-${employeeName}.docx`; const contentClone = document.getElementById('contract-document').cloneNode(true); applyInlineStyles(contentClone); const signatureSectionDiv = contentClone.querySelector('.signature-section'); if (signatureSectionDiv) { const signatureBlocks = signatureSectionDiv.querySelectorAll('.signature-block'); let signatureHtmlCells = ''; signatureBlocks.forEach(block => { signatureHtmlCells += `<td style="width: 50%; vertical-align: top;">${block.innerHTML}</td>`; }); const signatureTableHtml = `<table style="width:100%; margin-top: 50px; border-collapse: collapse;"><tbody><tr>${signatureHtmlCells}</tr></tbody></table>`; signatureSectionDiv.outerHTML = signatureTableHtml; } contentClone.querySelectorAll('.watermark').forEach(el => el.remove()); const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${contentClone.innerHTML}</body></html>`; var converted = htmlDocx.asBlob(fullHtml); saveAs(converted, filename); }
-    
-    // === CẬP NHẬT WINDOW.ONLOAD ===
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.toString() === "") {
-            document.body.classList.add('demo-mode');
-            // Cập nhật các trường đặc biệt cho chế độ demo
-            const demoSalary = document.getElementById('employee_salary').textContent;
-            document.getElementById('employee_salary_words').textContent = numberToVietnameseWords(demoSalary) + " đồng chẵn.";
-            
-            const demoEmployeeName = document.getElementById('employee_name').textContent;
-            document.getElementById('employee_name_uppercase').textContent = demoEmployeeName.toUpperCase();
-            
-            const demoEmployerName = document.getElementById('employer_representative').textContent;
-            document.getElementById('employer_name_uppercase').textContent = demoEmployerName.toUpperCase();
-        } else {
-            populateFormFromURL(urlParams);
-        }
-    };
+    function populateFormFromURL(urlParams) { const paramsMap = { so_hd: 'contract_number', ngay_hd: 'contract_day', thang_hd: 'contract_month', nam_hd: 'contract_year', ngay_ky: 'signing_day', thang_ky: 'signing_month', nam_ky: 'signing_year', ngay_bat_dau: 'contract_start_date', nguoi_dai_dien: 'employer_representative', chuc_vu_dai_dien: 'employer_position', fax_cong_ty: 'employer_fax', ho_ten_nlđ: 'employee_name', quoc_tich: 'employee_nationality', ngay_sinh: 'employee_dob', dia_chi_thuong_tru: 'employee_permanent_address', dia_chi_lien_he: 'employee_contact_address', so_cmnd: 'employee_id_card', ngay_cap_cmnd: 'employee_id_issue_date', noi_cap_cmnd: 'employee_id_issue_place', trinh_do: 'employee_qualification', mst_ca_nhan: 'employee_personal_tax_code', bo_phan: 'employee_department', chuc_danh: 'employee_job_title', luong_co_ban: 'employee_salary' }; for (const [param, id] of Object.entries(paramsMap)) { if (urlParams.has(param)) { const element = document.getElementById(id); if (element) { const value = decodeURIComponent(urlParams.get(param).replace(/\+/g, ' ')); element.textContent = value; if (id === 'employee_salary') { document.getElementById('employee_salary_words').textContent = numberToVietnameseWords(value) + " đồng chẵn."; } if (id === 'employee_name') { document.getElementById('employee_name_uppercase').textContent = value.toUpperCase(); } if (id === 'employer_representative') { document.getElementById('employer_name_uppercase').textContent = value.toUpperCase(); } } } } }
+    function downloadPDF() { window.print(); }
+    function downloadDOCX() { if (document.body.classList.contains('demo-mode')) { alert("Lưu ý: Chân trang và Watermark sẽ không được hiển thị trong file DOCX."); } const employeeName = document.getElementById('employee_name').textContent.trim().replace(/\s+/g, '-'); const filename = `HDLD-${employeeName}.docx`; const contentClone = document.getElementById('contract-document').cloneNode(true); applyInlineStyles(contentClone); const signatureSectionDiv = contentClone.querySelector('.signature-section'); if (signatureSectionDiv) { const signatureBlocks = signatureSectionDiv.querySelectorAll('.signature-block'); let signatureHtmlCells = ''; signatureBlocks.forEach(block => { signatureHtmlCells += `<td style="width: 50%; vertical-align: top;">${block.innerHTML}</td>`; }); const signatureTableHtml = `<table style="width:100%; margin-top: 50px; border-collapse: collapse;"><tbody><tr>${signatureHtmlCells}</tr></tbody></table>`; signatureSectionDiv.outerHTML = signatureTableHtml; } contentClone.querySelectorAll('.watermark').forEach(el => el.remove()); const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${contentClone.innerHTML}</body></html>`; var converted = htmlDocx.asBlob(fullHtml); saveAs(converted, filename); }
+    window.onload = function() { const urlParams = new URLSearchParams(window.location.search); if (urlParams.toString() === "") { document.body.classList.add('demo-mode'); const demoSalary = document.getElementById('employee_salary').textContent; document.getElementById('employee_salary_words').textContent = numberToVietnameseWords(demoSalary) + " đồng chẵn."; const demoEmployeeName = document.getElementById('employee_name').textContent; document.getElementById('employee_name_uppercase').textContent = demoEmployeeName.toUpperCase(); const demoEmployerName = document.getElementById('employer_representative').textContent; document.getElementById('employer_name_uppercase').textContent = demoEmployerName.toUpperCase(); } else { populateFormFromURL(urlParams); } };
 </script>
 </body>
 </html>
