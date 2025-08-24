@@ -75,9 +75,11 @@
         .items-table th { background-color: #f2f2f2; font-weight: bold; }
         .items-table .text-left { text-align: left; }
         .items-table .text-right { text-align: right; }
+        .items-table .stt-col { width: 3%; }
         .items-table .merged-col { width: 28%; }
         .items-table .dvt-col { width: 5%; }
         .items-table .price-col { width: 8%; }
+        .items-table .amount-col { width: 12%; }
         .items-table .item-code { color: #555; font-size: 10px; }
         .items-table .item-color { font-style: italic; }
         .items-table tfoot .total-row { font-weight: bold; background-color: #f2f2f2; }
@@ -94,11 +96,7 @@
         .signature { position: relative; width: 150px; }
         .signature .signature-title { margin: 0; font-weight: bold; }
         .signature .signature-instruction { font-style: italic; font-size: 10px; font-weight: normal; margin: 0; }
-        .signature .signature-name {
-            margin-top: 45px; /* Creates signing space */
-            font-weight: normal;
-            min-height: 1.2em; /* Ensures space is kept even if name is blank */
-        }
+        .signature .signature-name { margin-top: 45px; font-weight: normal; min-height: 1.2em; }
 
         /* --- DYNAMIC & DEMO STYLES --- */
         .dynamic-value { color: #0000FF; }
@@ -119,7 +117,7 @@
         .demo-signature {
             display: none;
             position: absolute;
-            top: 25px; /* Adjusted position */
+            top: 25px;
             left: 50%;
             transform: translateX(-50%);
             width: 120px;
@@ -179,7 +177,7 @@
         <table class="items-table">
             <thead>
                 <tr>
-                    <th rowspan="2">STT</th><th rowspan="2" class="text-left merged-col">Tên hàng / Mã hàng / Màu</th><th rowspan="2" class="dvt-col">ĐVT</th><th rowspan="2">SL</th><th rowspan="2" class="text-right price-col">Đơn giá</th><th colspan="7">SIZE</th><th rowspan="2" class="text-right">Thành tiền</th><th rowspan="2">Ghi chú</th>
+                    <th rowspan="2" class="stt-col">STT</th><th rowspan="2" class="text-left merged-col">Tên hàng / Mã hàng / Màu</th><th rowspan="2" class="dvt-col">ĐVT</th><th rowspan="2">SL</th><th rowspan="2" class="text-right price-col">Đơn giá</th><th colspan="7">SIZE</th><th rowspan="2" class="text-right amount-col">Thành tiền (VNĐ)</th><th rowspan="2">Ghi chú</th>
                 </tr>
                 <tr><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th><th>3XL</th><th>4XL</th></tr>
             </thead>
