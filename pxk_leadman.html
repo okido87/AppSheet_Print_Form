@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Xuất Kho</title>
+    <!-- Include html2pdf.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* CSS Reset and Basic Setup */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #000;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* A4 Portrait Page Setup for Printing */
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
+        }
+
+        /* Main Container for the Invoice */
+        .invoice-container {
+            position: relative; /* Needed for watermark positioning */
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 10mm;
+            background: #fff;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* --- STYLES FOR ON-SCREEN VIEW ONLY --- */
+        .controls { text-align: center; padding: 15px; background-color: #333; }
+        .controls button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 0 10px; }
+        .controls button:hover { background-color: #45a049; }
+        .controls button:disabled { background-color: #999; cursor: not-allowed;}
+        
+        /* Hide controls when printing */
+        @media print {
+            body { background-color: #fff; }
+            .controls { display: none; }
+            .invoice-container { box-shadow: none; margin: 0; }
+            .watermark, .demo-signature { display: block !important; } /* Ensure they are visible for printing in demo mode */
+        }
+        /* --- END ON-SCREEN STYLES --- */
+
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #ccc; }
+        .company-info { display: flex; align-items: center; gap: 15px; flex: 3; }
+        .logo { max-height: 36px; flex-shrink: 0; }
+        .company-details h3 { margin: 0; font-size: 12px; text-transform: uppercase; font-weight: bold; }
+        .company-details p { margin: 0; font-size: 10px; }
+        .qr-code-section { flex: 1; text-align: right; }
+        .qr-code-section img { width: 35px; height: 35px; }
+        
+        .title { text-align: center; margin-bottom: 15px; }
+        .title h1 { margin: 0 0 2px 0; font-size: 22px; font-weight: bold; text-transform: uppercase; }
+        .title .subtitle { font-style: italic; margin: 0; font-size: 11px; }
+        
+        .customer-info { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .info-column { flex-basis: 32%; }
+        .info-column p { margin: 0 0 4px 0; }
+        
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th, .items-table td { border: 1px solid #000; padding: 4px; text-align: center; vertical-align: middle; }
+        .items-table th { background-color: #f2f2f2; font-weight: bold; }
+        .items-table .text-left { text-align: left; }
+        .items-table .text-right { text-align: right; }
+        .items-table .merged-col { width: 28%; }
+        .items-table .dvt-col { width: 5%; }
+        .items-table .price-col { width: 8%; }
+        .items-table .item-code { color: #555; font-size: 10px; }
+        .items-table .item-color { font-style: italic; }
+        .items-table tfoot .total-row { font-weight: bold; background-color: #f2f2f2; }
+        .items-table tfoot td { font-weight: bold; }
+        .items-table tfoot .amount-in-words { font-style: italic; text-align: right; border: none; padding-top: 8px; }
+        .notes-section { vertical-align: top; text-align: left; font-weight: normal; }
+        .payment-qr-section { display: flex; align-items: center; gap: 10px; }
+        .payment-qr-section img { width: 90px; height: 90px; flex-shrink: 0; }
+        .payment-qr-section .payment-info p { margin: 2px 0; font-size: 10px; }
+        .payment-qr-section .payment-info p strong { font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        .final-notes { margin-top: 15px; font-size: 11px; }
+        
+        .footer { margin-top: 30px; padding-top: 15px; display: flex; justify-content: space-around; text-align: center; page-break-inside: avoid; width: 100%; }
+        .signature { position: relative; width: 150px; }
+        .signature p { margin: 0; font-weight: bold; }
+        .signature .name { margin-top: 50px; font-weight: normal; }
+
+        /* --- DYNAMIC & DEMO STYLES --- */
+        .dynamic-value { color: #0000FF; /* Blue */ }
+        .title .dynamic-value,
+        .customer-info .dynamic-value {
+            font-weight: bold;
+        }
+        .watermark {
+            display: none; /* Hidden by default */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 100px;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .demo-signature {
+            display: none; /* Hidden by default */
+            position: absolute;
+            top: 40px; /* Adjust vertical position */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px; /* Adjust size */
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button onclick="window.print()">🖨️ In ngay</button>
+        <button id="download-btn" onclick="downloadPDF()">📄 Tải PDF</button>
+    </div>
+
+    <div class="invoice-container" id="invoice-content">
+        <div id="watermark" class="watermark">PHIẾU DEMO</div>
+
+        <div class="header">
+            <div class="company-info">
+                <img src="https://scontent.fsgn2-7.fna.fbcdn.net/v/t39.30808-6/473999932_557107937332628_6920107302601948401_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=lb5hEmvBvGMQ7kNvwFUScf5&_nc_oc=Adlk8fEv6O35iBz7IvVsPPFFRGJ3xCWX-U6uHpZYWrcW0blY3dQfqcgBkgADeHjtBzY&_nc_zt=23&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=4I5PHF_fvp0QSvM36Piifg&oh=00_AfU2sOTAqSSjqwzgitqIEli_21105aa_IGNo9tV5QYUHLg&oe=68B1081D" alt="MANLEAD Logo" class="logo" crossorigin="anonymous">
+                <div class="company-details">
+                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠNG MẠI T&B VIỆT NAM</h3>
+                    <p>Địa chỉ: 55 Đường Hùng Vương II, Phố Lê Lợi, P Nam Bình, Ninh Bình</p>
+                </div>
+            </div>
+            <div class="qr-code-section">
+                 <img id="qrSoPhieu" src="https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=PX250819110155" alt="QR Code for Invoice No" crossorigin="anonymous">
+            </div>
+        </div>
+
+        <div class="title">
+            <h1>PHIẾU XUẤT KHO</h1>
+            <p class="subtitle">
+                Số: <span id="soPhieu" class="dynamic-value">PX250819110155</span> | 
+                Ngày <span id="ngay" class="dynamic-value">22 tháng 08 năm 2025</span>
+            </p>
+        </div>
+
+        <div class="customer-info">
+             <div class="info-column">
+                <p><strong>Nhà phân phối:</strong> <span id="nhaPhanPhoi" class="dynamic-value">Hoàng Vân</span></p>
+                <p><strong>Nhân viên:</strong> <span id="nhanVien" class="dynamic-value">Nguyễn Hoàng Vân</span></p>
+                <p><strong>Người lập:</strong> <span id="nguoiLap" class="dynamic-value">Nguyễn Việt Chinh</span></p>
+             </div>
+            <div class="info-column">
+                <p><strong>Khách hàng:</strong> <span id="khachHang" class="dynamic-value">Shop Hiền Hải NA</span></p>
+                <p><strong>Địa chỉ:</strong> <span id="diaChi" class="dynamic-value">Diễn Xuân, Nghệ An</span></p>
+                <p><strong>Khu vực:</strong> <span id="khuVuc" class="dynamic-value">DHMT</span></p>
+            </div>
+             <div class="info-column">
+                <p><strong>Đối tượng:</strong> <span id="doiTuong" class="dynamic-value">khách lẻ</span></p>
+                <p><strong>Doanh số NVKD:</strong> <span id="doanhSoNVKD" class="dynamic-value">10.548.000 đ</span></p>
+                <p><strong>%CKKH:</strong> <span id="ckkh" class="dynamic-value">40%</span> | <strong>%CKNPP:</strong> <span id="cknpp" class="dynamic-value">16%</span></p>
+            </div>
+        </div>
+        
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">STT</th><th rowspan="2" class="text-left merged-col">Tên hàng / Mã hàng / Màu</th><th rowspan="2" class="dvt-col">ĐVT</th><th rowspan="2">SL</th><th rowspan="2" class="text-right price-col">Đơn giá</th><th colspan="7">SIZE</th><th rowspan="2" class="text-right">Thành tiền</th><th rowspan="2">Ghi chú</th>
+                </tr>
+                <tr><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th><th>3XL</th><th>4XL</th></tr>
+            </thead>
+            <tbody id="chiTietDonHang">
+                <!-- Dữ liệu demo hoặc dữ liệu từ AppSheet sẽ được chèn vào đây -->
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="3" class="text-right">Tổng cộng:</td>
+                    <td><span id="tongCongSoLuong" class="dynamic-value">51</span></td>
+                    <td></td>
+                    <td><span id="tongSizeS" class="dynamic-value">5</span></td>
+                    <td><span id="tongSizeM" class="dynamic-value">10</span></td>
+                    <td><span id="tongSizeL" class="dynamic-value">11</span></td>
+                    <td><span id="tongSizeXL" class="dynamic-value">12</span></td>
+                    <td><span id="tongSizeXXL" class="dynamic-value">7</span></td>
+                    <td><span id="tongSize3XL" class="dynamic-value">7</span></td>
+                    <td><span id="tongSize4XL" class="dynamic-value">1</span></td>
+                    <td class="text-right"><span id="tongThanhTien" class="dynamic-value">32.035.000</span></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td rowspan="5" colspan="5" class="notes-section">
+                        <div class="payment-qr-section">
+                            <img id="qrThanhToan" src="https://img.vietqr.io/image/970436-0501000130594-compact2.png?amount=9746352&addInfo=PX250819110155&accountName=NGUYEN%20TAN%20HIEN" alt="VietQR Payment" crossorigin="anonymous">
+                            <div class="payment-info">
+                                <p><strong>Quét mã để thanh toán</strong></p>
+                                <p>Ngân hàng: <span id="nganHang" class="dynamic-value">VCB</span></p>
+                                <p>Chủ TK: <span id="chuTaiKhoan" class="dynamic-value">NGUYEN TAN HIEN</span></p>
+                                <p>Nội dung: <span id="ndChuyenKhoan" class="dynamic-value">PX250819110155</span></p>
+                            </div>
+                        </div>
+                    </td>
+                    <td colspan="7" class="text-right">Cộng tiền hàng:</td>
+                    <td colspan="2" class="text-right"><span id="congTienHang" class="dynamic-value">32.035.000 đ</span></td>
+                </tr>
+                <tr><td colspan="7" class="text-right">Tiền chiết khấu:</td><td colspan="2" class="text-right">(<span id="tienChietKhau" class="dynamic-value">10.548.000 đ</span>)</td></tr>
+                <tr><td colspan="7" class="text-right">Tổng cộng (trước VAT):</td><td colspan="2" class="text-right"><span id="tongTruocVAT" class="dynamic-value">8.860.320 đ</span></td></tr>
+                <tr><td colspan="7" class="text-right">Thuế suất VAT (10%):</td><td colspan="2" class="text-right"><span id="tienVAT" class="dynamic-value">886.032 đ</span></td></tr>
+                <tr><td colspan="7" class="text-right" style="font-size: 12px;">TỔNG TIỀN THANH TOÁN:</td><td colspan="2" class="text-right" style="font-size: 12px;"><span id="tongThanhToan" class="dynamic-value">9.746.352 đ</span></td></tr>
+                <tr><td colspan="14" class="amount-in-words"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value">Chín triệu bảy trăm bốn mươi sáu nghìn ba trăm năm mươi hai đồng.</span></td></tr>
+            </tfoot>
+        </table>
+        
+        <div class="final-notes">
+            <p><strong>Ghi chú cuối phiếu:</strong> <span id="ghiChuCuoiPhieu" class="dynamic-value">Vui lòng kiểm tra hàng kỹ trước khi nhận. Hàng đã xuất kho không được đổi trả. Xin cảm ơn!</span></p>
+        </div>
+
+        <div class="footer">
+            <div class="signature">
+                <p>Người lập phiếu</p>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
+                <p class="name"><span id="tenNguoiLap" class="dynamic-value">Nguyễn Việt Chinh</span></p>
+            </div>
+            <div class="signature">
+                <p>Người duyệt</p>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
+                <p class="name">(Ký, họ tên)</p>
+            </div>
+            <div class="signature">
+                <p>Thủ kho</p>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
+                <p class="name">(Ký, họ tên)</p>
+            </div>
+            <div class="signature">
+                <p>Khách hàng</p>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
+                <p class="name">(Ký, họ tên)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const demoData = {
+             chiTietDonHang: [
+                {ten: 'Regular-fit', ma: 'GARS001-M4', mau: 'MÀU 4', dvt: 'Chiếc', sl: 28, donGia: '625.000', s: 3, m: 4, l: 6, xl: 6, xxl: 4, '3xl': 4, '4xl': 1, thanhTien: '17.580.000', ghiChu: ''},
+                {ten: 'Regular-fit', ma: 'GARS001-M5', mau: 'MÀU 5', dvt: 'Chiếc', sl: 9, donGia: '625.000', s: 1, m: 2, l: 2, xl: 2, xxl: 1, '3xl': 1, '4xl': '', thanhTien: '5.625.000', ghiChu: ''},
+                {ten: 'Regular', ma: 'GAR002-Đ', mau: 'Đen', dvt: 'Chiếc', sl: 1, donGia: '625.000', s: '', m: '', l: '', xl: '', xxl: '', '3xl': 1, '4xl': '', thanhTien: '625.000', ghiChu: ''},
+                {ten: 'Regular-fit', ma: 'GARS10-XB', mau: 'Xanh/Blue', dvt: 'Chiếc', sl: 6, donGia: '650.000', s: 1, m: 2, l: 1, xl: 2, xxl: '', '3xl': '', '4xl': '', thanhTien: '3.900.000', ghiChu: ''},
+                {ten: 'Regular-fit', ma: 'GARS001-M3', mau: 'MÀU 3', dvt: 'Chiếc', sl: 2, donGia: '590.000', s: '', m: 1, l: '', xl: 1, xxl: '', '3xl': '', '4xl': '', thanhTien: '1.180.000', ghiChu: ''},
+                {ten: 'Regular', ma: 'GAR001-M4', mau: 'MÀU 4', dvt: 'Chiếc', sl: 5, donGia: '625.000', s: '', m: 1, l: 1, xl: 1, xxl: 1, '3xl': 1, '4xl': '', thanhTien: '3.125.000', ghiChu: ''},
+            ]
+        };
+
+        function populateTable(data) {
+            const tableBody = document.getElementById('chiTietDonHang');
+            tableBody.innerHTML = ''; // Clear existing rows
+            data.forEach((item, index) => {
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="text-left">${item.ten || ''} - <span class="item-code">${item.ma || ''}</span> - <span class="item-color">${item.mau || ''}</span></td>
+                        <td>${item.dvt || ''}</td>
+                        <td>${item.sl || ''}</td>
+                        <td class="text-right">${item.donGia || ''}</td>
+                        <td>${item.s || ''}</td>
+                        <td>${item.m || ''}</td>
+                        <td>${item.l || ''}</td>
+                        <td>${item.xl || ''}</td>
+                        <td>${item.xxl || ''}</td>
+                        <td>${item['3xl'] || ''}</td>
+                        <td>${item['4xl'] || ''}</td>
+                        <td class="text-right">${item.thanhTien || ''}</td>
+                        <td>${item.ghiChu || ''}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const soPhieuParam = urlParams.get('soPhieu');
+
+            if (soPhieuParam) {
+                // LIVE MODE: Populate from URL
+                document.title = `Phiếu Xuất Kho - ${soPhieuParam}`;
+                const fields = ['soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'nguoiLap', 'khachHang', 'diaChi', 'khuVuc', 'doiTuong', 'doanhSoNVKD', 'ckkh', 'cknpp', 'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL', 'tongThanhTien', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongTienBangChu', 'ghiChuCuoiPhieu', 'tenNguoiLap', 'nganHang', 'chuTaiKhoan', 'ndChuyenKhoan'];
+                fields.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element && urlParams.has(id)) {
+                        element.textContent = urlParams.get(id);
+                    }
+                });
+
+                document.getElementById('qrSoPhieu').src = `https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=${soPhieuParam}`;
+                
+                const qrAmount = urlParams.get('tongThanhToanNumeric') || '0';
+                const qrAccountNo = urlParams.get('stk') || '0501000130594';
+                const qrAcqId = urlParams.get('acqId') || '970436';
+                const qrAccountName = urlParams.get('chuTaiKhoan') || 'NGUYEN TAN HIEN';
+                document.getElementById('qrThanhToan').src = `https://img.vietqr.io/image/${qrAcqId}-${qrAccountNo}-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(soPhieuParam)}&accountName=${encodeURIComponent(qrAccountName)}`;
+
+                try {
+                    const chiTietData = JSON.parse(decodeURIComponent(urlParams.get('chiTietHangHoa')));
+                    populateTable(chiTietData);
+                } catch (e) {
+                    console.error("Error parsing chiTietHangHoa:", e);
+                    populateTable(demoData.chiTietDonHang); // Fallback to demo data on error
+                }
+            } else {
+                // DEMO MODE
+                document.getElementById('watermark').style.display = 'block';
+                document.querySelectorAll('.demo-signature').forEach(el => el.style.display = 'block');
+                populateTable(demoData.chiTietDonHang);
+            }
+        });
+
+        function downloadPDF() {
+            const downloadBtn = document.getElementById('download-btn');
+            downloadBtn.textContent = 'Đang xử lý...';
+            downloadBtn.disabled = true;
+
+            const element = document.getElementById('invoice-content');
+            
+            const images = element.querySelectorAll('img');
+            const imagePromises = [];
+
+            images.forEach(img => {
+                const promise = new Promise((resolve) => {
+                    if (img.complete && img.naturalHeight !== 0) {
+                        resolve();
+                    } else {
+                        img.onload = resolve;
+                        img.onerror = resolve; // Resolve even on error to not block PDF generation
+                    }
+                });
+                imagePromises.push(promise);
+            });
+
+            // Wait for all images to be loaded before generating PDF
+            Promise.all(imagePromises).then(() => {
+                // Add a small delay to allow the browser to render the images fully
+                setTimeout(() => {
+                    const opt = {
+                        margin:       8,
+                        filename:     `PhieuXuatKho_${document.getElementById('soPhieu').textContent}.pdf`,
+                        image:        { type: 'jpeg', quality: 0.98 },
+                        html2canvas:  { scale: 2, useCORS: true },
+                        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+
+                    html2pdf().from(element).set(opt).save().then(() => {
+                        downloadBtn.textContent = '📄 Tải PDF';
+                        downloadBtn.disabled = false;
+                    });
+                }, 200); // 200ms delay for rendering
+            });
+        }
+    </script>
+</body>
+</html>
