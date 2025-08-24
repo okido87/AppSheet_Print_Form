@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -27,7 +26,7 @@
 
         /* Main Container for the Invoice */
         .invoice-container {
-            position: relative; /* Needed for watermark positioning */
+            position: relative;
             width: 210mm;
             min-height: 297mm;
             margin: 0 auto;
@@ -48,7 +47,10 @@
             body { background-color: #fff; }
             .controls { display: none; }
             .invoice-container { box-shadow: none; margin: 0; }
-            .watermark, .demo-signature { display: block !important; } /* Ensure they are visible for printing in demo mode */
+            .demo-mode .watermark,
+            .demo-mode .demo-signature {
+                display: block !important;
+            }
         }
         /* --- END ON-SCREEN STYLES --- */
 
@@ -94,30 +96,28 @@
         .signature .name { margin-top: 50px; font-weight: normal; }
 
         /* --- DYNAMIC & DEMO STYLES --- */
-        .dynamic-value { color: #0000FF; /* Blue */ }
-        .title .dynamic-value,
-        .customer-info .dynamic-value {
-            font-weight: bold;
-        }
+        .dynamic-value { color: #0000FF; }
+        .title .dynamic-value, .customer-info .dynamic-value { font-weight: bold; }
+        
         .watermark {
-            display: none; /* Hidden by default */
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
             font-size: 100px;
             font-weight: bold;
-            color: rgba(0, 0, 0, 0.08);
+            color: rgba(255, 0, 0, 0.15); /* RED watermark */
             z-index: 1000;
             pointer-events: none;
         }
         .demo-signature {
-            display: none; /* Hidden by default */
+            display: none;
             position: absolute;
-            top: 40px; /* Adjust vertical position */
+            top: 40px;
             left: 50%;
             transform: translateX(-50%);
-            width: 120px; /* Adjust size */
+            width: 120px;
             opacity: 0.8;
         }
     </style>
@@ -136,7 +136,7 @@
             <div class="company-info">
                 <img src="https://scontent.fsgn2-7.fna.fbcdn.net/v/t39.30808-6/473999932_557107937332628_6920107302601948401_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=lb5hEmvBvGMQ7kNvwFUScf5&_nc_oc=Adlk8fEv6O35iBz7IvVsPPFFRGJ3xCWX-U6uHpZYWrcW0blY3dQfqcgBkgADeHjtBzY&_nc_zt=23&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=4I5PHF_fvp0QSvM36Piifg&oh=00_AfU2sOTAqSSjqwzgitqIEli_21105aa_IGNo9tV5QYUHLg&oe=68B1081D" alt="MANLEAD Logo" class="logo" crossorigin="anonymous">
                 <div class="company-details">
-                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠNG MẠI T&B VIỆT NAM</h3>
+                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠG MẠI T&B VIỆT NAM</h3>
                     <p>Địa chỉ: 55 Đường Hùng Vương II, Phố Lê Lợi, P Nam Bình, Ninh Bình</p>
                 </div>
             </div>
@@ -179,7 +179,7 @@
                 <tr><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th><th>3XL</th><th>4XL</th></tr>
             </thead>
             <tbody id="chiTietDonHang">
-                <!-- Dữ liệu demo hoặc dữ liệu từ AppSheet sẽ được chèn vào đây -->
+                <!-- Data will be inserted here by JavaScript -->
             </tbody>
             <tfoot>
                 <tr class="total-row">
@@ -199,11 +199,11 @@
                 <tr>
                     <td rowspan="5" colspan="5" class="notes-section">
                         <div class="payment-qr-section">
-                            <img id="qrThanhToan" src="https://img.vietqr.io/image/970436-0501000130594-compact2.png?amount=9746352&addInfo=PX250819110155&accountName=NGUYEN%20TAN%20HIEN" alt="VietQR Payment" crossorigin="anonymous">
+                            <img id="qrThanhToan" src="https://img.vietqr.io/image/970407-19132563929019-compact2.png?amount=9746352&addInfo=PX250819110155&accountName=CONG%20TY%20TNHH%20T%26B%20VIET%20NAM" alt="VietQR Payment" crossorigin="anonymous">
                             <div class="payment-info">
                                 <p><strong>Quét mã để thanh toán</strong></p>
-                                <p>Ngân hàng: <span id="nganHang" class="dynamic-value">VCB</span></p>
-                                <p>Chủ TK: <span id="chuTaiKhoan" class="dynamic-value">NGUYEN TAN HIEN</span></p>
+                                <p>Ngân hàng: <span id="nganHang" class="dynamic-value">Techcombank</span></p>
+                                <p>Chủ TK: <span id="chuTaiKhoan" class="dynamic-value">CONG TY TNHH T&B VIET NAM</span></p>
                                 <p>Nội dung: <span id="ndChuyenKhoan" class="dynamic-value">PX250819110155</span></p>
                             </div>
                         </div>
@@ -290,7 +290,7 @@
             const soPhieuParam = urlParams.get('soPhieu');
 
             if (soPhieuParam) {
-                // LIVE MODE: Populate from URL
+                // LIVE MODE
                 document.title = `Phiếu Xuất Kho - ${soPhieuParam}`;
                 const fields = ['soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'nguoiLap', 'khachHang', 'diaChi', 'khuVuc', 'doiTuong', 'doanhSoNVKD', 'ckkh', 'cknpp', 'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL', 'tongThanhTien', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongTienBangChu', 'ghiChuCuoiPhieu', 'tenNguoiLap', 'nganHang', 'chuTaiKhoan', 'ndChuyenKhoan'];
                 fields.forEach(id => {
@@ -302,10 +302,12 @@
 
                 document.getElementById('qrSoPhieu').src = `https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=${soPhieuParam}`;
                 
+                // Update QR Payment details from URL or use new defaults
                 const qrAmount = urlParams.get('tongThanhToanNumeric') || '0';
-                const qrAccountNo = urlParams.get('stk') || '0501000130594';
-                const qrAcqId = urlParams.get('acqId') || '970436';
-                const qrAccountName = urlParams.get('chuTaiKhoan') || 'NGUYEN TAN HIEN';
+                const qrAccountNo = urlParams.get('stk') || '19132563929019';
+                const qrAcqId = urlParams.get('acqId') || '970407'; // Techcombank BIN
+                const qrAccountName = urlParams.get('chuTaiKhoan') || 'CONG TY TNHH T&B VIET NAM';
+                
                 document.getElementById('qrThanhToan').src = `https://img.vietqr.io/image/${qrAcqId}-${qrAccountNo}-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(soPhieuParam)}&accountName=${encodeURIComponent(qrAccountName)}`;
 
                 try {
@@ -313,10 +315,11 @@
                     populateTable(chiTietData);
                 } catch (e) {
                     console.error("Error parsing chiTietHangHoa:", e);
-                    populateTable(demoData.chiTietDonHang); // Fallback to demo data on error
+                    populateTable(demoData.chiTietDonHang);
                 }
             } else {
                 // DEMO MODE
+                document.body.classList.add('demo-mode');
                 document.getElementById('watermark').style.display = 'block';
                 document.querySelectorAll('.demo-signature').forEach(el => el.style.display = 'block');
                 populateTable(demoData.chiTietDonHang);
@@ -339,15 +342,13 @@
                         resolve();
                     } else {
                         img.onload = resolve;
-                        img.onerror = resolve; // Resolve even on error to not block PDF generation
+                        img.onerror = resolve;
                     }
                 });
                 imagePromises.push(promise);
             });
 
-            // Wait for all images to be loaded before generating PDF
             Promise.all(imagePromises).then(() => {
-                // Add a small delay to allow the browser to render the images fully
                 setTimeout(() => {
                     const opt = {
                         margin:       8,
@@ -361,7 +362,7 @@
                         downloadBtn.textContent = '📄 Tải PDF';
                         downloadBtn.disabled = false;
                     });
-                }, 200); // 200ms delay for rendering
+                }, 200);
             });
         }
     </script>
