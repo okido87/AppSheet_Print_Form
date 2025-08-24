@@ -92,8 +92,13 @@
         
         .footer { margin-top: 30px; padding-top: 15px; display: flex; justify-content: space-around; text-align: center; page-break-inside: avoid; width: 100%; }
         .signature { position: relative; width: 150px; }
-        .signature p { margin: 0; font-weight: bold; }
-        .signature .name { margin-top: 50px; font-weight: normal; }
+        .signature .signature-title { margin: 0; font-weight: bold; }
+        .signature .signature-instruction { font-style: italic; font-size: 10px; font-weight: normal; margin: 0; }
+        .signature .signature-name {
+            margin-top: 45px; /* Creates signing space */
+            font-weight: normal;
+            min-height: 1.2em; /* Ensures space is kept even if name is blank */
+        }
 
         /* --- DYNAMIC & DEMO STYLES --- */
         .dynamic-value { color: #0000FF; }
@@ -114,7 +119,7 @@
         .demo-signature {
             display: none;
             position: absolute;
-            top: 40px;
+            top: 25px; /* Adjusted position */
             left: 50%;
             transform: translateX(-50%);
             width: 120px;
@@ -136,7 +141,7 @@
             <div class="company-info">
                 <img src="https://scontent.fsgn2-7.fna.fbcdn.net/v/t39.30808-6/473999932_557107937332628_6920107302601948401_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=lb5hEmvBvGMQ7kNvwFUScf5&_nc_oc=Adlk8fEv6O35iBz7IvVsPPFFRGJ3xCWX-U6uHpZYWrcW0blY3dQfqcgBkgADeHjtBzY&_nc_zt=23&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=4I5PHF_fvp0QSvM36Piifg&oh=00_AfU2sOTAqSSjqwzgitqIEli_21105aa_IGNo9tV5QYUHLg&oe=68B1081D" alt="MANLEAD Logo" class="logo" crossorigin="anonymous">
                 <div class="company-details">
-                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠG MẠI T&B VIỆT NAM</h3>
+                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠNG MẠI T&B VIỆT NAM</h3>
                     <p>Địa chỉ: 55 Đường Hùng Vương II, Phố Lê Lợi, P Nam Bình, Ninh Bình</p>
                 </div>
             </div>
@@ -225,24 +230,28 @@
 
         <div class="footer">
             <div class="signature">
-                <p>Người lập phiếu</p>
+                <p class="signature-title">Người lập phiếu</p>
+                <p class="signature-instruction">(Ký, họ tên)</p>
                 <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
-                <p class="name"><span id="tenNguoiLap" class="dynamic-value">Nguyễn Việt Chinh</span></p>
+                <p class="signature-name"><span id="tenNguoiLap" class="dynamic-value">Nguyễn Việt Chinh</span></p>
             </div>
             <div class="signature">
-                <p>Người duyệt</p>
+                <p class="signature-title">Người duyệt</p>
+                <p class="signature-instruction">(Ký, họ tên)</p>
                 <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
-                <p class="name">(Ký, họ tên)</p>
+                <p class="signature-name">&nbsp;</p>
             </div>
             <div class="signature">
-                <p>Thủ kho</p>
+                <p class="signature-title">Thủ kho</p>
+                <p class="signature-instruction">(Ký, họ tên)</p>
                 <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
-                <p class="name">(Ký, họ tên)</p>
+                <p class="signature-name">&nbsp;</p>
             </div>
             <div class="signature">
-                <p>Khách hàng</p>
+                <p class="signature-title">Khách hàng</p>
+                <p class="signature-instruction">(Ký, họ tên)</p>
                 <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
-                <p class="name">(Ký, họ tên)</p>
+                <p class="signature-name">&nbsp;</p>
             </div>
         </div>
     </div>
@@ -261,7 +270,7 @@
 
         function populateTable(data) {
             const tableBody = document.getElementById('chiTietDonHang');
-            tableBody.innerHTML = ''; // Clear existing rows
+            tableBody.innerHTML = '';
             data.forEach((item, index) => {
                 const row = `
                     <tr>
@@ -302,7 +311,6 @@
 
                 document.getElementById('qrSoPhieu').src = `https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=${soPhieuParam}`;
                 
-                // Update QR Payment details from URL or use new defaults
                 const qrAmount = urlParams.get('tongThanhToanNumeric') || '0';
                 const qrAccountNo = urlParams.get('stk') || '19132563929019';
                 const qrAcqId = urlParams.get('acqId') || '970407'; // Techcombank BIN
