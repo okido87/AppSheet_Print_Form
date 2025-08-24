@@ -300,7 +300,7 @@
                     }
                 });
 
-                document.getElementById('qrSoPhieu').src = `https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=${soPhieuParam}`;
+                document.getElementById('qrSoPhieu').src = `https://api.qrserver.com/v1/create-qr-code/?size=45x45&data=${soPhieuParam}`;
                 
                 // Update QR Payment details from URL or use new defaults
                 const qrAmount = urlParams.get('tongThanhToanNumeric') || '0';
