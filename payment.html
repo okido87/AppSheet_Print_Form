@@ -10,15 +10,8 @@
         /* Reset & Base Styles */
         body { font-family: 'Times New Roman', Times, serif; background-color: #e0e0e0; margin: 0; padding: 20px; color: #000; font-size: 11pt; }
         .lang-en { font-style: italic; font-size: 10pt; margin-left: 4px; }
-
-        /* UPDATED: Data value colors and font weight */
-        .data-value {
-            color: #0066cc; /* Brighter Blue */
-        }
-        .info-grid .data-value, .form-no .data-value {
-            font-weight: bold;
-        }
-
+        .data-value { color: #003366; }
+        .info-grid .data-value, .form-no .data-value { font-weight: bold; }
         /* Header Controls */
         .controls { display: flex; justify-content: flex-end; align-items: center; gap: 15px; max-width: 210mm; margin: 0 auto 20px auto; padding: 15px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
         .controls #form-selector { padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; font-weight: bold; font-family: Arial, sans-serif; font-size: 1em; background-color: #f9f9f9; }
@@ -26,31 +19,26 @@
         .actions button { padding: 10px 15px; border: none; color: white; cursor: pointer; border-radius: 5px; font-weight: bold; font-family: Arial, sans-serif; white-space: nowrap; }
         .actions .print-btn { background-color: #28a745; }
         .actions .download-btn { background-color: #dc3545; }
-
         /* A4 Page Simulation */
         .page-preview-wrapper { margin: 0 auto; }
         .a4-page { width: 210mm; min-height: 297mm; margin: 0 auto; background: white; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); box-sizing: border-box; padding: 15mm; position: relative; display: none; }
         .a4-page.active { display: block; }
         .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; font-weight: bold; color: rgba(255, 0, 0, 0.08); pointer-events: none; z-index: 1000; }
-        
         /* Form Content - High Fidelity Styling */
         .form-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         .company-name { font-weight: bold; }
         .form-no { border: 1px solid black; padding: 2px 8px; font-size: 10pt; }
         .form-title { text-align: center; font-size: 16pt; font-weight: bold; margin-top: 10px; margin-bottom: 5px; }
         .form-subtitle { text-align: center; font-size: 12pt; margin-bottom: 25px; }
-        
         .info-grid { width: 100%; border-collapse: collapse; margin-bottom: 15px; table-layout: fixed; }
         .info-grid td { padding: 6px 0; vertical-align: middle; }
         .info-grid .label { padding-right: 8px; line-height: 1.4; white-space: normal; }
         .info-grid .value { width: 100%; border-bottom: 1px dotted #000; word-break: break-word; white-space: normal; }
         .info-grid .label-col1 { width: 150px; }
         .info-grid .value-col1 { width: auto; }
-        /* UPDATED: Increased width of the Date/Ref No. label column */
-        .info-grid .label-col2 { width: 120px; } 
-        /* UPDATED: Decreased width of the Date/Ref No. value column */
-        .info-grid .value-col2 { width: 100px; }
-        
+        .info-grid .label-col2 { width: 110px; } 
+        .info-grid .value-col2 { width: 120px; }
+        .info-grid .label-deadline { width: 170px; }
         .info-grid .value.checkbox-container { border-bottom: none; }
         .payment-methods { display: flex; flex-wrap: wrap; gap: 20px; }
         .payment-methods .method { display: flex; align-items: center; gap: 8px; }
@@ -64,14 +52,12 @@
         .summary-section { margin-bottom: 10px; line-height: 1.5; }
         .amount-in-words { font-weight: bold; font-style: italic; }
         .signature-area { margin-top: 40px; }
-        /* UPDATED: Added align-items center for vertical alignment */
         .signature-row { display: flex; justify-content: space-around; align-items: center; margin-bottom: 40px; }
         .signature-block { width: 30%; text-align: center; }
         .signature-block .role { font-weight: bold; line-height: 1.4; }
         .signature-block .name-container { margin-top: 60px; font-weight: bold; }
-        .signature-font { font-family: 'Brush Script MT', 'cursive', sans-serif; font-size: 1.6em; color: #000080; margin-bottom: -10px; display: block; height: 40px; }
-        .signature-block .name-container.signed .name-text { margin-top: -15px; }
-        
+        .signature-font { font-family: 'Brush Script MT', 'cursive', sans-serif; font-size: 1.6em; color: #000080; display: flex; align-items: center; justify-content: center; height: 40px; }
+        .signature-block .name-container.signed .name-text { margin-top: 0; }
         @media screen and (max-width: 820px) { body { padding: 10px; background-color: #fff; } .controls { flex-direction: row; align-items: center; gap: 10px; max-width: 100%; } .controls #form-selector { flex-grow: 1; min-width: 150px; } .controls .actions { display: flex; gap: 10px; } .controls .actions button { flex-shrink: 0; padding: 10px; font-size: 0.9em; } .a4-page { transform: scale(calc(100vw / 220mm)); transform-origin: top left; box-shadow: none; margin: 0; } .page-preview-wrapper { height: calc(297mm * (100vw / 220mm)); width: 100vw; margin-left: -10px; } }
         @media print { body { background-color: #fff; padding: 0; margin: 0; } .controls, .no-print { display: none; } .page-preview-wrapper { margin: 0; height: auto; width: auto; } .a4-page { width: 100%; min-height: 0; margin: 0; border: none; box-shadow: none; padding: 0; transform: none; } }
         @page { size: A4; margin: 10mm; }
@@ -99,44 +85,50 @@
 const demoData = {
     fino1:{request:{request_type:"PAYMENT",applicant_name:"TRẦN THỊ DUYÊN ANH",department:"Kế toán",request_date:"24-Aug-25",ref_no:"REF-00123",
     vendor_name:"Công ty TNHH Cung Cấp Thiết Bị và Dịch Vụ Kỹ Thuật Adeline Toàn Cầu",
-    payment_method:"VISA",total_amount:3550000,amount_in_words:"Ba triệu năm trăm năm mươi ngàn đồng",attachments:"Hóa đơn khách sạn, hóa đơn taxi",signatures:{director:"Lê Việt Hùng",chief_accountant:"Nguyễn Thị Lan Anh",head_of_dept:"Trần Văn Bình",accountant:"Lê Minh Châu"}},details:[{line_no:1,description:"Thanh toán tiền khách sạn Adeline (14-16/07)",amount:2700000,remark:"Hóa đơn #123"},{line_no:2,description:"Chi phí ăn uống theo công tác phí",amount:500000,remark:"2 ngày"},{line_no:3,description:"Chi phí di chuyển taxi sân bay",amount:350000,remark:"Có hóa đơn Grab"}]},
+    payment_method:"VISA",
+    settlement_deadline: "30-Sep-25",
+    total_amount:3550000,amount_in_words:"Ba triệu năm trăm năm mươi ngàn đồng",attachments:"Hóa đơn khách sạn, hóa đơn taxi",signatures:{director:"Lê Việt Hùng",chief_accountant:"Nguyễn Thị Lan Anh",head_of_dept:"Trần Văn Bình",accountant:"Lê Minh Châu"}},details:[{line_no:1,description:"Thanh toán tiền khách sạn Adeline (14-16/07)",amount:2700000,remark:"Hóa đơn #123"},{line_no:2,description:"Chi phí ăn uống theo công tác phí",amount:500000,remark:"2 ngày"},{line_no:3,description:"Chi phí di chuyển taxi sân bay",amount:350000,remark:"Có hóa đơn Grab"}]},
     fino2:{request:{request_type:"ADVANCE",applicant_name:"NGUYỄN VĂN AN",department:"Kinh doanh",request_date:"22-Aug-17",ref_no:"REF-00124",balance:0,settlement_deadline:"31/09/2017",
     payment_method: "BANK",
     total_amount:9500000,amount_in_words:"Chín triệu năm trăm ngàn đồng",signatures:{director:"Lê Việt Hùng",chief_accountant:"Nguyễn Thị Lan Anh",head_of_dept:"Trần Văn Bình",accountant:"Lê Minh Châu"}},details:[{line_no:1,description:"Tạm ứng mua màn hình Dell U2723QE",amount:7500000,remark:"Theo báo giá Phong Vũ"},{line_no:2,description:"Tạm ứng mua bàn phím cơ",amount:2000000,remark:"Cho nhân viên mới"}]},
-    fino4:{request:{request_type:"REFUND",applicant_name:"TRẦN THỊ DUYÊN ANH",department:"Kế toán",request_date:"24-Aug-25",ref_no:"REF-00125",payment_method:"CASH",total_amount:750000,amount_in_words:"Bảy trăm năm mươi ngàn đồng",attachments:"Không có",signatures:{director:"Lê Việt Hùng",chief_accountant:"Nguyễn Thị Lan Anh",head_of_dept:"Trần Văn Bình",requestor:"Trần Thị Duyên Anh",accountant:"Lê Minh Châu"}},details:[{line_no:1,description:"Thu hoàn ứng công tác phí ngày 20/08",amount:750000,remark:"Hoàn tiền thừa sau quyết toán"}]}
+    fino4:{request:{request_type:"REFUND",applicant_name:"TRẦN THỊ DUYÊN ANH",department:"Kế toán",request_date:"24-Aug-25",ref_no:"REF-00125",payment_method:"CASH",
+    settlement_deadline: "N/A",
+    total_amount:750000,amount_in_words:"Bảy trăm năm mươi ngàn đồng",attachments:"Không có",signatures:{director:"Lê Việt Hùng",chief_accountant:"Nguyễn Thị Lan Anh",head_of_dept:"Trần Văn Bình",requestor:"Trần Thị Duyên Anh",accountant:"Lê Minh Châu"}},details:[{line_no:1,description:"Thu hoàn ứng công tác phí ngày 20/08",amount:750000,remark:"Hoàn tiền thừa sau quyết toán"}]}
 };
 
 function formatCurrency(num) { if (num === null || num === undefined || num === '') return ''; return Number(num).toLocaleString('vi-VN'); }
 
 // This function builds the entire HTML string with data already in it.
-// It's more robust than building a template and then filling it.
 function buildAndPopulateForm(formType, data, isDemo = false) {
     const { request, details } = data;
     const isFino1 = formType === 'fino1', isFino2 = formType === 'fino2', isFino4 = formType === 'fino4';
-    let title = '', subtitle = '', detailsTitle = 'Số tiền / <span class="lang-en">Amount (VND)</span>';
+    let title = '', subtitle = '', detailsTitle = 'Số tiền <span class="lang-en">(VND)</span>';
     if(isFino1) { title = 'ĐỀ NGHỊ THANH TOÁN'; subtitle = 'PAYMENT REQUEST'; }
-    if(isFino2) { title = 'PHIẾU ĐỀ NGHỊ TẠM ỨNG'; subtitle = 'REQUEST FOR ADVANCE'; detailsTitle = 'Số tiền / <span class="lang-en">Amount</span>';}
+    if(isFino2) { title = 'PHIẾU ĐỀ NGHỊ TẠM ỨNG'; subtitle = 'REQUEST FOR ADVANCE'; detailsTitle = 'Số tiền <span class="lang-en">(Amount)</span>';}
     if(isFino4) { title = 'ĐỀ NGHỊ THU HOÀN ỨNG'; subtitle = 'REFUND ADVANCE PAYMENT REQUEST';}
 
     let infoGridHTML = `
-        <tr><td class="label label-col1">Người đề nghị / <span class="lang-en">(Applicant)</span>:</td><td class="value value-col1 data-value">${request.applicant_name || ''}</td><td class="label label-col2">Ngày / <span class="lang-en">(Date)</span>:</td><td class="value value-col2 data-value">${request.request_date || ''}</td></tr>
-        <tr><td class="label label-col1">Bộ phận / <span class="lang-en">(Dept)</span>:</td><td class="value value-col1 data-value">${request.department || ''}</td><td class="label label-col2">Số / <span class="lang-en">(Ref No.)</span>:</td><td class="value value-col2 data-value">${request.ref_no || ''}</td></tr>`;
+        <tr><td class="label label-col1">Người đề nghị <span class="lang-en">(Applicant)</span>:</td><td class="value value-col1 data-value">${request.applicant_name || ''}</td><td class="label label-col2">Ngày <span class="lang-en">(Date)</span>:</td><td class="value value-col2 data-value">${request.request_date || ''}</td></tr>
+        <tr><td class="label label-col1">Bộ phận <span class="lang-en">(Dept)</span>:</td><td class="value value-col1 data-value">${request.department || ''}</td><td class="label label-col2">Số <span class="lang-en">(Ref No.)</span>:</td><td class="value value-col2 data-value">${request.ref_no || ''}</td></tr>`;
     if (isFino2) {
-        infoGridHTML += `<tr><td class="label label-col1">Số dư tạm ứng / <span class="lang-en">(Advance balance)</span>:</td><td class="value value-col1 data-value">${formatCurrency(request.balance)}</td><td class="label label-deadline">Thời hạn thanh toán / <span class="lang-en">(Deadline for settlement)</span>:</td><td class="value value-col2 data-value">${request.settlement_deadline || ''}</td></tr>
-                         <tr><td class="label">Phương thức thanh toán / <span class="lang-en">(Method of Payment)</span>:</td><td colspan="3" class="value checkbox-container"><div class="payment-methods">
+        infoGridHTML += `<tr><td class="label label-col1">Số dư tạm ứng <span class="lang-en">(Advance balance)</span>:</td><td class="value value-col1 data-value">${formatCurrency(request.balance)}</td><td class="label label-deadline">Hạn thanh toán <span class="lang-en">(Deadline for settlement)</span>:</td><td class="value value-col2 data-value">${request.settlement_deadline || ''}</td></tr>
+                         <tr><td class="label">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td><td colspan="3" class="value checkbox-container"><div class="payment-methods">
                             <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
                             <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
                          </div></td></tr>`;
-    } else {
-        infoGridHTML += `<tr><td class="label">Phương thức thanh toán / <span class="lang-en">(Method of Payment)</span>:</td><td colspan="3" class="value checkbox-container"><div class="payment-methods">
-            <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
-            ${!isFino4 ? `<div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'visa' ? 'X' : ''}</span> VISA</div>` : ''}
-            <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
-            ${isFino1 ? `<div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'debt' ? 'X' : ''}</span> Debt offset</div>` : ''}
-            </div></td></tr>`;
-    }
-    if (isFino1) {
-        infoGridHTML += `<tr><td class="label">Tên nhà cung cấp / <span class="lang-en">(Vendor name)</span>:</td><td colspan="3" class="value data-value">${request.vendor_name || ''}</td></tr>`;
+    } else if (isFino1) {
+        infoGridHTML += `<tr><td class="label label-col1">Tên nhà cung cấp <span class="lang-en">(Vendor name)</span>:</td><td class="value value-col1 data-value">${request.vendor_name || ''}</td><td class="label label-col2">Hạn thanh toán <span class="lang-en">(Deadline)</span>:</td><td class="value value-col2 data-value">${request.settlement_deadline || ''}</td></tr>
+                         <tr><td class="label">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td><td colspan="3" class="value checkbox-container"><div class="payment-methods">
+                            <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
+                            <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'visa' ? 'X' : ''}</span> VISA</div>
+                            <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
+                            <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'debt' ? 'X' : ''}</span> Debt offset</div>
+                         </div></td></tr>`;
+    } else if (isFino4) {
+         infoGridHTML += `<tr><td class="label label-col1">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td><td class="value value-col1 checkbox-container"><div class="payment-methods">
+                            <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
+                            <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
+                            </div></td><td class="label label-col2">Hạn thanh toán <span class="lang-en">(Deadline)</span>:</td><td class="value value-col2 data-value">${request.settlement_deadline || ''}</td></tr>`;
     }
 
     let detailsHTML = '';
@@ -153,20 +145,20 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
         }
         return `${roleHTML}<div class="name-container"><div class="name-text data-value">${name.toUpperCase()}</div></div>`;
     };
-    let sigDirectorHTML = buildSignature('Giám đốc / <span class="lang-en">Director</span>', isDemo || isFino4 ? (isDemo ? request.signatures.director : 'LÊ VIỆT HÙNG') : null);
-    let sigChiefAccHTML = buildSignature('Kế toán trưởng / <span class="lang-en">Chief accountant</span>', isDemo ? request.signatures.chief_accountant : null);
-    let sigHeadDeptHTML = buildSignature('Trưởng bộ phận / <span class="lang-en">Head of dept.</span>', isDemo ? request.signatures.head_of_dept : null);
-    let sigRequestorHTML = buildSignature('Người đề nghị / <span class="lang-en">Requestor</span>', isDemo || isFino4 ? (isDemo ? request.applicant_name : 'TRẦN THỊ DUYÊN ANH') : request.applicant_name);
-    let sigAccountantHTML = buildSignature('Kế toán thanh toán / <span class="lang-en">Accountant</span>', isDemo ? request.signatures.accountant : null);
+    let sigDirectorHTML = buildSignature('Giám đốc <span class="lang-en">(Director)</span>', isDemo || isFino4 ? (isDemo ? request.signatures.director : 'LÊ VIỆT HÙNG') : null);
+    let sigChiefAccHTML = buildSignature('Kế toán trưởng <span class="lang-en">(Chief accountant)</span>', isDemo ? request.signatures.chief_accountant : null);
+    let sigHeadDeptHTML = buildSignature('Trưởng bộ phận <span class="lang-en">(Head of dept.)</span>', isDemo ? request.signatures.head_of_dept : null);
+    let sigRequestorHTML = buildSignature('Người đề nghị <span class="lang-en">(Requestor)</span>', isDemo || isFino4 ? (isDemo ? request.applicant_name : 'TRẦN THỊ DUYÊN ANH') : request.applicant_name);
+    let sigAccountantHTML = buildSignature('Kế toán thanh toán <span class="lang-en">(Accountant)</span>', isDemo ? request.signatures.accountant : null);
 
     const finalHTML = `
         <div class="watermark">${isDemo ? 'BẢN DEMO' : ''}</div>
         <div class="form-header"><div class="company-name">KARCHER VIETNAM</div><div class="form-no">Form no: <span class="data-value">${formType.toUpperCase()}</span></div></div>
         <h1 class="form-title">${title}</h1><h2 class="form-subtitle lang-en">${subtitle}</h2><table class="info-grid">${infoGridHTML}</table>
-        ${isFino2 ? `<p style="font-weight:bold;">Chi tiết tạm ứng / <span class="lang-en">(Advance detail)</span>:</p>` : ''}
-        <table class="details-table"><thead><tr><th style="width:9%">STT / <span class="lang-en">No</span></th><th style="width:46%">Diễn giải / <span class="lang-en">Description</span></th><th style="width:25%">${detailsTitle}</th><th style="width:20%">Ghi chú / <span class="lang-en">Remark</span></th></tr></thead><tbody>${detailsHTML}</tbody><tfoot><tr><td colspan="2" style="text-align:right; font-weight:bold;">TỔNG CỘNG / <span class="lang-en">TOTAL</span></td><td class="number data-value" style="font-weight:bold;">${formatCurrency(request.total_amount)}</td><td></td></tr></tfoot></table>
-        <div class="summary-section"><strong>Bằng chữ / <span class="lang-en">(In words)</span>:</strong> <span class="amount-in-words data-value">${request.amount_in_words || ''}</span></div>
-        ${!isFino2 ? `<div class="summary-section"><strong>Chứng từ đính kèm / <span class="lang-en">(Supporting document)</span>:</strong> <span class="data-value">${request.attachments || ''}</span></div>` : ''}
+        ${isFino2 ? `<p style="font-weight:bold;">Chi tiết tạm ứng <span class="lang-en">(Advance detail)</span>:</p>` : ''}
+        <table class="details-table"><thead><tr><th style="width:9%">STT <span class="lang-en">(No)</span></th><th style="width:46%">Diễn giải <span class="lang-en">(Description)</span></th><th style="width:25%">${detailsTitle}</th><th style="width:20%">Ghi chú <span class="lang-en">(Remark)</span></th></tr></thead><tbody>${detailsHTML}</tbody><tfoot><tr><td colspan="2" style="text-align:right; font-weight:bold;">TỔNG CỘNG <span class="lang-en">(TOTAL)</span></td><td class="number data-value" style="font-weight:bold;">${formatCurrency(request.total_amount)}</td><td></td></tr></tfoot></table>
+        <div class="summary-section"><strong>Bằng chữ <span class="lang-en">(In words)</span>:</strong> <span class="amount-in-words data-value">${request.amount_in_words || ''}</span></div>
+        ${!isFino2 ? `<div class="summary-section"><strong>Chứng từ đính kèm <span class="lang-en">(Supporting document)</span>:</strong> <span class="data-value">${request.attachments || ''}</span></div>` : ''}
         <div class="signature-area">
             <div class="signature-row"><div class="signature-block">${sigDirectorHTML}</div><div class="signature-block">${sigChiefAccHTML}</div><div class="signature-block">${sigHeadDeptHTML}</div></div>
             <div class="signature-row"><div class="signature-block">${sigRequestorHTML}</div><div class="signature-block">${sigAccountantHTML}</div><div class="signature-block"></div></div>
@@ -206,9 +198,19 @@ document.addEventListener('DOMContentLoaded', function() {
         let data = {}; const activeId = activePage.id.replace('form-', '');
         if (appSheetDataParam) { data = JSON.parse(atob(decodeURIComponent(appSheetDataParam))); } else { data = demoData[activeId]; }
         const filename = `${activeId.toUpperCase()}_${data.request.applicant_name.replace(/\s/g, '_')}_${data.request.request_date.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
+        
+        // FIX for PDF generation alignment
+        const originalMargin = activePage.style.margin;
+        activePage.style.margin = '0';
+
         const opt = { margin: 10, filename, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3, useCORS: true, letterRendering: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
         const watermark = activePage.querySelector('.watermark'); const originalDisplay = watermark.style.display; if (appSheetDataParam) watermark.style.display = 'none';
-        html2pdf().from(activePage).set(opt).save().then(() => { watermark.style.display = originalDisplay; });
+        
+        html2pdf().from(activePage).set(opt).save().finally(() => {
+            // Restore original styles after PDF is saved
+            activePage.style.margin = originalMargin;
+            watermark.style.display = originalDisplay;
+        });
     });
 });
 </script>
