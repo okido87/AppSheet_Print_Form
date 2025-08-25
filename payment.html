@@ -295,35 +295,53 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.querySelector('.print-btn').addEventListener('click', () => window.print());
     
-    document.querySelector('.download-btn').addEventListener('click', () => {
-        const activePage = document.querySelector('.a4-page.active');
-        let data = {}; const activeId = activePage.id.replace('form-', '');
-        
-        if (urlParams.has('request_type')) {
-            data.request = {
-                applicant_name: urlParams.get('applicant_name'),
-                request_date: urlParams.get('request_date')
-            };
-        } else {
-            data = demoData[activeId];
-        }
-        
-        const filename = `${activeId.toUpperCase()}_${data.request.applicant_name.replace(/\s/g, '_')}_${data.request.request_date.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
-        
-        const opt = { 
-            margin: 7.5,
-            filename, 
-            image: { type: 'jpeg', quality: 1 }, 
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true, x: 0, y: 0, scrollX: -window.scrollX, scrollY: -window.scrollY, windowWidth: document.documentElement.offsetWidth },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+// ĐOẠN CODE MỚI ĐÃ SỬA LỖI
+document.querySelector('.download-btn').addEventListener('click', () => {
+    const activePage = document.querySelector('.a4-page.active');
+    let data = {};
+    const activeId = activePage.id.replace('form-', '');
+
+    if (urlParams.has('request_type')) {
+        data.request = {
+            applicant_name: urlParams.get('applicant_name') || 'unknown',
+            request_date: urlParams.get('request_date') || 'nodate'
         };
-        const watermark = activePage.querySelector('.watermark'); 
-        const originalDisplay = watermark.style.display; 
-        if (urlParams.has('request_type')) watermark.style.display = 'none';
-        
-        html2pdf().from(activePage).set(opt).save().finally(() => {
+    } else {
+        data = demoData[activeId];
+    }
+
+    const filename = `${activeId.toUpperCase()}_${data.request.applicant_name.replace(/\s/g, '_')}_${data.request.request_date.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
+
+    // Sửa đổi tùy chọn để khắc phục lỗi lệch trang
+    const opt = {
+        margin: 7.5, // Giữ lại margin để nội dung không bị sát lề
+        filename,
+        image: { type: 'jpeg', quality: 1.0 }, // Chất lượng cao nhất
+        html2canvas: { 
+            scale: 2, // Tăng độ phân giải
+            useCORS: true,
+            letterRendering: true,
+            // Xóa các tùy chọn gây lỗi: x, y, scrollX, scrollY, windowWidth
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    const watermark = activePage.querySelector('.watermark');
+    const originalDisplay = watermark.style.display;
+    if (urlParams.has('request_type')) {
+        watermark.style.display = 'none';
+    }
+
+    // Tạm thời bỏ transform scale khi xuất PDF để tránh lỗi tính toán kích thước
+    const originalTransform = activePage.style.transform;
+    activePage.style.transform = 'none';
+    
+    html2pdf().from(activePage).set(opt).save().finally(() => {
+        // Khôi phục lại các style sau khi đã xuất PDF xong
+        if (urlParams.has('request_type')) {
             watermark.style.display = originalDisplay;
-        });
+        }
+        activePage.style.transform = originalTransform;
     });
 });
 </script>
