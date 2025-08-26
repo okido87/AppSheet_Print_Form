@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Giao Hàng - Mộc Ấn</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: white;
+            padding: 15px;
+            font-size: 13px;
+        }
+
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* Print Controls */
+        .print-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 180px;
+        }
+
+        .print-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .print-btn:hover {
+            background: #c0392b;
+        }
+
+        .print-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .print-btn-no-header {
+            background: #3498db;
+        }
+
+        .print-btn-no-header:hover {
+            background: #2980b9;
+        }
+
+        .print-btn-a5 {
+            background: #27ae60;
+        }
+
+        .print-btn-a5:hover {
+            background: #229954;
+        }
+
+        .print-btn-a5-no-header {
+            background: #f39c12;
+        }
+
+        .print-btn-a5-no-header:hover {
+            background: #e67e22;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .header.hidden-content {
+            visibility: hidden;
+        }
+
+        .logo {
+            width: 100%;
+        }
+
+        .logo img {
+            width: 100%;
+        }
+
+        .contact-info {
+            text-align: right;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        /* Title */
+        .title {
+            text-align: center;
+            font-size: 23px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .order-number {
+            text-align: center;
+            font-size: 15px;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        /* Customer Info Table */
+        .customer-info {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+            margin-bottom: 3px;
+        }
+
+        .customer-info td {
+            border: 1px solid #000;
+            padding: 6px;
+            font-size: 15px;
+            vertical-align: top;
+        }
+
+        /* Product Table */
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+        }
+
+        .product-table th,
+        .product-table td {
+            border: 1px solid #000;
+            padding: 6px 4px;
+            text-align: center;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .product-table th {
+            background-color: #8bc53f;
+            font-weight: bold;
+            border: 1px solid #000;
+            padding: 6px 4px;
+            text-align: center;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        /* Style cho header tầng 2 */
+        .product-table thead tr:nth-child(2) th {
+            font-size: 11px;
+        }
+
+        /* Ẩn border-top cho hàng thứ 2 của header */
+        .product-table thead tr:nth-child(2) th[style*="border-top: none"] {
+            border-top: none;
+            background-color: transparent;
+        }
+
+        .product-name {
+            text-align: left !important;
+            width: auto !important;
+            padding-left: 6px !important;
+            font-weight: bold;
+        }
+
+        .stt-col {
+            width: 9mm;
+        }
+
+        .so-kien-col {
+            width: 12mm;
+        }
+
+        .quantity-col {
+            width: 19.4mm;
+        }
+
+        .quantity-col-2 {
+            width: 15mm;
+        }
+
+        .xac-nhan-col {
+            width: 16mm;
+        }
+
+        .ghi-chu-col {
+            width: 27mm;
+        }
+
+        /* Notes */
+        .notes {
+            font-size: 14px;
+            font-style: italic;
+            line-height: 1.3;
+            font-weight: bold;
+            color: #081b3a;
+        }
+
+        /* Signature Section */
+        .signature-section {
+            display: flex;
+        }
+
+        .signature-box {
+            flex: 1;
+            border: 1px solid #000;
+            text-align: center;
+            height: 140px;
+            padding-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .signature-box:not(:last-child) {
+            border-right: none;
+        }
+
+        .signature-title {
+            font-weight: bold;
+            padding: 10px;
+            font-size: 15px;
+            border-bottom: 1px solid #000;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            font-size: 13px;
+            margin-top: auto;
+        }
+
+        /* Loading & Error */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .warning {
+            color: orange;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Print Status */
+        .print-status {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 10000;
+            display: none;
+        }
+
+        /* Delivery Notes */
+        .delivery-notes {
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1.3;
+            border: 1px solid #000;
+            border-top: none;
+            padding: 4px 6px;
+        }
+
+        /* Print A4 Styles */
+        @media print {
+            @page {
+                size: A4;
+                margin: 8mm !important;
+            }
+
+            html {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            body {
+                padding: 0;
+                margin: 0;
+                font-size: 13px;
+                background: white !important;
+            }
+
+            .container {
+                max-width: none;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .print-controls {
+                display: none !important;
+            }
+
+            .loading-overlay {
+                display: none !important;
+            }
+
+            .customer-info,
+            .product-table {
+                border-collapse: collapse;
+                page-break-inside: avoid;
+            }
+
+            .product-table {
+                page-break-inside: auto;
+            }
+
+            .product-table tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            .signature-section {
+                page-break-inside: avoid;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .product-table th,
+            .product-table td {
+                padding: 6px 4px !important;
+                font-size: 13px !important;
+            }
+
+            .customer-info td {
+                padding: 6px !important;
+                font-size: 15px !important;
+            }
+
+            .delivery-notes {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Print Controls -->
+    <div class="print-controls">
+        <button class="print-btn print-btn-no-header" onclick="printDocumentNoHeader()" id="printBtnNoHeader">
+            📄 In A4 không tiêu đề
+        </button>
+        <button class="print-btn" onclick="printDocument()" id="printBtn">
+            🖨️ In A4 có tiêu đề
+        </button>
+        <button class="print-btn print-btn-a5-no-header" onclick="printDocumentA5NoHeader()" id="printBtnA5NoHeader">
+            📃 In A5 không tiêu đề
+        </button>
+        <button class="print-btn print-btn-a5" onclick="printDocumentA5()" id="printBtnA5">
+            📋 In A5 có tiêu đề
+        </button>
+
+    </div>
+
+    <!-- Print Status -->
+    <div class="print-status" id="printStatus">
+        Đang chuẩn bị in...
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div style="text-align: center;">
+            <p>Đang tải dữ liệu...</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header" id="headerSection">
+            <div class="logo">
+                <img src="https://poalninh.github.io/PostPrint/logo moc an-01.png" alt="Logo Mộc Ấn">
+            </div>
+        </div>
+
+        <!-- Title and Order Number -->
+        <div class="title">PHIẾU GIAO HÀNG</div>
+        <div class="order-number">
+            <div style="margin-bottom: 5px;">Ngày <span id="ngayGiao">11 tháng 06 năm 2025</span></div>
+
+            <div style="font-weight: bold;">Số: <span id="soPhieuGH">GH230610014006</span></div>
+
+        </div>
+
+        <!-- Customer Info -->
+        <table class="customer-info">
+            <tr>
+                <td width="60%">Khách hàng: <strong id="tenKhachHang"></strong></td>
+
+                <td>Số điện thoại: <strong id="soDienThoai"></strong></td>
+            </tr>
+            <tr>
+                <td colspan="2">Địa chỉ giao hàng: <strong id="diaChiGiaoHang"></strong></td>
+            </tr>
+            <tr>
+                <td>Người liên hệ: <strong id="nguoiLienHe"></strong></td>
+                <td>Hình thức vận chuyển: <strong id="hinhThucVanChuyen"></strong></td>
+            </tr>
+        </table>
+
+        <!-- Product Table -->
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="stt-col">STT</th>
+                    <th rowspan="2" style="text-align: center;">NỘI DUNG</th>
+                    <th rowspan="2" class="so-kien-col">ĐVT</th>
+                    <th colspan="3" style="text-align: center; font-weight: bold;">SỐ LƯỢNG
+                    </th>
+                    <th rowspan="2" class="xac-nhan-col">XÁC NHẬN</th>
+                    <th rowspan="2" class="ghi-chu-col">GHI CHÚ</th>
+                </tr>
+                <tr>
+                    <th class="quantity-col">Thực giao</th>
+                    <th class="quantity-col-2">Bù hao</th>
+                    <th class="quantity-col">Thực tính</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+            </tbody>
+        </table>
+        <!-- Ghi chú từ phiếu giao hàng -->
+        <div class="delivery-notes" id="deliveryNotes">
+            Ghi chú: <span id="ghiChuGiaoHang"></span>
+        </div>
+
+        <!-- Notes -->
+        <div class="notes">
+            Quý khách vui lòng kiểm tra kỹ hàng trước khi ký nhận. Nếu có thắc mắc, xin vui lòng liên hệ với chúng tôi
+            trong vòng 7 ngày kể từ ngày nhận hàng. Sau thời gian này, chúng tôi xin phép không giải quyết các vấn đề
+            liên quan đến số lượng.
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-title">Người nhận hàng</div>
+                <div class="signature-name" id="nguoiNhanHangKy"></div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-title">Người giao hàng</div>
+                <div class="signature-name" id="taiXe"></div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-title">Người lập</div>
+                <div class="signature-name" id="nguoiLap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_CONFIG = {
+            APP_ID: '323b6578-b51a-425a-9775-c84d2d8d0904',
+            ACCESS_KEY: 'V2-MipF3-d6wQk-t6AIN-zzz0j-HglL4-Uq2Yp-EckHF-m3lOV',
+            REGION: 'www',
+            BASE_URL: 'https://www.appsheet.com/api/v2/apps',
+            APP_NAME: 'MocAnSystem-777046908'
+        };
+
+        // Set document title for printing
+        function setDocumentTitle(soPhieu) {
+            if (soPhieu && soPhieu !== 'Đang tải...') {
+                document.title = soPhieu;
+            }
+        }
+
+        // State Management
+        let state = {
+            deliveryData: null,
+            loading: false
+        };
+
+        // Dynamic CSS injection for A5 printing
+        function injectA5PrintCSS() {
+            const existingStyle = document.getElementById('a5-print-style');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+
+            const style = document.createElement('style');
+            style.id = 'a5-print-style';
+            style.textContent = `
+                @media print {
+                    @page {
+                        size: A5 landscape;
+                        margin: 5mm !important;
+                    }
+
+                    body {
+                        font-size: 11px !important;
+                    }
+
+                    .title {
+                        font-size: 18px !important;
+                    }
+
+                    .order-number {
+                        font-size: 13px !important;
+                    }
+
+                    .customer-info td {
+                        padding: 4px !important;
+                        font-size: 12px !important;
+                    }
+
+                    .product-table th,
+                    .product-table td {
+                        padding: 3px 2px !important;
+                        font-size: 10px !important;
+                    }
+
+                    .signature-box {
+                        height: 100px !important;
+                    }
+
+                    .signature-title {
+                        font-size: 12px !important;
+                        padding: 6px !important;
+                    }
+
+                    .signature-name {
+                        font-size: 11px !important;
+                    }
+
+                    .notes {
+                        font-size: 11px !important;
+                    }
+
+                    .delivery-notes {
+                        font-size: 11px !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function removeA5PrintCSS() {
+            const existingStyle = document.getElementById('a5-print-style');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+        }
+
+        // Print Functions
+        const PrintManager = {
+            print: async (hideHeader = false, isA5 = false) => {
+                try {
+                    if (!state.deliveryData) {
+                        alert('Vui lòng đợi dữ liệu tải xong trước khi in!');
+                        return;
+                    }
+
+                    const buttons = {
+                        printBtn: document.getElementById('printBtn'),
+                        printBtnNoHeader: document.getElementById('printBtnNoHeader'),
+                        printBtnA5: document.getElementById('printBtnA5'),
+                        printBtnA5NoHeader: document.getElementById('printBtnA5NoHeader')
+                    };
+
+                    const headerSection = document.getElementById('headerSection');
+
+                    // Determine which button was clicked
+                    let currentBtn, originalText;
+                    if (isA5 && hideHeader) {
+                        currentBtn = buttons.printBtnA5NoHeader;
+                        originalText = '📃 In A5 không tiêu đề';
+                    } else if (isA5 && !hideHeader) {
+                        currentBtn = buttons.printBtnA5;
+                        originalText = '📋 In A5 có tiêu đề';
+                    } else if (!isA5 && hideHeader) {
+                        currentBtn = buttons.printBtnNoHeader;
+                        originalText = '📄 In A4 không tiêu đề';
+                    } else {
+                        currentBtn = buttons.printBtn;
+                        originalText = '🖨️ In A4 có tiêu đề';
+                    }
+
+                    currentBtn.disabled = true;
+                    currentBtn.innerHTML = '⏳ Đang in...';
+
+                    PrintManager.showPrintStatus('Đang chuẩn bị in...');
+
+                    // Inject A5 CSS if needed
+                    if (isA5) {
+                        injectA5PrintCSS();
+                    } else {
+                        removeA5PrintCSS();
+                    }
+
+                    // Ẩn header nhưng giữ khoảng trống
+                    if (hideHeader) {
+                        headerSection.classList.add('hidden-content');
+                    }
+
+                    const soPhieu = document.getElementById('soPhieuGH').textContent;
+                    if (soPhieu && soPhieu !== 'Đang tải...') {
+                        const size = isA5 ? 'A5' : 'A4';
+                        document.title = `PhieuGiaoHang_${soPhieu}_${size}`;
+                    }
+
+                    PrintManager.hidePrintStatus();
+                    window.print();
+
+                    // Khôi phục header sau khi in
+                    if (hideHeader) {
+                        headerSection.classList.remove('hidden-content');
+                    }
+
+                    // Remove A5 CSS after printing
+                    if (isA5) {
+                        setTimeout(() => {
+                            removeA5PrintCSS();
+                        }, 1000);
+                    }
+
+                    setTimeout(() => {
+                        currentBtn.disabled = false;
+                        currentBtn.innerHTML = originalText;
+                    }, 1000);
+
+                } catch (error) {
+                    console.error('Print error:', error);
+                    alert('Có lỗi xảy ra khi in. Vui lòng thử lại!');
+
+                    // Reset all buttons
+                    const buttons = [
+                        { btn: document.getElementById('printBtn'), text: '🖨️ In A4 có tiêu đề' },
+                        { btn: document.getElementById('printBtnNoHeader'), text: '📄 In A4 không tiêu đề' },
+                        { btn: document.getElementById('printBtnA5'), text: '📋 In A5 có tiêu đề' },
+                        { btn: document.getElementById('printBtnA5NoHeader'), text: '📃 In A5 không tiêu đề' }
+                    ];
+
+                    buttons.forEach(({ btn, text }) => {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = text;
+                        }
+                    });
+
+                    // Khôi phục header nếu có lỗi
+                    document.getElementById('headerSection').classList.remove('hidden-content');
+
+                    // Remove A5 CSS if error
+                    removeA5PrintCSS();
+
+                    PrintManager.hidePrintStatus();
+                }
+            },
+
+            showPrintStatus: (message) => {
+                const status = document.getElementById('printStatus');
+                status.textContent = message;
+                status.style.display = 'block';
+            },
+
+            hidePrintStatus: () => {
+                const status = document.getElementById('printStatus');
+                status.style.display = 'none';
+            }
+        };
+
+        // Global print functions
+        function printDocument() {
+            PrintManager.print(false, false); // A4 có tiêu đề
+        }
+
+        function printDocumentNoHeader() {
+            PrintManager.print(true, false); // A4 không tiêu đề
+        }
+
+        function printDocumentA5() {
+            PrintManager.print(false, true); // A5 có tiêu đề
+        }
+
+        function printDocumentA5NoHeader() {
+            PrintManager.print(true, true); // A5 không tiêu đề
+        }
+
+        // API Service
+        const apiService = {
+            createAxiosInstance() {
+                return axios.create({
+                    baseURL: `${API_CONFIG.BASE_URL}/${API_CONFIG.APP_ID}/tables`,
+                    headers: {
+                        'ApplicationAccessKey': API_CONFIG.ACCESS_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            },
+
+            async request(tableName, action, data = {}, select = {}) {
+                try {
+                    const api = this.createAxiosInstance();
+                    const requestBody = {
+                        Action: action,
+                        Properties: {
+                            UserSettings: {
+                                "User name": "Admin",
+                                "Password": "123456"
+                            },
+                            ...select
+                        },
+                        ...data
+                    };
+
+                    const response = await api.post(`/${tableName}/Action`, requestBody);
+                    return response.data;
+                } catch (error) {
+                    console.error('API request failed:', error);
+                    throw error;
+                }
+            }
+        };
+
+        // Loading Management
+        const showLoading = () => {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            state.loading = true;
+        };
+
+        const hideLoading = () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+            state.loading = false;
+        };
+
+        // Utility Functions
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0';
+            return new Intl.NumberFormat('vi-VN').format(num);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+
+                const day = date.getDate();
+                const month = date.getMonth() + 1;
+                const year = date.getFullYear();
+
+                return `${day} tháng ${month} năm ${year}`;
+            } catch (error) {
+                return dateString;
+            }
+        }
+
+        // Fetch Delivery Data
+        async function fetchDeliveryData(deliveryId) {
+            try {
+                showLoading();
+
+                const [header, details, nhanVienData] = await Promise.all([
+                    apiService.request('GiaoHang', 'Find', {}, {
+                        Selector: `Filter(GiaoHang, [Số phiếu GH] = '${deliveryId}')`
+                    }),
+                    apiService.request('CTGiaoHang', 'Find', {}, {
+                        Selector: `Filter(CTGiaoHang, [Số phiếu GH] = '${deliveryId}')`
+                    }),
+                    // Lấy tất cả nhân viên để lookup
+                    apiService.request('NhanVien', 'Find', {}, {})
+                ]);
+
+                if (!header || header.length === 0) {
+                    throw new Error(`Không tìm thấy phiếu giao hàng với số: ${deliveryId}`);
+                }
+
+                state.deliveryData = {
+                    header: header[0],
+                    details: details || [],
+                    nhanVien: nhanVienData || []
+                };
+
+                return state.deliveryData;
+            } catch (error) {
+                console.error('Error fetching delivery:', error);
+                throw error;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Helper function để tìm tên nhân viên theo mã
+        function getTenNhanVien(maNV, danhSachNhanVien) {
+            if (!maNV || !danhSachNhanVien) return maNV || '';
+
+            const nhanVien = danhSachNhanVien.find(nv => nv['Mã NV'] === maNV);
+            return nhanVien ? nhanVien['Họ và tên'] : maNV;
+        }
+
+        // Populate Delivery Header
+        function populateDeliveryHeader(giaoHang, danhSachNhanVien = []) {
+            try {
+                const soPhieu = giaoHang['Số phiếu GH'] || ' ';
+                document.getElementById('soPhieuGH').textContent = soPhieu;
+                document.getElementById('ngayGiao').textContent = formatDate(giaoHang['Ngày giao']);
+
+                setDocumentTitle(soPhieu);
+
+                document.getElementById('tenKhachHang').textContent = giaoHang['Tên khách hàng'] || ' ';
+                document.getElementById('soDienThoai').textContent = giaoHang['Số điện thoại'] || ' ';
+                document.getElementById('diaChiGiaoHang').textContent = giaoHang['Địa chỉ giao hàng'] || ' ';
+                document.getElementById('nguoiLienHe').textContent = giaoHang['Người nhận hàng'] || ' ';
+                document.getElementById('hinhThucVanChuyen').textContent = giaoHang['Hình thức giao'] || ' ';
+
+                // Thêm ghi chú từ bảng GiaoHang
+                const ghiChu = giaoHang['Ghi chú'] || '';
+                document.getElementById('ghiChuGiaoHang').textContent = ghiChu;
+
+                // Thêm thông tin ký tên từ bảng GiaoHang - lookup tên thật từ mã NV
+                document.getElementById('nguoiNhanHangKy').textContent = giaoHang['Người nhận hàng'] || '';
+                document.getElementById('taiXe').textContent = getTenNhanVien(giaoHang['Tài xế'], danhSachNhanVien);
+                document.getElementById('nguoiLap').textContent = getTenNhanVien(giaoHang['Người tạo'], danhSachNhanVien);
+
+            } catch (error) {
+                console.error('Error populating header:', error);
+                throw error;
+            }
+        }
+
+        // Populate Product Table
+        async function populateProductTable(chiTietGiaoHang) {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = '';
+
+            try {
+                if (chiTietGiaoHang.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="warning">⚠️ Không có chi tiết sản phẩm cho phiếu giao hàng này</td></tr>';
+                    return;
+                }
+
+                for (let index = 0; index < chiTietGiaoHang.length; index++) {
+                    const item = chiTietGiaoHang[index];
+
+                    const dvt = item['Đvt'] || '';
+                    const thucGiao = parseFloat(item['SL thực giao']) || 0;
+                    const buHao = parseFloat(item['SL bù hao']) || 0;
+                    const thucTinh = parseFloat(item['SL thực tính']) || 0;
+
+                    const row = document.createElement('tr');
+
+                    const tenSanPham = item['Tên Sản phẩm'] || '';
+                    const soDH = item['Số ĐH'] || '';
+
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td class="product-name">${tenSanPham}</td>
+                        <td>${dvt}</td>
+                        <td class="number">${formatNumber(thucGiao)}</td>
+                        <td class="number">${formatNumber(buHao)}</td>
+                        <td class="number">${formatNumber(thucTinh)}</td>
+                        <td></td>
+                        <td>${item['Ghi chú'] || ''}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+
+            } catch (error) {
+                console.error('Error in populateProductTable:', error);
+                throw error;
+            }
+        }
+
+        // Show Error
+        function showError(message) {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = `<tr><td colspan="8" class="error">❌ Lỗi: ${message}</td></tr>`;
+
+            const fields = ['soPhieuGH', 'ngayGiao', 'tenKhachHang', 'soDienThoai', 'diaChiGiaoHang', 'nguoiLienHe', 'hinhThucVanChuyen'];
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) element.textContent = 'Lỗi tải dữ liệu';
+            });
+        }
+
+        // Get URL Parameter
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                printDocument();
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+                e.preventDefault();
+                printDocumentA5();
+            }
+        });
+
+        // Initialize - Document Ready
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeDeliveryData();
+        });
+
+        // Initialize Delivery Data
+        async function initializeDeliveryData() {
+            try {
+                const deliveryId = getUrlParameter('deliveryId');
+
+                if (!deliveryId) {
+                    throw new Error('Vui lòng cung cấp deliveryId trong URL (ví dụ: ?deliveryId=GH001)');
+                }
+
+                const deliveryData = await fetchDeliveryData(deliveryId);
+                populateDeliveryHeader(deliveryData.header, deliveryData.nhanVien);
+                await populateProductTable(deliveryData.details);
+
+                // Enable print controls after data is loaded
+                document.getElementById('printBtn').disabled = false;
+                document.getElementById('printBtnNoHeader').disabled = false;
+                document.getElementById('printBtnA5').disabled = false;
+                document.getElementById('printBtnA5NoHeader').disabled = false;
+
+            } catch (error) {
+                console.error('Error initializing delivery data:', error);
+                showError(error.message);
+
+                // Disable print controls if data loading fails
+                document.getElementById('printBtn').disabled = true;
+                document.getElementById('printBtnNoHeader').disabled = true;
+                document.getElementById('printBtnA5').disabled = true;
+                document.getElementById('printBtnA5NoHeader').disabled = true;
+            }
+        }
+
+        // Export functions for external use
+        window.PrintManager = PrintManager;
+        window.printDocument = printDocument;
+        window.printDocumentNoHeader = printDocumentNoHeader;
+        window.printDocumentA5 = printDocumentA5;
+        window.printDocumentA5NoHeader = printDocumentA5NoHeader;
+
+        // Disable right-click and keyboard shortcuts for security
+        // document.addEventListener('contextmenu', function (e) {
+        //     e.preventDefault();
+        // }, false);
+
+        // document.onkeydown = function (e) {
+        //     if (e.keyCode == 123) {
+        //         return false;
+        //     }
+        //     if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+        //         return false;
+        //     }
+        //     if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+        //         return false;
+        //     }
+        //     if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+        //         return false;
+        //     }
+        // };
+    </script>
+
+    <!-- <script src="https://mocan.gpems.net/giaohang.js"></script> -->
+</body>
+
+</html>
