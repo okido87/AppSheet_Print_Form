@@ -155,20 +155,21 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
             <td class="value col-4 data-value">${request.ref_no || ''}</td>
         </tr>`;
 
-    // --- CẬP NHẬT 1: GỘP THÔNG TIN NGÂN HÀNG ---
+    // --- CẬP NHẬT: GỘP BANK NAME/ACC NO. VÀ SẮP XẾP LẠI ---
     const createBankInfoHTML = (req) => {
         if (req.payment_method?.toLowerCase() !== 'bank') return '';
-        const bankDetails = `${req.bank_account || ''} - ${req.bank_name || ''}`.trim();
+        
+        const bankAndAccount = `${req.bank_name || ''} - ${req.bank_account || ''}`;
+
         return `
             <tr>
-                <td class="label col-1">STK & Ngân hàng <span class="lang-en">(Acc. No & Bank)</span>:</td>
-                <td colspan="3" class="value data-value">${bankDetails === '-' ? '' : bankDetails}</td>
-            </tr>
-            <tr>
-                <td class="label col-1">Chủ tài khoản <span class="lang-en">(Account Holder)</span>:</td>
-                <td colspan="3" class="value data-value">${req.bank_account_holder || ''}</td>
+                <td class="label col-1">Ngân hàng & STK <span class="lang-en">(Bank & Acc. No.)</span>:</td>
+                <td class="value col-2 data-value">${bankAndAccount.trim() === '-' ? '' : bankAndAccount}</td>
+                <td class="label col-3">Chủ tài khoản <span class="lang-en">(Acc. Holder)</span>:</td>
+                <td class="value col-4 data-value">${req.bank_account_holder || ''}</td>
             </tr>`;
     };
+
 
     if (isFino2) {
         infoGridHTML += `
@@ -239,7 +240,6 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
         return `${roleHTML}<div class="name-container"><div class="name-text data-value">${name.toUpperCase()}</div></div>`; 
     };
     
-    // --- CẬP NHẬT 2: LOGIC LẤY TÊN NGƯỜI KÝ ---
     const signatures = {
         director: isDemo ? request.signatures.director : request.approver_id,
         chief_accountant: isDemo ? request.signatures.chief_accountant : request.chief_accountant_id,
@@ -265,12 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const requestData = { 
             request_type: urlParams.get('request_type'), applicant_name: urlParams.get('applicant_name'), department: urlParams.get('department'), request_date: urlParams.get('request_date'), ref_no: urlParams.get('ref_no'), vendor_name: urlParams.get('vendor_name'), payment_method: urlParams.get('payment_method'), settlement_deadline: urlParams.get('settlement_deadline'), total_amount: parseFloat(urlParams.get('total_amount')), attachments: urlParams.get('attachments'), balance: parseFloat(urlParams.get('balance')),
             bank_name: urlParams.get('bank_name'), bank_account: urlParams.get('bank_account'), bank_account_holder: urlParams.get('bank_account_holder'),
-            // --- CẬP NHẬT 2: ĐỌC THÊM 5 THAM SỐ CHỮ KÝ ---
-            applicant_id: urlParams.get('applicant_id'),
-            checker_id: urlParams.get('checker_id'),
-            approver_id: urlParams.get('approver_id'),
-            chief_accountant_id: urlParams.get('chief_accountant_id'),
-            accountant_id: urlParams.get('accountant_id')
+            applicant_id: urlParams.get('applicant_id'), checker_id: urlParams.get('checker_id'), approver_id: urlParams.get('approver_id'), chief_accountant_id: urlParams.get('chief_accountant_id'), accountant_id: urlParams.get('accountant_id')
         }; 
         const detailsData = JSON.parse(urlParams.get('details_json') || '[]'); 
         let activeFormId = ''; 
