@@ -155,12 +155,9 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
             <td class="value col-4 data-value">${request.ref_no || ''}</td>
         </tr>`;
 
-    // --- CẬP NHẬT: GỘP BANK NAME/ACC NO. VÀ SẮP XẾP LẠI ---
     const createBankInfoHTML = (req) => {
         if (req.payment_method?.toLowerCase() !== 'bank') return '';
-        
         const bankAndAccount = `${req.bank_name || ''} - ${req.bank_account || ''}`;
-
         return `
             <tr>
                 <td class="label col-1">Ngân hàng & STK <span class="lang-en">(Bank & Acc. No.)</span>:</td>
@@ -169,7 +166,6 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
                 <td class="value col-4 data-value">${req.bank_account_holder || ''}</td>
             </tr>`;
     };
-
 
     if (isFino2) {
         infoGridHTML += `
@@ -188,7 +184,7 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
                     </div>
                 </td>
             </tr>
-            ${createBankInfoHTML(request)}`;
+            ${createBankInfoHTML(request)}`; // <-- **SỬA LỖI: BỔ SUNG LẠI DÒNG NÀY**
     } else if (isFino1) {
         infoGridHTML += `
             <tr>
