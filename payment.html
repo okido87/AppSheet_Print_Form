@@ -114,7 +114,7 @@ const demoData = {
     },
     fino2: {
         request: {
-            request_type: "ADVANCE", applicant_name: "NGUYỄN VĂN AN", department: "Kinh doanh", request_date: "22-Aug-17", ref_no: "REF-00124", balance: 0, settlement_deadline: "31/09/2017", payment_method: "BANK", total_amount: 9500000,
+            request_type: "ADVANCE", applicant_name: "NGUYỄN VĂN AN", department: "Kinh doanh", request_date: "22-Aug-17", ref_no: "REF-00124", balance: 0, settlement_deadline: "31/09/2017", payment_method: "LOCAL CODE", total_amount: 9500000,
             signatures: { director: "Lê Việt Hùng", chief_accountant: "Nguyễn Thị Lan Anh", head_of_dept: "Trần Văn Bình", accountant: "Lê Minh Châu", requestor: "NGUYỄN VĂN AN" },
             bank_name: "VCB - Vietcombank", bank_account: "0501000130594", bank_account_holder: "NGUYEN TAN HIEN"
         },
@@ -155,8 +155,14 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
             <td class="value col-4 data-value">${request.ref_no || ''}</td>
         </tr>`;
 
+    // --- START: LOGIC CẬP NHẬT ---
     const createBankInfoHTML = (req) => {
-        if (req.payment_method?.toLowerCase() !== 'bank') return '';
+        const method = req.payment_method?.toLowerCase();
+        // Chỉ hiển thị thông tin ngân hàng nếu phương thức là 'bank' hoặc 'local code'
+        if (method !== 'bank' && method !== 'local code') {
+            return '';
+        }
+
         const bankAndAccount = `${req.bank_name || ''} - ${req.bank_account || ''}`;
         return `
             <tr>
@@ -166,6 +172,7 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
                 <td class="value col-4 data-value">${req.bank_account_holder || ''}</td>
             </tr>`;
     };
+    // --- END: LOGIC CẬP NHẬT ---
 
     if (isFino2) {
         infoGridHTML += `
@@ -181,10 +188,13 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
                     <div class="payment-methods">
                         <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
                         <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
+                        <!-- START: BỔ SUNG LOCAL CODE CHO FIN02 -->
+                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'local code' ? 'X' : ''}</span> LOCAL CODE</div>
+                        <!-- END: BỔ SUNG LOCAL CODE CHO FIN02 -->
                     </div>
                 </td>
             </tr>
-            ${createBankInfoHTML(request)}`; // <-- **SỬA LỖI: BỔ SUNG LẠI DÒNG NÀY**
+            ${createBankInfoHTML(request)}`;
     } else if (isFino1) {
         infoGridHTML += `
             <tr>
@@ -200,6 +210,9 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
                         <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
                         <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'visa' ? 'X' : ''}</span> VISA</div>
                         <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
+                        <!-- START: BỔ SUNG LOCAL CODE CHO FIN01 -->
+                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'local code' ? 'X' : ''}</span> LOCAL CODE</div>
+                        <!-- END: BỔ SUNG LOCAL CODE CHO FIN01 -->
                         <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'debt' ? 'X' : ''}</span> Debt offset</div>
                     </div>
                 </td>
