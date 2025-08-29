@@ -14,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
     
     <style>
-        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); display: flex; flex-direction: column; gap: 10px; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.3s; }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.3s; }
         .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { opacity: 0; pointer-events: none; }
@@ -56,9 +56,12 @@
         .merged-section-layout { display: flex; gap: 15px; align-items: flex-start; }
         .merged-section-layout .text-content { flex: 3; }
         .merged-section-layout .image-content { flex: 1; }
+        
         #artwork-image-container { width: 100%; aspect-ratio: 4 / 3; border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; background-color: #f9f9f9; overflow: hidden; cursor: pointer; }
+        
         #artwork-image-container img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.25); transform-origin: center bottom; transition: transform 0.2s ease-in-out; }
-        #artwork-image-container:hover img { transform: scale(1.3); }
+        #artwork-image-container:hover img { transform: scale(1.3); } /* Hiệu ứng hover nhỏ */
+        
         .signature-box { width: 40%; }
         .signature-box .signature-title { font-weight: bold; }
         .signature-box .signature-name { margin-top: 60px; font-weight: bold; }
@@ -71,11 +74,13 @@
         .spec-table tfoot td.center { color: #0056b3; }
         body.pdf-export-mode .bill-container { display: block; }
         .landscape-page { display: none; }
+
         .lightbox-overlay { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; animation: fadeIn 0.3s; }
         .lightbox-content { max-width: 90%; max-height: 90%; object-fit: contain; }
         .lightbox-close { position: absolute; top: 15px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; transition: 0.3s; cursor: pointer; }
         .lightbox-close:hover, .lightbox-close:focus { color: #bbb; text-decoration: none; }
         @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+
         @media print { 
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; margin: 0 !important; padding: 0 !important; overflow: visible; } 
             .no-print, #loading-overlay, .demo-watermark, .lightbox-overlay { display: none !important; } 
@@ -83,6 +88,7 @@
             @page { size: A4 portrait; margin: 8mm; } 
             .company-header { position: fixed; top: 0; left: auto; right: auto; width: 190mm; background-color: white; z-index: 100; }
             .invoice-body { padding-top: 85px; }
+            
             @page landscape { size: A4 landscape; margin: 10mm; }
             .landscape-page { page: landscape; page-break-before: always; display: flex; justify-content: center; align-items: center; width: 100%; height: 180mm; }
             .landscape-page img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -90,7 +96,7 @@
     </style>
 </head>
 <body class="format-a4">
-    <div id="loading-overlay"><div class="spinner"></div><span id="loading-text">Đang tải dữ liệu...</span></div>
+    <div id="loading-overlay"><div class="spinner"></div></div>
     
     <div class="print-options no-print">
         <button class="btn-print" onclick="window.print()" title="In Phiếu"><svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg><span>In</span></button>
@@ -120,7 +126,7 @@
         <div class="invoice-body">
             <div class="section"><div class="section-title">A. THÔNG TIN ĐƠN HÀNG</div><div class="merged-section-layout"><div class="text-content"><div class="grid-container grid-2-col"><div class="info-item full-width"><label>Khách hàng:</label><span id="khach_hang"></span></div><div class="info-item"><label>Hạn giao hàng:</label><span id="han_giao_hang"></span></div><div class="info-item"><label>Tổng SL:</label><span id="sl_tong" class="text-bold"></span></div><div class="info-item full-width"><label>Quy trình sản xuất:</label><span id="quy_trinh_san_xuat"></span></div><div class="info-item full-width" id="parent_ghi_chu_binh_bai"><label>Ghi chú bình bài:</label><span id="ghi_chu_binh_bai"></span></div></div></div><div class="image-content"><div id="artwork-image-container"></div></div></div></div>
             <div class="section"><div class="section-title">B. CHI TIẾT VẬT TƯ & IN ẤN</div><table class="spec-table"><thead><tr><th>Hạng mục</th><th>Loại / Mã VT</th><th>Khổ mua (cm)</th><th>SL Cần (Tờ)</th><th>Khổ in</th><th>Kiểu / Màu in</th><th>Ghi chú</th></tr></thead><tbody><tr id="parent_loai_giay_bia"><td class="text-bold">Giấy Bìa</td><td><span id="loai_giay_bia"></span> / <span id="ma_giay_bia"></span></td><td class="center"><span id="kho_giay_bia_mua"></span></td><td class="center text-bold"><span id="sl_giay_bia_can_to"></span></td><td class="center"><span id="kho_in_bia"></span></td><td class="center"><span id="kieu_in_bia"></span> / <span id="so_mau_in_bia"></span></td><td><span id="ghi_chu_giay_bia"></span></td></tr><tr id="parent_loai_giay_ruot"><td class="text-bold">Giấy Ruột</td><td><span id="loai_giay_ruot"></span> / <span id="ma_giay_ruot"></span></td><td class="center"><span id="kho_giay_ruot_mua"></span></td><td class="center text-bold"><span id="sl_giay_ruot_can_to"></span></td><td class="center"><span id="kho_in_ruot"></span></td><td class="center"><span id="kieu_in_ruot"></span> / <span id="so_mau_in_ruot"></span></td><td><span id="ghi_chu_giay_ruot"></span></td></tr><tr id="parent_loai_giay_boi"><td class="text-bold">Giấy Bồi</td><td><span id="loai_giay_boi"></span> / <span id="ma_giay_boi"></span></td><td class="center"><span id="kho_giay_boi_mua_dxr_cm"></span></td><td class="center text-bold"><span id="sl_giay_boi_can_to"></span></td><td class="center">-</td><td class="center">-</td><td><span id="ghi_chu_giay_boi"></span></td></tr><tr id="parent_kho_kem"><td class="text-bold">Kẽm</td><td colspan="3" class="center"><span id="kho_kem"></span></td><td colspan="3"><span id="ghi_chu_kem"></span></td></tr></tbody></table></div>
-            <div class="section"><div class="section-title">C. THÀNH PHẨM</div><div class="grid-container grid-3-col"><div class="info-item" id="parent_ma_mang"><label>Cán màng:</label><span><span id="ma_mang"></span> / <span id="kho_mang"></span>cm / <span id="sl_mang_m"></span>m</span></div><div class="info-item" id="parent_dien_tich_ep_kim"><label>Ép kim:</label><span>DT: <span id="dien_tich_ep_kim"></span>cm², Mã nhũ: <span id="ma_nhu"></span></span></div><div class="info-item" id="parent_trang_phu"><label>Tráng phủ:</label><span id="trang_phu"></span></div><div class="info-item" id="parent_chiet_quang"><label>Chiết quang:</label><span id="chiet_quang"></span></div><div class="info-item" id="parent_boi"><label>Bồi:</label><span id="boi"></span></div><div class="info-item" id="parent_be_noi"><label>Bế nổi:</label><span id="be_noi"></span></div><div class="info-item" id="parent_kieu_be"><label>Kiểu bế:</label><span id="kieu_be"></span></div><div class="info-item" id="parent_so_khuon_be"><label>Khuôn bế:</label><span><span id="so_khuon_be"></span> khuôn (<span id="khuon_be"></span>)</span></div><div class="info-item" id="parent_so_con_khuon"><label>Số con/khuôn:</label><span id="so_con_khuon"></span></div><div class="info-item" id="parent_xe"><label>Xé:</label><span id="xe"></span></div><div class="info-item" id="parent_dan"><label>Dán:</label><span id="dan"></span></div><div class="info-item" id="parent_cat_thanh_pham"><label>Cắt TP:</label><span id="cat_thanh_pham"></span></div></div><div class="info-item full-width" style="margin-top: 5px;" id="parent_thanh_pham_khac"><label>TP Khác:</label><span id="thanh_pham_khac"></span></div><div class="info-item full-width" id="parent_ghi_chu_thanh_pham"><label>Ghi chú TP:</label><span id="ghi_chu_thanh_pham"></span></div></div>
+            <div class="section"><div class="section-title">C. THÀNH PHẨM</div><div class="grid-container grid-3-col"><div class="info-item" id="parent_ma_mang"><label>Cán màng:</label><span><span id="ma_mang"></span> / <span id="kho_mang"></span>cm / <span id="sl_mang_m"></span>m</span></div><div class="info-item" id="parent_dien_tich_ep_kim"><label>Ép kim:</label><span>DT: <span id="dien_tich_ep_kim"></span>cm², Mã nhũ: <span id="ma_nhu"></span></span></div><div class="info-item" id="parent_trang_phu"><label>Tráng phủ:</label><span id="trang_phu"></span></div><div class="info-item" id="parent_chiet_quang"><label>Chiết quang:</label><span id="chiet_quang"></span></div><div class="info-item" id="parent_boi"><label>Bồi:</label><span id="boi"></span></div><div class="info-item" id="parent_be_noi"><label>Bế nổi:</label><span id="be_noi"></span></div><div class="info-item" id="parent_kieu_be"><label>Kiểu bế:</label><span id="kieu_be"></span></div><div class="info-item" id="parent_so_khuon_be"><label>Khuôn bế:</label><span><span id="so_khuon_be"></span> khuôn (<span id="khuon_be"></span>)</span></div><div class="info-item" id="parent_ghi_chu_be"><label>Ghi chú bế:</label><span id="ghi_chu_be"></span></div><div class="info-item" id="parent_xe"><label>Xé:</label><span id="xe"></span></div><div class="info-item" id="parent_dan"><label>Dán:</label><span id="dan"></span></div><div class="info-item" id="parent_cat_thanh_pham"><label>Cắt TP:</label><span id="cat_thanh_pham"></span></div></div><div class="info-item full-width" style="margin-top: 5px;" id="parent_thanh_pham_khac"><label>TP Khác:</label><span id="thanh_pham_khac"></span></div><div class="info-item full-width" id="parent_ghi_chu_thanh_pham"><label>Ghi chú TP:</label><span id="ghi_chu_thanh_pham"></span></div></div>
             <div class="section"><div class="section-title">D. KẾ HOẠCH SẢN XUẤT</div><table class="spec-table"><thead><tr><th style="width:5%">STT</th><th>Công Đoạn / Mô tả</th><th style="width:10%">SL YC</th><th style="width:10%">SL Đạt</th><th style="width:10%">SL Hư</th><th style="width:12%">Ngày SX</th><th style="width:15%">NV sản xuất</th><th>Ghi Chú</th></tr></thead><tbody id="plan-table-body"></tbody></table></div>
             <div class="section"><div class="section-title">E. CHI TIẾT SẢN PHẨM VÀ GIAO HÀNG</div><table class="spec-table"><thead><tr><th style="width:5%">STT</th><th>Sản phẩm</th><th style="width:8%">ĐVT</th><th style="width:10%">SL Đặt</th><th style="width:10%">SL TP</th><th style="width:10%">SL Giao</th><th style="width:20%">Ghi Chú</th></tr></thead><tbody id="product-table-body"></tbody><tfoot id="product-summary-footer"></tfoot></table><div class="info-item full-width" style="margin-top: 8px;" id="parent_ghi_chu_giao_hang"><label>Ghi chú Giao Hàng:</label><span id="ghi_chu_giao_hang"></span></div><div class="info-item full-width" id="parent_ghi_chu"><label>Ghi chú Chung:</label><span id="ghi_chu"></span></div></div>
         </div>
@@ -135,98 +141,123 @@
     </div>
 
     <script>
-        // ===================================================================================
-        // SỬA ĐỔI: Dán URL ứng dụng web bạn đã sao chép từ Apps Script vào đây
-        // ===================================================================================
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3en3sb-gE0fyx988dWnhPplZ7OXX9o8T1fiOw4Z8seWSJf-RdjIO008MvDhui4Lvf/exec'; // <--- THAY THẾ URL NÀY
-        // ===================================================================================
-
         async function convertImageToBase64(imgElement) { if (!imgElement || !imgElement.src || imgElement.src.startsWith('data:image')) return; const originalSrc = imgElement.src; try { const response = await fetch(originalSrc, { cache: 'force-cache' }); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const blob = await response.blob(); return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { imgElement.src = reader.result; resolve(true); }; reader.onerror = reject; reader.readAsDataURL(blob); }); } catch (error) { console.error(`Failed to fetch or convert image: ${originalSrc}`, error); return false; } }
         async function downloadPDF() { const pdfBtn = document.getElementById('btn-pdf'); const originalBtnContent = pdfBtn.innerHTML; pdfBtn.disabled = true; pdfBtn.innerHTML = '<div class="spinner-small"></div><span>Đang tạo...</span>'; document.body.classList.add('pdf-export-mode'); const element = document.querySelector('.bill-container'); const orderId = document.getElementById('lenh_sx').textContent || 'unknown'; const filename = `LSX-${orderId}.pdf`; const allImages = Array.from(document.querySelectorAll('#logo-img, #artwork-image-container img, .full-page-artwork img, .landscape-page img')); await Promise.all(allImages.map(img => convertImageToBase64(img))); const opt = { margin: [8, 6, 8, 6], filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; try { await html2pdf().from(element).set(opt).save(); } catch (error) { console.error("Error creating PDF:", error); } finally { pdfBtn.disabled = false; pdfBtn.innerHTML = originalBtnContent; document.body.classList.remove('pdf-export-mode'); } }
-        
+        function getUrlParameter(name) { return decodeURIComponent((new URLSearchParams(window.location.search).get(name) || '').replace(/\+/g, ' ')); }
         const formatNumber = (value) => { if (!value || isNaN(Number(value))) return value; return Number(value).toLocaleString('vi-VN'); };
         
-        function displayImage(container, imageUrl, altText = 'Image') { if (!container) return; if (imageUrl) { const link = document.createElement('a'); link.href = imageUrl; link.target = '_blank'; link.onclick = (event) => { event.preventDefault(); openLightbox(imageUrl); }; const img = new Image(); img.crossOrigin = 'anonymous'; img.src = imageUrl; img.alt = altText; link.appendChild(img); container.innerHTML = ''; container.appendChild(link); } else { container.innerHTML = '<i>Không có hình ảnh</i>'; } }
-        function openLightbox(imageUrl) { const overlay = document.getElementById('lightbox-overlay'); const image = document.getElementById('lightbox-image'); if (overlay && image) { image.src = imageUrl; overlay.style.display = 'flex'; } }
-        function closeLightbox() { const overlay = document.getElementById('lightbox-overlay'); if (overlay) { overlay.style.display = 'none'; } }
+        function displayImage(container, imageUrl, altText = 'Image') {
+            if (!container) return;
+            if (imageUrl) {
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.target = '_blank'; // Fallback nếu JS bị lỗi
+                link.onclick = (event) => {
+                    event.preventDefault(); // Ngăn chuyển trang
+                    openLightbox(imageUrl);
+                };
 
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.src = imageUrl;
+                img.alt = altText;
+                
+                link.appendChild(img);
+                container.innerHTML = ''; // Xóa nội dung cũ
+                container.appendChild(link);
+            } else {
+                container.innerHTML = '<i>Không có hình ảnh</i>';
+            }
+        }
+
+        function openLightbox(imageUrl) {
+            const overlay = document.getElementById('lightbox-overlay');
+            const image = document.getElementById('lightbox-image');
+            if (overlay && image) {
+                image.src = imageUrl;
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function closeLightbox() {
+            const overlay = document.getElementById('lightbox-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+        }
+        
         function generateQRCode(elementId, text) { const element = document.getElementById(elementId); if(element) { element.innerHTML = ''; new QRCode(element, { text: text, width: 56, height: 56, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H }); } }
         function renderProductsTable(productsJSON) { const tableBody = document.getElementById('product-table-body'); const tableFooter = document.getElementById('product-summary-footer'); tableBody.innerHTML = ''; tableFooter.innerHTML = ''; if (!productsJSON) { tableBody.innerHTML = `<tr><td colspan="7" class="center"><em>Không có thông tin sản phẩm.</em></td></tr>`; return; } try { const products = JSON.parse(productsJSON); if (Array.isArray(products) && products.length > 0) { let totalDat = 0, totalTP = 0, totalGiao = 0; products.forEach((p, index) => { const row = document.createElement('tr'); row.innerHTML = `<td class="center">${index + 1}</td><td>${p.masp || ''}</td><td class="center">${p.dvt || ''}</td><td class="center text-bold">${formatNumber(p.sl_dat) || ''}</td><td class="center text-bold">${formatNumber(p.sl_tp) || ''}</td><td class="center text-bold">${formatNumber(p.sl_giao) || ''}</td><td>${p.ghi_chu || ''}</td>`; tableBody.appendChild(row); totalDat += parseFloat(p.sl_dat) || 0; totalTP += parseFloat(p.sl_tp) || 0; totalGiao += parseFloat(p.sl_giao) || 0; }); tableFooter.innerHTML = `<tr><td colspan="3" style="text-align:right; font-weight:bold;">TỔNG CỘNG:</td><td class="center text-bold">${formatNumber(totalDat)}</td><td class="center text-bold">${formatNumber(totalTP)}</td><td class="center text-bold">${formatNumber(totalGiao)}</td><td></td></tr>`; } else { throw new Error("JSON is not a non-empty array."); } } catch (error) { console.error("Error parsing products JSON:", error, "Received JSON:", productsJSON); tableBody.innerHTML = `<tr><td colspan="7" class="center"><em>Lỗi đọc dữ liệu sản phẩm.</em></td></tr>`; } }
         function renderPlanTable(planJSON) { const tableBody = document.getElementById('plan-table-body'); tableBody.innerHTML = ''; if (!planJSON) { tableBody.innerHTML = `<tr><td colspan="8" class="center"><em>Chưa có kế hoạch sản xuất.</em></td></tr>`; return; } try { const plans = JSON.parse(planJSON); if (Array.isArray(plans) && plans.length > 0) { plans.forEach((p, index) => { const row = document.createElement('tr'); const slDatValue = parseFloat(p.sl_dat) || 0; const ngaySXDisplay = (slDatValue > 0 && p.han_hoan_thanh) ? new Date(p.han_hoan_thanh).toLocaleDateString('vi-VN') : ''; row.innerHTML = `<td class="center">${index + 1}</td><td>${p.cong_doan || ''}</td><td class="center">${formatNumber(p.sl_yeu_cau) || ''}</td><td class="center">${slDatValue > 0 ? formatNumber(p.sl_dat) : ''}</td><td class="center">${parseFloat(p.sl_hu) ? formatNumber(p.sl_hu) : ''}</td><td class="center">${ngaySXDisplay}</td><td>${p.nguoi_thuc_hien || ''}</td><td>${p.ghi_chu || ''}</td>`; tableBody.appendChild(row); }); } else { throw new Error("JSON is not a non-empty array."); } } catch (error) { console.error("Error parsing plan JSON:", error, "Received JSON:", planJSON); tableBody.innerHTML = `<tr><td colspan="8" class="center"><em>Lỗi đọc dữ liệu kế hoạch.</em></td></tr>`; } }
         function setTextOrHide(elementId, value, parentSelector = '.info-item') { const element = document.getElementById(elementId); const parent = document.getElementById(`parent_${elementId}`) || element.closest(parentSelector); if (value && String(value).trim() !== '' && String(value).trim() !== '0') { if(element) element.textContent = formatNumber(value); if(parent) parent.classList.remove('hidden-item'); } else { if(parent) parent.classList.add('hidden-item'); } }
-        function populateProductionOrder(data) { document.title = `Lệnh Sản Xuất - ${data.lenh_sx || 'Demo'}`; const setText = (id, value, isNumeric = false) => { const el = document.getElementById(id); if (el) el.textContent = isNumeric ? formatNumber(value) : (value || ''); }; setText('lenh_sx', data.lenh_sx); if (data.ngay_tao_lenh) { setText('ngay_tao_lenh', new Date(data.ngay_tao_lenh).toLocaleDateString('vi-VN')); } setText('loai_don', data.loai_don); setText('khach_hang', data.ten_khach_hang); setText('sl_tong', data.sl_tong, true); setText('nguoi_lap_phieu', data.nguoi_lap_phieu); setText('nguoi_duyet', data.nguoi_duyet); if (data.han_giao_hang) { setText('han_giao_hang', new Date(data.han_giao_hang).toLocaleDateString('vi-VN')); } setTextOrHide('quy_trinh_san_xuat', data.quy_trinh_san_xuat); setTextOrHide('ghi_chu_binh_bai', data.ghi_chu_binh_bai); setTextOrHide('loai_giay_bia', data.loai_giay_bia, 'tr'); setTextOrHide('loai_giay_ruot', data.loai_giay_ruot, 'tr'); setTextOrHide('loai_giay_boi', data.loai_giay_boi, 'tr'); setTextOrHide('kho_kem', data.kho_kem, 'tr'); setTextOrHide('ma_mang', data.ma_mang); setTextOrHide('dien_tich_ep_kim', data.dien_tich_ep_kim); setTextOrHide('trang_phu', data.trang_phu); setTextOrHide('chiet_quang', data.chiet_quang); setTextOrHide('boi', data.boi); setTextOrHide('be_noi', data.be_noi); setTextOrHide('kieu_be', data.kieu_be); setTextOrHide('so_khuon_be', data.so_khuon_be); setTextOrHide('so_con_khuon', data.so_con_khuon); setTextOrHide('xe', data.xe); setTextOrHide('dan', data.dan); setTextOrHide('cat_thanh_pham', data.cat_thanh_pham); setTextOrHide('thanh_pham_khac', data.thanh_pham_khac); setTextOrHide('ghi_chu_thanh_pham', data.ghi_chu_thanh_pham); setTextOrHide('ghi_chu_giao_hang', data.ghi_chu_giao_hang); setTextOrHide('ghi_chu', data.ghi_chu); if (data.loai_giay_bia) { setText('ma_giay_bia', data.ma_giay_bia); setText('kho_giay_bia_mua', data.kho_giay_bia_mua); setText('sl_giay_bia_can_to', data.sl_giay_bia_can_to, true); setText('kho_in_bia', data.kho_in_bia); setText('kieu_in_bia', data.kieu_in_bia); setText('so_mau_in_bia', data.so_mau_in_bia); setText('ghi_chu_giay_bia', data.ghi_chu_giay_bia); } if (data.loai_giay_ruot) { setText('ma_giay_ruot', data.ma_giay_ruot); setText('kho_giay_ruot_mua', data.kho_giay_ruot_mua); setText('sl_giay_ruot_can_to', data.sl_giay_ruot_can_to, true); setText('kho_in_ruot', data.kho_in_ruot); setText('kieu_in_ruot', data.kieu_in_ruot); setText('so_mau_in_ruot', data.so_mau_in_ruot); setText('ghi_chu_giay_ruot', data.ghi_chu_giay_ruot); } if (data.loai_giay_boi) { setText('ma_giay_boi', data.ma_giay_boi); setText('kho_giay_boi_mua_dxr_cm', data.kho_giay_boi_mua_dxr_cm); setText('sl_giay_boi_can_to', data.sl_giay_boi_can_to, true); setText('ghi_chu_giay_boi', data.ghi_chu_giay_boi); } if (data.kho_kem) { setText('ghi_chu_kem', data.ghi_chu_kem); } if (data.ma_mang) { setText('kho_mang', data.kho_mang); setText('sl_mang_m', data.sl_mang_m); } if (data.dien_tich_ep_kim) { setText('ma_nhu', data.ma_nhu); } if (data.so_khuon_be) { setText('khuon_be', data.khuon_be); } 
+        
+        function populateProductionOrder(data) {
+            // === THAY ĐỔI: Thêm base URL cho hình ảnh ===
+            const imageBaseUrl = "https://www.appsheet.com/image/getimageurl?appName=MocAnSystem-777046908&tableName=LSX&fileName=";
+            
+            document.title = `Lệnh Sản Xuất - ${data.lenh_sx || 'Demo'}`; 
+            const setText = (id, value, isNumeric = false) => { const el = document.getElementById(id); if (el) el.textContent = isNumeric ? formatNumber(value) : (value || ''); }; 
+            setText('lenh_sx', data.lenh_sx); 
+            if (data.ngay_tao_lenh) { setText('ngay_tao_lenh', new Date(data.ngay_tao_lenh).toLocaleDateString('vi-VN')); } 
+            setText('loai_don', data.loai_don); setText('khach_hang', data.ten_khach_hang); setText('sl_tong', data.sl_tong, true); setText('nguoi_lap_phieu', data.nguoi_lap_phieu); setText('nguoi_duyet', data.nguoi_duyet); 
+            if (data.han_giao_hang) { setText('han_giao_hang', new Date(data.han_giao_hang).toLocaleDateString('vi-VN')); } 
+            setTextOrHide('quy_trinh_san_xuat', data.quy_trinh_san_xuat); setTextOrHide('ghi_chu_binh_bai', data.ghi_chu_binh_bai); setTextOrHide('loai_giay_bia', data.loai_giay_bia, 'tr'); setTextOrHide('loai_giay_ruot', data.loai_giay_ruot, 'tr'); setTextOrHide('loai_giay_boi', data.loai_giay_boi, 'tr'); setTextOrHide('kho_kem', data.kho_kem, 'tr'); setTextOrHide('ma_mang', data.ma_mang); setTextOrHide('dien_tich_ep_kim', data.dien_tich_ep_kim); setTextOrHide('trang_phu', data.trang_phu); setTextOrHide('chiet_quang', data.chiet_quang); setTextOrHide('boi', data.boi); setTextOrHide('be_noi', data.be_noi); setTextOrHide('kieu_be', data.kieu_be); setTextOrHide('so_khuon_be', data.so_khuon_be); setTextOrHide('ghi_chu_be', data.ghi_chu_be); setTextOrHide('xe', data.xe); setTextOrHide('dan', data.dan); setTextOrHide('cat_thanh_pham', data.cat_thanh_pham); setTextOrHide('thanh_pham_khac', data.thanh_pham_khac); setTextOrHide('ghi_chu_thanh_pham', data.ghi_chu_thanh_pham); setTextOrHide('ghi_chu_giao_hang', data.ghi_chu_giao_hang); setTextOrHide('ghi_chu', data.ghi_chu); 
+            if (data.loai_giay_bia) { setText('ma_giay_bia', data.ma_giay_bia); setText('kho_giay_bia_mua', data.kho_giay_bia_mua); setText('sl_giay_bia_can_to', data.sl_giay_bia_can_to, true); setText('kho_in_bia', data.kho_in_bia); setText('kieu_in_bia', data.kieu_in_bia); setText('so_mau_in_bia', data.so_mau_in_bia); setText('ghi_chu_giay_bia', data.ghi_chu_giay_bia); } 
+            if (data.loai_giay_ruot) { setText('ma_giay_ruot', data.ma_giay_ruot); setText('kho_giay_ruot_mua', data.kho_giay_ruot_mua); setText('sl_giay_ruot_can_to', data.sl_giay_ruot_can_to, true); setText('kho_in_ruot', data.kho_in_ruot); setText('kieu_in_ruot', data.kieu_in_ruot); setText('so_mau_in_ruot', data.so_mau_in_ruot); setText('ghi_chu_giay_ruot', data.ghi_chu_giay_ruot); } 
+            if (data.loai_giay_boi) { setText('ma_giay_boi', data.ma_giay_boi); setText('kho_giay_boi_mua_dxr_cm', data.kho_giay_boi_mua_dxr_cm); setText('sl_giay_boi_can_to', data.sl_giay_boi_can_to, true); setText('ghi_chu_giay_boi', data.ghi_chu_giay_boi); } 
+            if (data.kho_kem) { setText('ghi_chu_kem', data.ghi_chu_kem); } 
+            if (data.ma_mang) { setText('kho_mang', data.kho_mang); setText('sl_mang_m', data.sl_mang_m); } 
+            if (data.dien_tich_ep_kim) { setText('ma_nhu', data.ma_nhu); } 
+            if (data.so_khuon_be) { setText('khuon_be', data.khuon_be); } 
             renderProductsTable(data.products_json); 
             renderPlanTable(data.plan_json); 
             if(data.lenh_sx) { generateQRCode('order-qrcode', data.lenh_sx); }
-            const fallbackArtworkUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://boxprintingcompany.com/Technical-Supports/images/Why-need-the-Box-Design.jpg'); 
-            const finalArtworkUrl = data.hinh_bai_binh_1 || fallbackArtworkUrl; displayImage(document.getElementById('artwork-image-container'), finalArtworkUrl, 'Hình bài bình'); 
-            if (data.show_artwork === 'true') { const mainContainer = document.getElementById('bill-container'); if (data.hinh_bai_binh_1) { const artworkPage1 = document.createElement('div'); artworkPage1.className = 'full-page-artwork'; mainContainer.appendChild(artworkPage1); displayImage(artworkPage1, data.hinh_bai_binh_1, 'Hình bài bình 1 khổ lớn'); } 
-            if (data.hinh_bai_binh_2) { const artworkPage2 = document.createElement('div'); artworkPage2.className = 'landscape-page'; mainContainer.appendChild(artworkPage2); displayImage(artworkPage2, data.hinh_bai_binh_2, 'Hình bài bình 2 khổ lớn (Mặt sau)'); } } }
-        
-        // SỬA ĐỔI: Hàm loadDataFromUrl cũ đã được thay bằng loadDataFromApi
-        async function loadDataFromApi(lenhSx) {
-            const loaderText = document.getElementById('loading-text');
-            try {
-                if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("....")) {
-                    throw new Error("URL của Apps Script chưa được cấu hình. Vui lòng chỉnh sửa file HTML.");
-                }
-                const response = await fetch(`${APPS_SCRIPT_URL}?lenh_sx=${encodeURIComponent(lenhSx)}`);
-                if (!response.ok) {
-                    throw new Error(`Lỗi mạng: ${response.status} ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                populateProductionOrder(data);
-            } catch (error) {
-                console.error("Không thể tải dữ liệu từ API:", error);
-                loaderText.innerHTML = `<h1>Lỗi tải phiếu</h1><p>${error.message}</p>`;
-                document.querySelector('#loading-overlay .spinner').style.display = 'none';
-                throw error; // Ném lỗi để initializeApp có thể bắt
-            }
-        }
-
-        function loadDemoData() { const demoProducts = [ { "masp": "SP001 - Hộp quà tặng cao cấp", "dvt": "Cái", "sl_dat": "3000", "sl_tp": "2950", "sl_giao": "1500", "ghi_chu": "Màu đỏ cờ, logo ép kim" }, { "masp": "SP002 - Túi giấy đựng sản phẩm", "dvt": "Cái", "sl_dat": "2000", "sl_tp": "2000", "sl_giao": "", "ghi_chu": "Dây dù màu trắng" }, { "masp": "SP003 - Tem nhãn decal", "dvt": "Con", "sl_dat": "5500", "sl_tp": "", "sl_giao": "", "ghi_chu": "Bế tròn, cán màng bóng" } ]; const demoPlan = [ { "cong_doan": "In Offset Bìa", "sl_yeu_cau": "1300", "sl_dat": "1290", "sl_hu": "10", "han_hoan_thanh": "2024-07-28", "nguoi_thuc_hien": "Tổ In 1", "ghi_chu": "Canh màu theo mẫu duyệt" }, { "cong_doan": "Cán màng", "sl_yeu_cau": "1290", "sl_dat": "1290", "sl_hu": "0", "han_hoan_thanh": "2024-07-29", "nguoi_thuc_hien": "Tổ Thành Phẩm", "ghi_chu": "Dùng màng mờ" }, { "cong_doan": "Bế", "sl_yeu_cau": "1290", "sl_dat": "", "sl_hu": "5", "han_hoan_thanh": "2024-07-30", "nguoi_thuc_hien": "Tổ Thành Phẩm", "ghi_chu": "" } ]; const demoData = {lenh_sx: 'LSX-DEMO-001', ngay_tao_lenh: '2024-07-25', loai_don: 'Sản xuất mới', ten_khach_hang: 'CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ SQH', quy_trinh_san_xuat: 'In Offset -> Cán Màng -> Bế -> Dán thành phẩm', sl_tong: '10500', han_giao_hang: '2024-08-15', hinh_bai_binh_1: 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://boxprintingcompany.com/Technical-Supports/images/Why-need-the-Box-Design.jpg'), hinh_bai_binh_2: 'https://via.placeholder.com/1000x800.png?text=Hinh+Bai+Binh+2+-+Mat+Sau', ghi_chu_binh_bai: 'Canh màu theo mẫu duyệt ngày 24/07. Chú ý các chi tiết nhỏ.',loai_giay_bia: 'Ivory', ma_giay_bia: 'IVY-350', kho_giay_bia_mua: '79x109', sl_giay_bia_can_to: '1300',kho_in_bia: '72x102', kieu_in_bia: 'Offset', so_mau_in_bia: '4 màu CMYK', ghi_chu_giay_bia: 'Nhập kho ngày 20/07',loai_giay_ruot: '', ma_giay_ruot: '', kho_giay_ruot_mua: '', sl_giay_ruot_can_to: '',kho_in_ruot: '', kieu_in_ruot: '', so_mau_in_ruot: '', ghi_chu_giay_ruot: '',kho_kem: '1030*770*0.3', ghi_chu_kem: 'Xuất 5 tấm kẽm mới',loai_giay_boi: 'Carton', ma_giay_boi: 'CAR-1200', kho_giay_boi_mua_dxr_cm: '79x109', sl_giay_boi_can_to: '1250',ghi_chu_giay_boi: 'Kiểm tra độ phẳng của giấy', ma_mang: 'Màng mờ', kho_mang: '75', sl_mang_m: '1500',trang_phu: 'UV định hình logo', dien_tich_ep_kim: '', ma_nhu: '',chiet_quang: 'Không', boi: 'Bồi lên carton 2mm', kieu_be: 'Bế gân, bế đứt',so_khuon_be: '1', khuon_be: 'Khuôn có sẵn (Mã K-021)', so_con_khuon: '4',be_noi: '', xe: 'Có', dan: 'Dán máy tự động', cat_thanh_pham: 'Cắt xén 4 cạnh',thanh_pham_khac: 'Gắn nam châm hít', ghi_chu_thanh_pham: '', ghi_chu_giao_hang: 'Giao làm 2 đợt.', ghi_chu: 'Ưu tiên sản xuất gấp.', nguoi_lap_phieu: 'Nguyễn Thị An (KHSX)', nguoi_duyet: 'Trần Văn Bình (Trưởng phòng SX)', products_json: JSON.stringify(demoProducts), plan_json: JSON.stringify(demoPlan), show_artwork: 'true' }; populateProductionOrder(demoData); const watermark = document.createElement('div'); watermark.className = 'demo-watermark'; watermark.innerHTML = 'LỆNH NHÁP'; document.getElementById('bill-container').appendChild(watermark); }
-        
-        // SỬA ĐỔI: Hàm khởi tạo chính
-        async function initializeApp() {
-            const loader = document.getElementById('loading-overlay');
-            const container = document.getElementById('bill-container');
             
-            try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const lenhSx = urlParams.get('lenh_sx');
-
-                if (lenhSx) {
-                    await loadDataFromApi(lenhSx);
-                } else {
-                    document.getElementById('loading-text').textContent = 'Đang tải dữ liệu nháp...';
-                    loadDemoData();
-                }
-                
-                container.style.visibility = 'visible';
-                loader.classList.add('hidden');
-            } catch (error) {
-                console.error("Không thể khởi tạo ứng dụng:", error);
-                // Lỗi đã được hiển thị bởi loadDataFromApi, ở đây chỉ cần đảm bảo loader không bị kẹt
-                loader.classList.remove('hidden'); 
+            // === THAY ĐỔI: Dựng lại URL đầy đủ từ tên file nhận được ===
+            const fallbackArtworkUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://boxprintingcompany.com/Technical-Supports/images/Why-need-the-Box-Design.jpg');
+            const finalArtworkUrl = data.hinh_bai_binh_1 ? imageBaseUrl + data.hinh_bai_binh_1 : fallbackArtworkUrl;
+            displayImage(document.getElementById('artwork-image-container'), finalArtworkUrl, 'Hình bài bình');
+            
+            if (data.show_artwork === 'true') { 
+                const mainContainer = document.getElementById('bill-container'); 
+                if (data.hinh_bai_binh_1) { 
+                    const artworkPage1 = document.createElement('div'); 
+                    artworkPage1.className = 'full-page-artwork'; 
+                    mainContainer.appendChild(artworkPage1); 
+                    displayImage(artworkPage1, imageBaseUrl + data.hinh_bai_binh_1, 'Hình bài bình 1 khổ lớn'); 
+                } 
+                if (data.hinh_bai_binh_2) { 
+                    const artworkPage2 = document.createElement('div'); 
+                    artworkPage2.className = 'landscape-page'; 
+                    mainContainer.appendChild(artworkPage2); 
+                    displayImage(artworkPage2, imageBaseUrl + data.hinh_bai_binh_2, 'Hình bài bình 2 khổ lớn (Mặt sau)'); 
+                } 
             }
         }
+        
+        function loadDataFromUrl() { const data = {}; const fields = ['lenh_sx','ngay_tao_lenh','loai_don','ten_khach_hang','quy_trinh_san_xuat','sl_tong','hinh_bai_binh_1', 'hinh_bai_binh_2','ghi_chu_binh_bai','loai_giay_bia','ma_giay_bia','kho_giay_bia_mua','sl_giay_bia_can_to','kho_in_bia','kieu_in_bia','so_mau_in_bia','ghi_chu_giay_bia','loai_giay_ruot','ma_giay_ruot','kho_giay_ruot_mua','sl_giay_ruot_can_to','kho_in_ruot','kieu_in_ruot','so_mau_in_ruot','ghi_chu_giay_ruot','kho_kem','ghi_chu_kem','loai_giay_boi','ma_giay_boi','kho_giay_boi_mua_dxr_cm','sl_giay_boi_can_to','ghi_chu_giay_boi','ma_mang','kho_mang','sl_mang_m','trang_phu','dien_tich_ep_kim','ma_nhu','chiet_quang','boi','kieu_be','so_khuon_be','khuon_be','ghi_chu_be','be_noi','xe','dan','cat_thanh_pham','thanh_pham_khac','ghi_chu_thanh_pham','nguoi_lap_phieu','nguoi_duyet', 'products_json', 'plan_json', 'han_giao_hang', 'show_artwork']; fields.forEach(field => data[field] = getUrlParameter(field)); populateProductionOrder(data); }
+        function loadDemoData() { const demoProducts = [ { "masp": "SP001 - Hộp quà tặng cao cấp", "dvt": "Cái", "sl_dat": "3000", "sl_tp": "2950", "sl_giao": "1500", "ghi_chu": "Màu đỏ cờ, logo ép kim" }, { "masp": "SP002 - Túi giấy đựng sản phẩm", "dvt": "Cái", "sl_dat": "2000", "sl_tp": "2000", "sl_giao": "", "ghi_chu": "Dây dù màu trắng" }, { "masp": "SP003 - Tem nhãn decal", "dvt": "Con", "sl_dat": "5500", "sl_tp": "", "sl_giao": "", "ghi_chu": "Bế tròn, cán màng bóng" } ]; const demoPlan = [ { "cong_doan": "In Offset Bìa", "sl_yeu_cau": "1300", "sl_dat": "1290", "sl_hu": "10", "han_hoan_thanh": "2024-07-28", "nguoi_thuc_hien": "Tổ In 1", "ghi_chu": "Canh màu theo mẫu duyệt" }, { "cong_doan": "Cán màng", "sl_yeu_cau": "1290", "sl_dat": "1290", "sl_hu": "0", "han_hoan_thanh": "2024-07-29", "nguoi_thuc_hien": "Tổ Thành Phẩm", "ghi_chu": "Dùng màng mờ" }, { "cong_doan": "Bế", "sl_yeu_cau": "1290", "sl_dat": "", "sl_hu": "5", "han_hoan_thanh": "2024-07-30", "nguoi_thuc_hien": "Tổ Thành Phẩm", "ghi_chu": "" } ]; const demoData = {lenh_sx: 'LSX-DEMO-001', ngay_tao_lenh: '2024-07-25', loai_don: 'Sản xuất mới', ten_khach_hang: 'CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ SQH', quy_trinh_san_xuat: 'In Offset -> Cán Màng -> Bế -> Dán thành phẩm', sl_tong: '10500', han_giao_hang: '2024-08-15', hinh_bai_binh_1: 'hinh1.png', hinh_bai_binh_2: 'hinh2.png', ghi_chu_binh_bai: 'Canh màu theo mẫu duyệt ngày 24/07. Chú ý các chi tiết nhỏ.',loai_giay_bia: 'Ivory', ma_giay_bia: 'IVY-350', kho_giay_bia_mua: '79x109', sl_giay_bia_can_to: '1300',kho_in_bia: '72x102', kieu_in_bia: 'Offset', so_mau_in_bia: '4 màu CMYK', ghi_chu_giay_bia: 'Nhập kho ngày 20/07',loai_giay_ruot: '', ma_giay_ruot: '', kho_giay_ruot_mua: '', sl_giay_ruot_can_to: '',kho_in_ruot: '', kieu_in_ruot: '', so_mau_in_ruot: '', ghi_chu_giay_ruot: '',kho_kem: '1030*770*0.3', ghi_chu_kem: 'Xuất 5 tấm kẽm mới',loai_giay_boi: 'Carton', ma_giay_boi: 'CAR-1200', kho_giay_boi_mua_dxr_cm: '79x109', sl_giay_boi_can_to: '1250',ghi_chu_giay_boi: 'Kiểm tra độ phẳng của giấy', ma_mang: 'Màng mờ', kho_mang: '75', sl_mang_m: '1500',trang_phu: 'UV định hình logo', dien_tich_ep_kim: '', ma_nhu: '',chiet_quang: 'Không', boi: 'Bồi lên carton 2mm', kieu_be: 'Bế gân, bế đứt',so_khuon_be: '1', khuon_be: 'Khuôn có sẵn (Mã K-021)', ghi_chu_be: '4 con / khuôn, bế thẳng',be_noi: '', xe: 'Có', dan: 'Dán máy tự động', cat_thanh_pham: 'Cắt xén 4 cạnh',thanh_pham_khac: 'Gắn nam châm hít', ghi_chu_thanh_pham: '', ghi_chu_giao_hang: 'Giao làm 2 đợt.', ghi_chu: 'Ưu tiên sản xuất gấp.', nguoi_lap_phieu: 'Nguyễn Thị An (KHSX)', nguoi_duyet: 'Trần Văn Bình (Trưởng phòng SX)', products_json: JSON.stringify(demoProducts), plan_json: JSON.stringify(demoPlan), show_artwork: 'true' }; populateProductionOrder(demoData); const watermark = document.createElement('div'); watermark.className = 'demo-watermark'; watermark.innerHTML = 'LỆNH NHÁP'; document.getElementById('bill-container').appendChild(watermark); }
+        function initializeApp() { const loader = document.getElementById('loading-overlay'); const container = document.getElementById('bill-container'); try { if (window.location.search.length > 1) { loadDataFromUrl(); } else { loadDemoData(); } container.style.visibility = 'visible'; loader.classList.add('hidden'); } catch (error) { console.error("Failed to initialize:", error); loader.innerHTML = `<h1>Lỗi tải phiếu</h1><p>${error.message}</p>`; } }
         
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
+            
             const toggleCheckbox = document.getElementById('toggleArtworkPrint');
             if (toggleCheckbox) {
                 const updatePrintClass = () => { document.body.classList.toggle('hide-final-artwork', !toggleCheckbox.checked); };
                 updatePrintClass();
                 toggleCheckbox.addEventListener('change', updatePrintClass);
             }
+
             const lightboxOverlay = document.getElementById('lightbox-overlay');
             const lightboxClose = document.querySelector('.lightbox-close');
             if(lightboxOverlay && lightboxClose) {
                 lightboxClose.addEventListener('click', closeLightbox);
-                lightboxOverlay.addEventListener('click', function(event) { if (event.target === this) { closeLightbox(); } });
+                lightboxOverlay.addEventListener('click', function(event) {
+                    if (event.target === this) { // Chỉ đóng khi click vào nền
+                        closeLightbox();
+                    }
+                });
             }
         });
     </script>
