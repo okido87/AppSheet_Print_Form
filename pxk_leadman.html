@@ -18,19 +18,19 @@
             padding: 0;
         }
 
-        /* A4 Portrait Page Setup for Printing */
+        /* Yêu cầu 1: A4 Landscape Page Setup with 5mm margin */
         @page {
-            size: A4 portrait;
-            margin: 8mm;
+            size: A4 landscape;
+            margin: 5mm;
         }
 
         /* Main Container for the Invoice */
         .invoice-container {
             position: relative;
-            width: 210mm;
-            min-height: 297mm;
+            width: 297mm; /* Adjusted for landscape */
+            min-height: 210mm; /* Adjusted for landscape */
             margin: 0 auto;
-            padding: 10mm;
+            padding: 5mm; /* Consistent with @page margin */
             background: #fff;
             box-sizing: border-box;
             overflow: hidden;
@@ -46,7 +46,7 @@
         @media print {
             body { background-color: #fff; }
             .controls { display: none; }
-            .invoice-container { box-shadow: none; margin: 0; }
+            .invoice-container { box-shadow: none; margin: 0; padding: 0; }
             .demo-mode .watermark,
             .demo-mode .demo-signature {
                 display: block !important;
@@ -76,11 +76,11 @@
         .items-table .text-left { text-align: left; }
         .items-table .text-right { text-align: right; }
         .items-table .stt-col { width: 3%; }
-        .items-table .merged-col { width: 28%; }
-        .items-table .dvt-col { width: 5%; }
-        .items-table .sl-col { width: 5%; } /* Adjusted width for Tong SL */
-        .items-table .price-col { width: 8%; }
-        .items-table .amount-col { width: 12%; }
+        .items-table .merged-col { width: 25%; } /* Adjusted width */
+        .items-table .dvt-col { width: 4%; }
+        .items-table .sl-col { width: 4%; }
+        .items-table .price-col { width: 7%; }
+        .items-table .amount-col { width: 10%; } /* Adjusted width */
         .items-table .item-code { color: #555; font-size: 10px; }
         .items-table .item-color { font-style: italic; }
         .items-table tfoot .total-row { font-weight: bold; background-color: #f2f2f2; }
@@ -111,7 +111,7 @@
             transform: translate(-50%, -50%) rotate(-45deg);
             font-size: 100px;
             font-weight: bold;
-            color: rgba(255, 0, 0, 0.15); /* RED watermark */
+            color: rgba(255, 0, 0, 0.15);
             z-index: 1000;
             pointer-events: none;
         }
@@ -138,7 +138,8 @@
 
         <div class="header">
             <div class="company-info">
-                <img src="https://scontent.fsgn2-7.fna.fbcdn.net/v/t39.30808-6/473999932_557107937332628_6920107302601948401_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=lb5hEmvBvGMQ7kNvwFUScf5&_nc_oc=Adlk8fEv6O35iBz7IvVsPPFFRGJ3xCWX-U6uHpZYWrcW0blY3dQfqcgBkgADeHjtBzY&_nc_zt=23&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=4I5PHF_fvp0QSvM36Piifg&oh=00_AfU2sOTAqSSjqwzgitqIEli_21105aa_IGNo9tV5QYUHLg&oe=68B1081D" alt="MANLEAD Logo" class="logo" crossorigin="anonymous">
+                <!-- Yêu cầu 2: Thay đổi URL logo -->
+                <img src="logo-manlead.jpg" alt="MANLEAD Logo" class="logo">
                 <div class="company-details">
                     <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠNG MẠI T&B VIỆT NAM</h3>
                     <p>Địa chỉ: 55 Đường Hùng Vương II, Phố Lê Lợi, P Nam Bình, Ninh Bình</p>
@@ -161,7 +162,8 @@
              <div class="info-column">
                 <p><strong>Nhà phân phối:</strong> <span id="nhaPhanPhoi" class="dynamic-value">Hoàng Vân</span></p>
                 <p><strong>Nhân viên:</strong> <span id="nhanVien" class="dynamic-value">Nguyễn Hoàng Vân</span></p>
-                <p><strong>Người lập:</strong> <span id="nguoiLap" class="dynamic-value">Nguyễn Việt Chinh</span></p>
+                <!-- Yêu cầu 4: Thay Người lập bằng SĐT nhân viên -->
+                <p><strong>SĐT Nhân viên:</strong> <span id="sdtNhanVien" class="dynamic-value">0912345678</span></p>
              </div>
             <div class="info-column">
                 <p><strong>Khách hàng:</strong> <span id="khachHang" class="dynamic-value">Shop Hiền Hải NA</span></p>
@@ -178,9 +180,10 @@
         <table class="items-table">
             <thead>
                 <tr>
-                    <th rowspan="2" class="stt-col">STT</th><th rowspan="2" class="text-left merged-col">Tên hàng / Mã hàng / Màu</th><th rowspan="2" class="dvt-col">ĐVT</th><th rowspan="2" class="sl-col">Tổng SL</th><th rowspan="2" class="text-right price-col">Đơn giá</th><th colspan="7">SIZE</th><th rowspan="2" class="text-right amount-col">Thành tiền (VNĐ)</th><th rowspan="2">Ghi chú</th>
+                    <!-- Yêu cầu 3: Sửa header bảng và thêm size -->
+                    <th rowspan="2" class="stt-col">STT</th><th rowspan="2" class="text-left merged-col">Tên hàng / Mã hàng / Màu</th><th rowspan="2" class="dvt-col">ĐVT</th><th rowspan="2" class="sl-col">Tổng SL</th><th rowspan="2" class="text-right price-col">Đơn giá</th><th colspan="8">SIZE</th><th rowspan="2" class="text-right amount-col">Thành tiền (VNĐ)</th><th rowspan="2">Ghi chú</th>
                 </tr>
-                <tr><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th><th>3XL</th><th>4XL</th></tr>
+                <tr><th>29(S)</th><th>30(M)</th><th>31(L)</th><th>32(XL)</th><th>33(2XL)</th><th>34(3XL)</th><th>35(4XL)</th><th>36(5XL)</th></tr>
             </thead>
             <tbody id="chiTietDonHang">
                 <!-- Data will be inserted here by JavaScript -->
@@ -197,6 +200,7 @@
                     <td><span id="tongSizeXXL" class="dynamic-value">7</span></td>
                     <td><span id="tongSize3XL" class="dynamic-value">7</span></td>
                     <td><span id="tongSize4XL" class="dynamic-value">1</span></td>
+                    <td><span id="tongSize5XL" class="dynamic-value">0</span></td> <!-- Added for new size -->
                     <td class="text-right"><span id="tongThanhTien" class="dynamic-value">32.035.000</span></td>
                     <td></td>
                 </tr>
@@ -212,14 +216,14 @@
                             </div>
                         </div>
                     </td>
-                    <td colspan="7" class="text-right">Cộng tiền hàng:</td>
+                    <td colspan="8" class="text-right">Cộng tiền hàng:</td>
                     <td colspan="2" class="text-right"><span id="congTienHang" class="dynamic-value">32.035.000 đ</span></td>
                 </tr>
-                <tr><td colspan="7" class="text-right">Tiền chiết khấu:</td><td colspan="2" class="text-right">(<span id="tienChietKhau" class="dynamic-value">10.548.000 đ</span>)</td></tr>
-                <tr><td colspan="7" class="text-right">Tổng cộng (trước VAT):</td><td colspan="2" class="text-right"><span id="tongTruocVAT" class="dynamic-value">8.860.320 đ</span></td></tr>
-                <tr><td colspan="7" class="text-right">Thuế suất VAT (10%):</td><td colspan="2" class="text-right"><span id="tienVAT" class="dynamic-value">886.032 đ</span></td></tr>
-                <tr><td colspan="7" class="text-right" style="font-size: 12px;">TỔNG TIỀN THANH TOÁN:</td><td colspan="2" class="text-right" style="font-size: 12px;"><span id="tongThanhToan" class="dynamic-value">9.746.352 đ</span></td></tr>
-                <tr><td colspan="14" class="amount-in-words"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value">Chín triệu bảy trăm bốn mươi sáu nghìn ba trăm năm mươi hai đồng.</span></td></tr>
+                <tr><td colspan="8" class="text-right">Tiền chiết khấu:</td><td colspan="2" class="text-right">(<span id="tienChietKhau" class="dynamic-value">10.548.000 đ</span>)</td></tr>
+                <tr><td colspan="8" class="text-right">Tổng cộng (trước VAT):</td><td colspan="2" class="text-right"><span id="tongTruocVAT" class="dynamic-value">8.860.320 đ</span></td></tr>
+                <tr><td colspan="8" class="text-right">Thuế suất VAT (10%):</td><td colspan="2" class="text-right"><span id="tienVAT" class="dynamic-value">886.032 đ</span></td></tr>
+                <tr><td colspan="8" class="text-right" style="font-size: 12px;">TỔNG TIỀN THANH TOÁN:</td><td colspan="2" class="text-right" style="font-size: 12px;"><span id="tongThanhToan" class="dynamic-value">9.746.352 đ</span></td></tr>
+                <tr><td colspan="15" class="amount-in-words"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value">Chín triệu bảy trăm bốn mươi sáu nghìn ba trăm năm mươi hai đồng.</span></td></tr>
             </tfoot>
         </table>
         
@@ -258,12 +262,12 @@
     <script>
         const demoData = {
              chiTietDonHang: [
-                {ten: 'Regular-fit', ma: 'GARS001-M4', mau: 'MÀU 4', dvt: 'Chiếc', sl: 28, donGia: '625.000', s: 3, m: 4, l: 6, xl: 6, xxl: 4, '3xl': 4, '4xl': 1, thanhTien: '17.580.000', ghiChu: ''},
-                {ten: 'Regular-fit', ma: 'GARS001-M5', mau: 'MÀU 5', dvt: 'Chiếc', sl: 9, donGia: '625.000', s: 1, m: 2, l: 2, xl: 2, xxl: 1, '3xl': 1, '4xl': '', thanhTien: '5.625.000', ghiChu: ''},
-                {ten: 'Regular', ma: 'GAR002-Đ', mau: 'Đen', dvt: 'Chiếc', sl: 1, donGia: '625.000', s: '', m: '', l: '', xl: '', xxl: '', '3xl': 1, '4xl': '', thanhTien: '625.000', ghiChu: ''},
-                {ten: 'Regular-fit', ma: 'GARS10-XB', mau: 'Xanh/Blue', dvt: 'Chiếc', sl: 6, donGia: '650.000', s: 1, m: 2, l: 1, xl: 2, xxl: '', '3xl': '', '4xl': '', thanhTien: '3.900.000', ghiChu: ''},
-                {ten: 'Regular-fit', ma: 'GARS001-M3', mau: 'MÀU 3', dvt: 'Chiếc', sl: 2, donGia: '590.000', s: '', m: 1, l: '', xl: 1, xxl: '', '3xl': '', '4xl': '', thanhTien: '1.180.000', ghiChu: ''},
-                {ten: 'Regular', ma: 'GAR001-M4', mau: 'MÀU 4', dvt: 'Chiếc', sl: 5, donGia: '625.000', s: '', m: 1, l: 1, xl: 1, xxl: 1, '3xl': 1, '4xl': '', thanhTien: '3.125.000', ghiChu: ''},
+                {ten: 'Regular-fit', ma: 'GARS001-M4', mau: 'MÀU 4', dvt: 'Chiếc', sl: 28, donGia: '625.000', s: 3, m: 4, l: 6, xl: 6, xxl: 4, '3xl': 4, '4xl': 1, '5xl': '', thanhTien: '17.580.000', ghiChu: ''},
+                {ten: 'Regular-fit', ma: 'GARS001-M5', mau: 'MÀU 5', dvt: 'Chiếc', sl: 9, donGia: '625.000', s: 1, m: 2, l: 2, xl: 2, xxl: 1, '3xl': 1, '4xl': '', '5xl': '', thanhTien: '5.625.000', ghiChu: ''},
+                {ten: 'Regular', ma: 'GAR002-Đ', mau: 'Đen', dvt: 'Chiếc', sl: 1, donGia: '625.000', s: '', m: '', l: '', xl: '', xxl: '', '3xl': 1, '4xl': '', '5xl': '', thanhTien: '625.000', ghiChu: ''},
+                {ten: 'Regular-fit', ma: 'GARS10-XB', mau: 'Xanh/Blue', dvt: 'Chiếc', sl: 6, donGia: '650.000', s: 1, m: 2, l: 1, xl: 2, xxl: '', '3xl': '', '4xl': '', '5xl': '', thanhTien: '3.900.000', ghiChu: ''},
+                {ten: 'Regular-fit', ma: 'GARS001-M3', mau: 'MÀU 3', dvt: 'Chiếc', sl: 2, donGia: '590.000', s: '', m: 1, l: '', xl: 1, xxl: '', '3xl': '', '4xl': '', '5xl': '', thanhTien: '1.180.000', ghiChu: ''},
+                {ten: 'Regular', ma: 'GAR001-M4', mau: 'MÀU 4', dvt: 'Chiếc', sl: 5, donGia: '625.000', s: '', m: 1, l: 1, xl: 1, xxl: 1, '3xl': 1, '4xl': '', '5xl': '', thanhTien: '3.125.000', ghiChu: ''},
             ]
         };
 
@@ -285,6 +289,7 @@
                         <td>${item.xxl || ''}</td>
                         <td>${item['3xl'] || ''}</td>
                         <td>${item['4xl'] || ''}</td>
+                        <td>${item['5xl'] || ''}</td> <!-- Added for new size -->
                         <td class="text-right">${item.thanhTien || ''}</td>
                         <td>${item.ghiChu || ''}</td>
                     </tr>
@@ -300,7 +305,8 @@
             if (soPhieuParam) {
                 // LIVE MODE
                 document.title = `Phiếu Xuất Kho - ${soPhieuParam}`;
-                const fields = ['soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'nguoiLap', 'khachHang', 'diaChi', 'khuVuc', 'doiTuong', 'doanhSoNVKD', 'ckkh', 'cknpp', 'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL', 'tongThanhTien', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongTienBangChu', 'ghiChuCuoiPhieu', 'tenNguoiLap', 'nganHang', 'chuTaiKhoan', 'ndChuyenKhoan'];
+                // Updated fields array
+                const fields = ['soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'sdtNhanVien', 'khachHang', 'diaChi', 'khuVuc', 'doiTuong', 'doanhSoNVKD', 'ckkh', 'cknpp', 'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL', 'tongSize5XL', 'tongThanhTien', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongTienBangChu', 'ghiChuCuoiPhieu', 'tenNguoiLap', 'nganHang', 'chuTaiKhoan', 'ndChuyenKhoan'];
                 fields.forEach(id => {
                     const element = document.getElementById(id);
                     if (element && urlParams.has(id)) {
@@ -312,7 +318,7 @@
                 
                 const qrAmount = urlParams.get('tongThanhToanNumeric') || '0';
                 const qrAccountNo = urlParams.get('stk') || '19132563929019';
-                const qrAcqId = urlParams.get('acqId') || '970407'; // Techcombank BIN
+                const qrAcqId = urlParams.get('acqId') || '970407';
                 const qrAccountName = urlParams.get('chuTaiKhoan') || 'CONG TY TNHH T&B VIET NAM';
                 
                 document.getElementById('qrThanhToan').src = `https://img.vietqr.io/image/${qrAcqId}-${qrAccountNo}-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(soPhieuParam)}&accountName=${encodeURIComponent(qrAccountName)}`;
@@ -358,11 +364,11 @@
             Promise.all(imagePromises).then(() => {
                 setTimeout(() => {
                     const opt = {
-                        margin:       8,
+                        margin:       [5, 5, 5, 5], // 5mm margin for top, left, bottom, right
                         filename:     `PhieuXuatKho_${document.getElementById('soPhieu').textContent}.pdf`,
                         image:        { type: 'jpeg', quality: 0.98 },
                         html2canvas:  { scale: 2, useCORS: true },
-                        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
                     };
 
                     html2pdf().from(element).set(opt).save().then(() => {
