@@ -4,96 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phiếu Xuất Kho</title>
-    <!-- Include html2pdf.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* CSS Reset and Basic Setup */
-        body {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 11px;
-            line-height: 1.4;
-            color: #000;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        @page {
-            size: A4 landscape;
-            margin: 5mm;
-        }
-        .invoice-container {
-            position: relative;
-            width: 297mm;
-            min-height: 210mm;
-            margin: 0 auto;
-            padding: 5mm;
-            background: #fff;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-        .controls { text-align: center; padding: 15px; background-color: #333; }
-        .controls button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 0 10px; }
-        .controls button:hover { background-color: #45a049; }
-        .controls button:disabled { background-color: #999; cursor: not-allowed;}
-        
-        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #ccc; }
-        .company-info { display: flex; align-items: center; gap: 15px; flex: 3; }
-        .logo { max-height: 36px; flex-shrink: 0; }
-        .company-details h3 { margin: 0; font-size: 12px; text-transform: uppercase; font-weight: bold; }
-        .company-details p { margin: 0; font-size: 10px; }
-        .qr-code-section { flex: 1; text-align: right; }
-        .qr-code-section img { width: 35px; height: 35px; }
-        .title { text-align: center; margin-bottom: 15px; }
-        .title h1 { margin: 0 0 2px 0; font-size: 22px; font-weight: bold; text-transform: uppercase; }
-        .title .subtitle { font-style: italic; margin: 0; font-size: 11px; }
-        .customer-info { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
-        .info-column { flex-basis: 32%; }
-        .info-column p { margin: 0 0 4px 0; }
-        .items-table { width: 100%; border-collapse: collapse; }
-        .items-table th, .items-table td { border: 1px solid #000; padding: 4px; text-align: center; vertical-align: middle; }
-        .items-table th { background-color: #f2f2f2; font-weight: bold; }
-        .items-table .text-left { text-align: left; }
-        .items-table .text-right { text-align: right; }
-        .items-table .stt-col { width: 3%; }
-        .items-table .merged-col { width: 25%; }
-        .items-table .dvt-col { width: 4%; }
-        .items-table .sl-col { width: 4%; }
-        .items-table .price-col { width: 7%; }
-        .items-table .amount-col { width: 10%; }
-        .items-table .item-code { color: #555; font-size: 10px; }
-        .items-table .item-color { font-style: italic; }
-        .items-table tfoot .total-row { font-weight: bold; background-color: #f2f2f2; }
-        .items-table tfoot td { font-weight: bold; }
-        .items-table tfoot .amount-in-words { font-style: italic; text-align: right; border: none; padding-top: 8px; }
-        .notes-section { vertical-align: top; text-align: left; font-weight: normal; padding: 8px !important; }
-        .payment-qr-cell { vertical-align: middle; }
-        .payment-qr-section { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
-        .payment-qr-section img { width: 90px; height: 90px; flex-shrink: 0; }
-        .payment-qr-section .payment-info { text-align: center; }
-        .payment-qr-section .payment-info p { margin: 1px 0; font-size: 10px; }
-        .payment-qr-section .payment-info p strong { font-weight: bold; font-size: 11px; text-transform: uppercase; }
-        .footer { margin-top: 20px; padding-top: 15px; display: flex; justify-content: space-around; text-align: center; width: 100%; }
-        .signature { position: relative; width: 150px; }
-        .signature .signature-title { margin: 0; font-weight: bold; }
-        .signature .signature-instruction { font-style: italic; font-size: 10px; font-weight: normal; margin: 0; }
-        .signature .signature-name { margin-top: 45px; font-weight: normal; min-height: 1.2em; }
-        .dynamic-value { color: #0000FF; }
-        .title .dynamic-value, .customer-info .dynamic-value { font-weight: bold; }
-        .watermark { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; font-weight: bold; color: rgba(255, 0, 0, 0.15); z-index: 1000; pointer-events: none; }
-        .demo-signature { display: none; position: absolute; top: 25px; left: 50%; transform: translateX(-50%); width: 120px; opacity: 0.8; }
-        
-        @media print {
-            body { background-color: #fff; }
-            .controls { display: none; }
-            .invoice-container { box-shadow: none; margin: 0; padding: 0; }
-            .items-table { page-break-inside: auto; }
-            .items-table tr { page-break-inside: avoid; page-break-after: auto; }
-            .items-table thead { display: table-header-group; }
-            .items-table tfoot { display: table-footer-group; page-break-inside: avoid; }
-            .footer { page-break-inside: avoid; }
-            .demo-mode .watermark,
-            .demo-mode .demo-signature { display: block !important; }
-        }
+        body{font-family:'Times New Roman',Times,serif;font-size:11px;line-height:1.4;color:#000;background-color:#f4f4f4;margin:0;padding:0}@page{size:A4 landscape;margin:5mm}.invoice-container{position:relative;width:297mm;min-height:210mm;margin:0 auto;padding:5mm;background:#fff;box-sizing:border-box;overflow:hidden}.controls{text-align:center;padding:15px;background-color:#333}.controls button{background-color:#4CAF50;color:#fff;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-size:16px;margin:0 10px}.controls button:hover{background-color:#45a049}.controls button:disabled{background-color:#999;cursor:not-allowed}.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #ccc}.company-info{display:flex;align-items:center;gap:15px;flex:3}.logo{max-height:36px;flex-shrink:0}.company-details h3{margin:0;font-size:12px;text-transform:uppercase;font-weight:700}.company-details p{margin:0;font-size:10px}.qr-code-section{flex:1;text-align:right}.qr-code-section img{width:35px;height:35px}.title{text-align:center;margin-bottom:15px}.title h1{margin:0 0 2px;font-size:22px;font-weight:700;text-transform:uppercase}.title .subtitle{font-style:italic;margin:0;font-size:11px}.customer-info{display:flex;justify-content:space-between;gap:15px;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid #eee}.info-column{flex-basis:32%}.info-column p{margin:0 0 4px}.items-table{width:100%;border-collapse:collapse}.items-table td,.items-table th{border:1px solid #000;padding:4px;text-align:center;vertical-align:middle}.items-table th{background-color:#f2f2f2;font-weight:700}.items-table .text-left{text-align:left}.items-table .text-right{text-align:right}.items-table .stt-col{width:3%}.items-table .merged-col{width:25%}.items-table .dvt-col{width:4%}.items-table .sl-col{width:4%}.items-table .price-col{width:7%}.items-table .amount-col{width:10%}.items-table .item-code{color:#555;font-size:10px}.items-table .item-color{font-style:italic}.items-table tfoot .total-row{font-weight:700;background-color:#f2f2f2}.items-table tfoot td{font-weight:700}.items-table tfoot .amount-in-words{font-style:italic;text-align:right;border:none;padding-top:8px}.notes-section{vertical-align:top;text-align:left;font-weight:400;padding:8px!important}.payment-qr-cell{vertical-align:middle}.payment-qr-section{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}.payment-qr-section img{width:90px;height:90px;flex-shrink:0}.payment-qr-section .payment-info{text-align:center}.payment-qr-section .payment-info p{margin:1px 0;font-size:10px}.payment-qr-section .payment-info p strong{font-weight:700;font-size:11px;text-transform:uppercase}.footer{margin-top:20px;padding-top:15px;display:flex;justify-content:space-around;text-align:center;width:100%}.signature{position:relative;width:150px}.signature .signature-title{margin:0;font-weight:700}.signature .signature-instruction{font-style:italic;font-size:10px;font-weight:400;margin:0}.signature .signature-name{margin-top:45px;font-weight:400;min-height:1.2em}.dynamic-value{color:#00f}.title .dynamic-value,.customer-info .dynamic-value{font-weight:700}.watermark{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:100px;font-weight:700;color:rgba(255,0,0,.15);z-index:1000;pointer-events:none}.demo-signature{display:none;position:absolute;top:25px;left:50%;transform:translateX(-50%);width:120px;opacity:.8}@media print{body{background-color:#fff}.controls{display:none}.invoice-container{box-shadow:none;margin:0;padding:0}.items-table{page-break-inside:auto}.items-table tr{page-break-inside:avoid;page-break-after:auto}.items-table thead{display:table-header-group}.items-table tfoot{display:table-footer-group;page-break-inside:avoid}.footer{page-break-inside:avoid}.demo-mode .watermark,.demo-mode .demo-signature{display:block!important}}
     </style>
 </head>
 <body>
@@ -201,15 +114,14 @@
             <p><strong>Ghi chú cuối phiếu:</strong> <span id="ghiChuCuoiPhieu" class="dynamic-value"></span></p>
         </div>
         <div class="footer">
-            <div class="signature"><p class="signature-title">Người lập phiếu</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature"><p class="signature-name"><span id="tenNguoiLap" class="dynamic-value"></span></p></div>
-            <div class="signature"><p class="signature-title">Người duyệt</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
-            <div class="signature"><p class="signature-title">Thủ kho</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
-            <div class="signature"><p class="signature-title">Khách hàng</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
+            <div class="signature"><p class="signature-title">Người lập phiếu</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,..." class="demo-signature" alt="Demo Signature"><p class="signature-name"><span id="tenNguoiLap" class="dynamic-value"></span></p></div>
+            <div class="signature"><p class="signature-title">Người duyệt</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,..." class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
+            <div class="signature"><p class="signature-title">Thủ kho</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,..." class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
+            <div class="signature"><p class="signature-title">Khách hàng</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,..." class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
         </div>
     </div>
     <script>
         function numberToVietnameseWords(n){const defaultNumbers=["không","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"];const units=["","nghìn","triệu","tỷ","nghìn tỷ","triệu tỷ"];function readThreeDigits(n,isFull){let hundred=Math.floor(n/100);let ten=Math.floor((n%100)/10);let one=n%10;let result=[];if(hundred>0||isFull){result.push(defaultNumbers[hundred],"trăm")}if(ten===0&&one>0&&hundred>0){result.push("linh")}else if(ten===1){result.push("mười")}else if(ten>1){result.push(defaultNumbers[ten],"mươi")}if(one>0){if(ten===0&&hundred===0){result.push(defaultNumbers[one])}else if(ten>=1&&one===1){result.push("mốt")}else if(ten>=2&&one===5){result.push("lăm")}else if(ten>=1&&one===5){result.push(defaultNumbers[one])}else if(one===4&&ten>1){result.push("tư")}else{result.push(defaultNumbers[one])}}return result.join(" ")}if(n===0)return"Không đồng.";if(n<0)return"Số âm "+numberToVietnameseWords(-n);let str=String(n);let parts=[];while(str.length>0){parts.unshift(str.slice(Math.max(0,str.length-3)));str=str.slice(0,Math.max(0,str.length-3))}let resultWords=[];for(let i=0;i<parts.length;i++){let num=parseInt(parts[i]);if(num>0){let chunkWords=readThreeDigits(num,i>0&&parts[i].length<3);resultWords.push(chunkWords,units[parts.length-1-i])}}let finalStr=resultWords.join(" ").trim();finalStr=finalStr.charAt(0).toUpperCase()+finalStr.slice(1);return finalStr+" đồng."}
-        const demoData={chiTietDonHang:[{ten:'Hàng mẫu',ma:'MAU001',mau:'Đen',dvt:'Cái',sl:1,donGia:'100.000',s:1,m:'',l:'',xl:'',xxl:'',"3xl":'',"4xl":'',"5xl":'',thanhTien:'100.000',ghiChu:'Ghi chú mẫu'}]};
         function populateTable(data){const tableBody=document.getElementById('chiTietDonHang');tableBody.innerHTML='';data.forEach((item,index)=>{const row=`<tr>
 <td>${index+1}</td>
 <td class="text-left">${item.ten||""} - <span class="item-code">${item.ma||""}</span> - <span class="item-color">${item.mau||""}</span></td>
@@ -217,7 +129,7 @@
 <td class="text-right">${item.donGia||""}</td>
 <td>${item.s||""}</td><td>${item.m||""}</td><td>${item.l||""}</td><td>${item.xl||""}</td><td>${item.xxl||""}</td><td>${item['3xl']||""}</td><td>${item['4xl']||""}</td><td>${item['5xl']||""}</td>
 <td class="text-right">${item.thanhTien||""}</td><td>${item.ghiChu||""}</td></tr>`;tableBody.innerHTML+=row})}
-        document.addEventListener('DOMContentLoaded',function(){const urlParams=new URLSearchParams(window.location.search);const soPhieuParam=urlParams.get('soPhieu');if(soPhieuParam){document.title=`Phiếu Xuất Kho - ${soPhieuParam}`;const fields=['soPhieu','ngay','nhaPhanPhoi','nhanVien','sdtNhanVien','khachHang','diaChi','khuVuc','doiTuong','doanhSoNVKD','ckkh','cknpp','tongCongSoLuong','tongSizeS','tongSizeM','tongSizeL','tongSizeXL','tongSizeXXL','tongSize3XL','tongSize4XL','tongSize5XL','tongThanhTien','congTienHang','tienChietKhau','tongTruocVAT','tienVAT','tongThanhToan','ghiChuCuoiPhieu','tenNguoiLap','nganHang','chuTaiKhoan','ndChuyenKhoan'];fields.forEach(id=>{const element=document.getElementById(id);if(element&&urlParams.has(id)){element.textContent=decodeURIComponent(urlParams.get(id))}});document.getElementById('qrSoPhieu').src=`https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=${soPhieuParam}`;const qrAmount=urlParams.get('tongThanhToanNumeric')||'0';const qrAccountNo=urlParams.get('stk')||'';const qrAcqId=urlParams.get('acqId')||'970407';const qrAccountName=urlParams.get('chuTaiKhoan')||'';document.getElementById('qrThanhToan').src=`https://img.vietqr.io/image/${qrAcqId}-${qrAccountNo}-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(soPhieuParam)}&accountName=${encodeURIComponent(qrAccountName)}`;const vatRateParam=urlParams.get('vatRate');const vatLabelCell=document.getElementById('vatLabelCell');if(vatLabelCell&&vatRateParam){vatLabelCell.textContent=`Thuế suất VAT (${decodeURIComponent(vatRateParam)}%):`}const ghiChuText=document.getElementById('ghiChuCuoiPhieu').textContent;const ghiChuFooterCell=document.getElementById('ghiChuFooterCell');if(ghiChuFooterCell&&ghiChuText){ghiChuFooterCell.innerHTML=`<p><strong>Ghi chú:</strong></p><p style="font-weight: normal; font-style: italic;">${ghiChuText}</p>`}const tongTienBangChuSpan=document.getElementById('tongTienBangChu');const tongTienNumeric=parseInt(qrAmount,10);if(tongTienBangChuSpan&&!isNaN(tongTienNumeric)){tongTienBangChuSpan.textContent=numberToVietnameseWords(tongTienNumeric)}try{const chiTietData=JSON.parse(decodeURIComponent(urlParams.get('chiTietHangHoa')));populateTable(chiTietData)}catch(e){console.error("Error parsing chiTietHangHoa:",e);populateTable(demoData.chiTietDonHang)}}else{document.body.classList.add('demo-mode');document.getElementById('watermark').style.display='block';document.querySelectorAll('.demo-signature').forEach(el=>el.style.display='block');populateTable(demoData.chiTietDonHang);document.getElementById('tongTienBangChu').textContent=numberToVietnameseWords(9746352);const ghiChuText="Ghi chú ở chế độ demo.";document.getElementById('ghiChuFooterCell').innerHTML=`<p><strong>Ghi chú:</strong></p><p style="font-weight: normal; font-style: italic;">${ghiChuText}</p>`}});
+        document.addEventListener('DOMContentLoaded',function(){const urlParams=new URLSearchParams(window.location.search);const soPhieuParam=urlParams.get('soPhieu');if(soPhieuParam){document.title=`Phiếu Xuất Kho - ${soPhieuParam}`;const fields=['soPhieu','ngay','nhaPhanPhoi','nhanVien','sdtNhanVien','khachHang','diaChi','khuVuc','doiTuong','doanhSoNVKD','ckkh','cknpp','tongCongSoLuong','tongSizeS','tongSizeM','tongSizeL','tongSizeXL','tongSizeXXL','tongSize3XL','tongSize4XL','tongSize5XL','tongThanhTien','congTienHang','tienChietKhau','tongTruocVAT','tienVAT','tongThanhToan','ghiChuCuoiPhieu','tenNguoiLap','nganHang','chuTaiKhoan','ndChuyenKhoan'];fields.forEach(id=>{const element=document.getElementById(id);if(element&&urlParams.has(id)){element.textContent=decodeURIComponent(urlParams.get(id))}});document.getElementById('qrSoPhieu').src=`https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=${soPhieuParam}`;const qrAmount=urlParams.get('tongThanhToanNumeric')||'0';const qrAccountNo=urlParams.get('stk')||'';const qrAcqId=urlParams.get('acqId')||'970407';const qrAccountName=urlParams.get('chuTaiKhoan')||'';document.getElementById('qrThanhToan').src=`https://img.vietqr.io/image/${qrAcqId}-${qrAccountNo}-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(soPhieuParam)}&accountName=${encodeURIComponent(qrAccountName)}`;const vatRateParam=urlParams.get('vatRate');const vatLabelCell=document.getElementById('vatLabelCell');if(vatLabelCell&&vatRateParam){vatLabelCell.textContent=`Thuế suất VAT (${decodeURIComponent(vatRateParam)}%):`}const ghiChuText=document.getElementById('ghiChuCuoiPhieu').textContent;const ghiChuFooterCell=document.getElementById('ghiChuFooterCell');if(ghiChuFooterCell&&ghiChuText){ghiChuFooterCell.innerHTML=`<p><strong>Ghi chú:</strong></p><p style="font-weight: normal; font-style: italic;">${ghiChuText}</p>`}const tongTienBangChuSpan=document.getElementById('tongTienBangChu');const tongTienNumeric=parseInt(qrAmount,10);if(tongTienBangChuSpan&&!isNaN(tongTienNumeric)){tongTienBangChuSpan.textContent=numberToVietnameseWords(tongTienNumeric)}try{const chiTietData=JSON.parse(decodeURIComponent(urlParams.get('chiTietHangHoa')));populateTable(chiTietData)}catch(e){console.error("Lỗi phân tích JSON chi tiết hàng hóa:",e);const tableBody=document.getElementById('chiTietDonHang');tableBody.innerHTML='<tr><td colspan="15" style="color:red;text-align:center;font-weight:bold;">LỖI: Không thể đọc dữ liệu chi tiết đơn hàng. Vui lòng kiểm tra lại công thức tạo URL trong AppSheet.</td></tr>'}}else{document.body.classList.add('demo-mode');document.getElementById('watermark').style.display='block';document.querySelectorAll('.demo-signature').forEach(el=>el.style.display='block');const demoData={chiTietDonHang:[{ten:'Hàng mẫu',ma:'MAU001',mau:'Đen',dvt:'Cái',sl:1,donGia:'100.000',s:1,m:'',l:'',xl:'',xxl:'',"3xl":'',"4xl":'',"5xl":'',thanhTien:'100.000',ghiChu:'Ghi chú mẫu'}]};populateTable(demoData.chiTietDonHang);document.getElementById('tongTienBangChu').textContent=numberToVietnameseWords(9746352);const ghiChuText="Ghi chú ở chế độ demo.";document.getElementById('ghiChuFooterCell').innerHTML=`<p><strong>Ghi chú:</strong></p><p style="font-weight: normal; font-style: italic;">${ghiChuText}</p>`}});
         function downloadPDF(){const downloadBtn=document.getElementById('download-btn');downloadBtn.textContent='Đang xử lý...';downloadBtn.disabled=true;const element=document.getElementById('invoice-content');const images=element.querySelectorAll('img');const imagePromises=[];images.forEach(img=>{const promise=new Promise((resolve)=>{if(img.complete&&img.naturalHeight!==0){resolve()}else{img.onload=resolve;img.onerror=resolve}});imagePromises.push(promise)});Promise.all(imagePromises).then(()=>{setTimeout(()=>{const opt={margin:[5,5,5,5],filename:`PhieuXuatKho_${document.getElementById('soPhieu').textContent}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}};html2pdf().from(element).set(opt).save().then(()=>{downloadBtn.textContent='📄 Tải PDF';downloadBtn.disabled=false})},200)})}
     </script>
 </body>
