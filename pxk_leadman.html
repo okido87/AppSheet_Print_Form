@@ -69,7 +69,16 @@
         
         .customer-info { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
         .info-column { flex-basis: 32%; }
-        .info-column p { margin: 0 0 4px 0; }
+        
+        /* YÊU CẦU 1: Canh trái và đều phần value các phần thông tin chung. */
+        .info-column p { 
+            margin: 0 0 4px 0; 
+            display: flex; 
+            justify-content: space-between; 
+        }
+        .info-column p strong {
+             padding-right: 5px; /* Thêm khoảng cách giữa label và value */
+        }
         
         /* CSS cho bảng */
         .items-table { width: 100%; border-collapse: collapse; }
@@ -101,14 +110,45 @@
         .items-table tfoot td { font-weight: bold; }
         .items-table tfoot .amount-in-words { font-style: italic; text-align: right; border: none; padding-top: 8px; }
         
-        .notes-section { vertical-align: top; text-align: left; font-weight: normal; padding: 8px !important; }
-        .payment-qr-cell { vertical-align: middle; }
-        .payment-qr-section { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+        /* YÊU CẦU 2: Ghi chú chung đơn hàng canh trái và canh top. */
+        .notes-section { 
+            vertical-align: top !important; /* Quan trọng để ghi đè */
+            text-align: left !important; /* Quan trọng để ghi đè */
+            font-weight: normal; 
+            padding: 8px !important; 
+        }
+
+        /* YÊU CẦU 3: Cột chứa Mã VietQR canh sang bên trái và text nằm bên phải. */
+        .payment-qr-cell { vertical-align: middle; text-align: left; } /* Canh cả ô sang trái */
+        .payment-qr-section { 
+            display: flex; 
+            flex-direction: row; /* Chuyển sang layout hàng ngang */
+            align-items: center; 
+            justify-content: flex-start; /* Bắt đầu từ bên trái */
+            gap: 15px; /* Khoảng cách giữa QR và text */
+        }
         .payment-qr-section img { width: 90px; height: 90px; flex-shrink: 0; }
-        .payment-qr-section .payment-info { text-align: center; }
+        .payment-qr-section .payment-info { 
+            text-align: left; /* Text canh trái */
+        }
         .payment-qr-section .payment-info p { margin: 1px 0; font-size: 10px; }
         .payment-qr-section .payment-info p strong { font-weight: bold; font-size: 11px; text-transform: uppercase; }
-        
+
+        /* YÊU CẦU 4: Tô nền xám các label cột tổng, value chữ màu đỏ. */
+        .summary-label {
+            background-color: #f2f2f2; /* Nền xám cho label */
+            text-align: right;
+            font-weight: bold;
+        }
+        .summary-value {
+            text-align: right;
+            background-color: #fff; /* Nền trắng mặc định */
+            font-weight: bold;
+        }
+        .summary-value .dynamic-value {
+            color: red !important; /* Chữ màu đỏ cho value */
+        }
+
         .footer { 
             margin-top: 20px; 
             padding-top: 15px; 
@@ -123,7 +163,7 @@
         .signature .signature-instruction { font-style: italic; font-size: 10px; font-weight: normal; margin: 0; }
         .signature .signature-name { margin-top: 45px; font-weight: normal; min-height: 1.2em; }
 
-        .dynamic-value { color: #0000FF; }
+        .dynamic-value { color: #0000FF; } /* YÊU CẦU 5 sẽ dùng class này */
         .title .dynamic-value, .customer-info .dynamic-value { font-weight: bold; }
         
         .watermark { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; font-weight: bold; color: rgba(255, 0, 0, 0.15); z-index: 1000; pointer-events: none; }
@@ -148,7 +188,7 @@
                             <div class="company-info">
                                 <img src="logo-manlead.jpg" alt="MANLEAD Logo" class="logo">
                                 <div class="company-details">
-                                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠNG MẠI T&B VIỆT NAM</h3>
+                                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠMNG MẠI T&B VIỆT NAM</h3>
                                     <p>Địa chỉ: 55 Đường Hùng Vương II, Phố Lê Lợi, P Nam Bình, Ninh Bình</p>
                                 </div>
                             </div>
@@ -208,6 +248,7 @@
                 
                 <tr>
                     <td rowspan="5" colspan="2" class="notes-section" id="ghiChuFooterCell">
+                        <!-- Ghi chú sẽ được chèn vào đây bởi JS -->
                     </td>
                     <td rowspan="5" colspan="6" class="payment-qr-cell">
                         <div class="payment-qr-section">
@@ -220,24 +261,24 @@
                             </div>
                         </div>
                     </td>
-                    <td colspan="5" class="text-right">Cộng tiền hàng:</td>
-                    <td colspan="2" class="text-right"><span id="congTienHang" class="dynamic-value">32.035.000 đ</span></td>
+                    <td colspan="5" class="summary-label">Cộng tiền hàng:</td>
+                    <td colspan="2" class="summary-value"><span id="congTienHang" class="dynamic-value">32.035.000 đ</span></td>
                 </tr>
                 <tr>
-                    <td colspan="5" class="text-right">Tiền chiết khấu:</td>
-                    <td colspan="2" class="text-right">(<span id="tienChietKhau" class="dynamic-value">10.548.000 đ</span>)</td>
+                    <td colspan="5" class="summary-label">Tiền chiết khấu:</td>
+                    <td colspan="2" class="summary-value">(<span id="tienChietKhau" class="dynamic-value">10.548.000 đ</span>)</td>
                 </tr>
                 <tr>
-                    <td colspan="5" class="text-right">Tổng cộng (trước VAT):</td>
-                    <td colspan="2" class="text-right"><span id="tongTruocVAT" class="dynamic-value">8.860.320 đ</span></td>
+                    <td colspan="5" class="summary-label">Tổng cộng (trước VAT):</td>
+                    <td colspan="2" class="summary-value"><span id="tongTruocVAT" class="dynamic-value">8.860.320 đ</span></td>
                 </tr>
                 <tr>
-                    <td colspan="5" class="text-right" id="vatLabelCell">Thuế suất VAT (10%):</td>
-                    <td colspan="2" class="text-right"><span id="tienVAT" class="dynamic-value">886.032 đ</span></td>
+                    <td colspan="5" class="summary-label" id="vatLabelCell">Thuế suất VAT (10%):</td>
+                    <td colspan="2" class="summary-value"><span id="tienVAT" class="dynamic-value">886.032 đ</span></td>
                 </tr>
                 <tr>
-                    <td colspan="5" class="text-right" style="font-size: 12px;">TỔNG TIỀN THANH TOÁN:</td>
-                    <td colspan="2" class="text-right" style="font-size: 12px;"><span id="tongThanhToan" class="dynamic-value">9.746.352 đ</span></td>
+                    <td colspan="5" class="summary-label" style="font-size: 12px;">TỔNG TIỀN THANH TOÁN:</td>
+                    <td colspan="2" class="summary-value" style="font-size: 12px;"><span id="tongThanhToan" class="dynamic-value">9.746.352 đ</span></td>
                 </tr>
 
                 <tr><td colspan="15" class="amount-in-words"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value"></span></td></tr>
@@ -279,7 +320,7 @@
     </div>
 
     <script>
-        // Javascript không có thay đổi
+        // Javascript không có thay đổi logic
         function numberToVietnameseWords(n) {
             const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
             const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
@@ -351,22 +392,24 @@
             const tableBody = document.getElementById('chiTietDonHang');
             tableBody.innerHTML = '';
             data.forEach((item, index) => {
+                // YÊU CẦU 5: Các giá trị trong chi tiết đơn hàng chữ màu xanh
+                // Bọc các giá trị số bằng <span class="dynamic-value">
                 const row = `
                     <tr>
                         <td>${index + 1}</td>
                         <td class="text-left">${item.ten || ''} - <span class="item-code">${item.ma || ''}</span> - <span class="item-color">${item.mau || ''}</span></td>
                         <td>${item.dvt || ''}</td>
-                        <td>${item.sl || ''}</td>
-                        <td class="text-right">${item.donGia || ''}</td>
-                        <td class="size-col">${item.s || ''}</td>
-                        <td class="size-col">${item.m || ''}</td>
-                        <td class="size-col">${item.l || ''}</td>
-                        <td class="size-col">${item.xl || ''}</td>
-                        <td class="size-col">${item.xxl || ''}</td>
-                        <td class="size-col">${item['3xl'] || ''}</td>
-                        <td class="size-col">${item['4xl'] || ''}</td>
-                        <td class="size-col">${item['5xl'] || ''}</td>
-                        <td class="text-right">${item.thanhTien || ''}</td>
+                        <td><span class="dynamic-value">${item.sl || ''}</span></td>
+                        <td class="text-right"><span class="dynamic-value">${item.donGia || ''}</span></td>
+                        <td class="size-col"><span class="dynamic-value">${item.s || ''}</span></td>
+                        <td class="size-col"><span class="dynamic-value">${item.m || ''}</span></td>
+                        <td class="size-col"><span class="dynamic-value">${item.l || ''}</span></td>
+                        <td class="size-col"><span class="dynamic-value">${item.xl || ''}</span></td>
+                        <td class="size-col"><span class="dynamic-value">${item.xxl || ''}</span></td>
+                        <td class="size-col"><span class="dynamic-value">${item['3xl'] || ''}</span></td>
+                        <td class="size-col"><span class="dynamic-value">${item['4xl'] || ''}</span></td>
+                        <td class="size-col"><span class="dynamic-value">${item['5xl'] || ''}</span></td>
+                        <td class="text-right"><span class="dynamic-value">${item.thanhTien || ''}</span></td>
                         <td>${item.ghiChu || ''}</td>
                     </tr>
                 `;
