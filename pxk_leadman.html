@@ -18,7 +18,7 @@
             padding: 0;
         }
 
-        /* Yêu cầu 1: A4 Landscape Page Setup with 5mm margin */
+        /* A4 Landscape Page Setup with 5mm margin */
         @page {
             size: A4 landscape;
             margin: 5mm;
@@ -76,11 +76,11 @@
         .items-table .text-left { text-align: left; }
         .items-table .text-right { text-align: right; }
         .items-table .stt-col { width: 3%; }
-        .items-table .merged-col { width: 25%; } /* Adjusted width */
+        .items-table .merged-col { width: 25%; }
         .items-table .dvt-col { width: 4%; }
         .items-table .sl-col { width: 4%; }
         .items-table .price-col { width: 7%; }
-        .items-table .amount-col { width: 10%; } /* Adjusted width */
+        .items-table .amount-col { width: 10%; }
         .items-table .item-code { color: #555; font-size: 10px; }
         .items-table .item-color { font-style: italic; }
         .items-table tfoot .total-row { font-weight: bold; background-color: #f2f2f2; }
@@ -99,43 +99,20 @@
         .signature .signature-instruction { font-style: italic; font-size: 10px; font-weight: normal; margin: 0; }
         .signature .signature-name { margin-top: 45px; font-weight: normal; min-height: 1.2em; }
 
-        /* --- DYNAMIC & DEMO STYLES --- */
         .dynamic-value { color: #0000FF; }
         .title .dynamic-value, .customer-info .dynamic-value { font-weight: bold; }
         
-        .watermark {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 100px;
-            font-weight: bold;
-            color: rgba(255, 0, 0, 0.15);
-            z-index: 1000;
-            pointer-events: none;
-        }
-        .demo-signature {
-            display: none;
-            position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            opacity: 0.8;
-        }
+        .watermark { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; font-weight: bold; color: rgba(255, 0, 0, 0.15); z-index: 1000; pointer-events: none; }
+        .demo-signature { display: none; position: absolute; top: 25px; left: 50%; transform: translateX(-50%); width: 120px; opacity: 0.8; }
     </style>
 </head>
 <body>
-
     <div class="controls">
         <button onclick="window.print()">🖨️ In ngay</button>
         <button id="download-btn" onclick="downloadPDF()">📄 Tải PDF</button>
     </div>
-
     <div class="invoice-container" id="invoice-content">
         <div id="watermark" class="watermark">PHIẾU DEMO</div>
-
         <div class="header">
             <div class="company-info">
                 <img src="logo-manlead.jpg" alt="MANLEAD Logo" class="logo">
@@ -148,7 +125,6 @@
                  <img id="qrSoPhieu" src="https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=PX250819110155" alt="QR Code for Invoice No" crossorigin="anonymous">
             </div>
         </div>
-
         <div class="title">
             <h1>PHIẾU XUẤT KHO</h1>
             <p class="subtitle">
@@ -156,7 +132,6 @@
                 Ngày <span id="ngay" class="dynamic-value">22 tháng 08 năm 2025</span>
             </p>
         </div>
-
         <div class="customer-info">
              <div class="info-column">
                 <p><strong>Nhà phân phối:</strong> <span id="nhaPhanPhoi" class="dynamic-value">Hoàng Vân</span></p>
@@ -174,7 +149,6 @@
                 <p><strong>%CKKH:</strong> <span id="ckkh" class="dynamic-value">40%</span> | <strong>%CKNPP:</strong> <span id="cknpp" class="dynamic-value">16%</span></p>
             </div>
         </div>
-        
         <table class="items-table">
             <thead>
                 <tr>
@@ -182,9 +156,7 @@
                 </tr>
                 <tr><th>29(S)</th><th>30(M)</th><th>31(L)</th><th>32(XL)</th><th>33(2XL)</th><th>34(3XL)</th><th>35(4XL)</th><th>36(5XL)</th></tr>
             </thead>
-            <tbody id="chiTietDonHang">
-                <!-- Data will be inserted here by JavaScript -->
-            </tbody>
+            <tbody id="chiTietDonHang"><!-- Data will be inserted here by JavaScript --></tbody>
             <tfoot>
                 <tr class="total-row">
                     <td colspan="3" class="text-right">Tổng cộng:</td>
@@ -219,56 +191,96 @@
                 <tr><td colspan="8" class="text-right">Tiền chiết khấu:</td><td colspan="2" class="text-right">(<span id="tienChietKhau" class="dynamic-value">10.548.000 đ</span>)</td></tr>
                 <tr><td colspan="8" class="text-right">Tổng cộng (trước VAT):</td><td colspan="2" class="text-right"><span id="tongTruocVAT" class="dynamic-value">8.860.320 đ</span></td></tr>
                 <tr>
-                    <!-- CHANGE HERE: Added id="vatLabelCell" to the <td> -->
                     <td colspan="8" class="text-right" id="vatLabelCell">Thuế suất VAT (10%):</td>
                     <td colspan="2" class="text-right"><span id="tienVAT" class="dynamic-value">886.032 đ</span></td>
                 </tr>
                 <tr><td colspan="8" class="text-right" style="font-size: 12px;">TỔNG TIỀN THANH TOÁN:</td><td colspan="2" class="text-right" style="font-size: 12px;"><span id="tongThanhToan" class="dynamic-value">9.746.352 đ</span></td></tr>
-                <tr><td colspan="15" class="amount-in-words"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value">Chín triệu bảy trăm bốn mươi sáu nghìn ba trăm năm mươi hai đồng.</span></td></tr>
+                <tr><td colspan="15" class="amount-in-words"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value"></span></td></tr>
             </tfoot>
         </table>
-        
         <div class="final-notes">
             <p><strong>Ghi chú cuối phiếu:</strong> <span id="ghiChuCuoiPhieu" class="dynamic-value">Vui lòng kiểm tra hàng kỹ trước khi nhận. Hàng đã xuất kho không được đổi trả. Xin cảm ơn!</span></p>
         </div>
-
         <div class="footer">
-            <div class="signature">
-                <p class="signature-title">Người lập phiếu</p>
-                <p class="signature-instruction">(Ký, họ tên)</p>
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
-                <p class="signature-name"><span id="tenNguoiLap" class="dynamic-value">Nguyễn Việt Chinh</span></p>
-            </div>
-            <div class="signature">
-                <p class="signature-title">Người duyệt</p>
-                <p class="signature-instruction">(Ký, họ tên)</p>
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
-                <p class="signature-name">&nbsp;</p>
-            </div>
-            <div class="signature">
-                <p class="signature-title">Thủ kho</p>
-                <p class="signature-instruction">(Ký, họ tên)</p>
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
-                <p class="signature-name">&nbsp;</p>
-            </div>
-            <div class="signature">
-                <p class="signature-title">Khách hàng</p>
-                <p class="signature-instruction">(Ký, họ tên)</p>
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAxNTAgNjAiPjx0ZXh0IHg9Ijc1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkJydXNoIFNjcmlwdCBNVCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzgwODA4MCI+RGVtbyBTaWduYXR1cmU8L3RleHQ+PC9zdmc+" class="demo-signature" alt="Demo Signature">
-                <p class="signature-name">&nbsp;</p>
-            </div>
+            <div class="signature"><p class="signature-title">Người lập phiếu</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,..." class="demo-signature" alt="Demo Signature"><p class="signature-name"><span id="tenNguoiLap" class="dynamic-value">Nguyễn Việt Chinh</span></p></div>
+            <div class="signature"><p class="signature-title">Người duyệt</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,..." class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
+            <div class="signature"><p class="signature-title">Thủ kho</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,..." class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
+            <div class="signature"><p class="signature-title">Khách hàng</p><p class="signature-instruction">(Ký, họ tên)</p><img src="data:image/svg+xml;base64,..." class="demo-signature" alt="Demo Signature"><p class="signature-name">&nbsp;</p></div>
         </div>
     </div>
 
     <script>
+        // --- START: NEW FUNCTION TO CONVERT NUMBER TO VIETNAMESE WORDS ---
+        function numberToVietnameseWords(n) {
+            const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+            const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
+
+            function readThreeDigits(n, isFull) {
+                let hundred = Math.floor(n / 100);
+                let ten = Math.floor((n % 100) / 10);
+                let one = n % 10;
+                let result = [];
+
+                if (hundred > 0 || isFull) {
+                    result.push(defaultNumbers[hundred], 'trăm');
+                }
+
+                if (ten === 0 && one > 0 && hundred > 0) {
+                    result.push('linh');
+                } else if (ten === 1) {
+                    result.push('mười');
+                } else if (ten > 1) {
+                    result.push(defaultNumbers[ten], 'mươi');
+                }
+                
+                if (one > 0) {
+                    if (ten === 0 && hundred === 0) {
+                        result.push(defaultNumbers[one]);
+                    } else if (ten >= 1 && one === 1) {
+                        result.push('mốt');
+                    } else if (ten >= 2 && one === 5) {
+                        result.push('lăm');
+                    } else if (ten >= 1 && one === 5) {
+                        result.push(defaultNumbers[one]);
+                    } else if (one === 4 && ten > 1) {
+                        result.push('tư');
+                    }
+                    else {
+                        result.push(defaultNumbers[one]);
+                    }
+                }
+                return result.join(' ');
+            }
+            
+            if (n === 0) return 'Không đồng.';
+            if (n < 0) return 'Số âm ' + numberToVietnameseWords(-n);
+
+            let str = String(n);
+            let parts = [];
+            while (str.length > 0) {
+                parts.unshift(str.slice(Math.max(0, str.length - 3)));
+                str = str.slice(0, Math.max(0, str.length - 3));
+            }
+
+            let resultWords = [];
+            for (let i = 0; i < parts.length; i++) {
+                let num = parseInt(parts[i]);
+                if (num > 0) {
+                    let chunkWords = readThreeDigits(num, i > 0 && parts[i].length < 3);
+                    resultWords.push(chunkWords, units[parts.length - 1 - i]);
+                }
+            }
+
+            let finalStr = resultWords.join(' ').trim();
+            finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1);
+            return finalStr + ' đồng.';
+        }
+        // --- END: NEW FUNCTION ---
+
         const demoData = {
              chiTietDonHang: [
                 {ten: 'Regular-fit', ma: 'GARS001-M4', mau: 'MÀU 4', dvt: 'Chiếc', sl: 28, donGia: '625.000', s: 3, m: 4, l: 6, xl: 6, xxl: 4, '3xl': 4, '4xl': 1, '5xl': '', thanhTien: '17.580.000', ghiChu: ''},
-                {ten: 'Regular-fit', ma: 'GARS001-M5', mau: 'MÀU 5', dvt: 'Chiếc', sl: 9, donGia: '625.000', s: 1, m: 2, l: 2, xl: 2, xxl: 1, '3xl': 1, '4xl': '', '5xl': '', thanhTien: '5.625.000', ghiChu: ''},
-                {ten: 'Regular', ma: 'GAR002-Đ', mau: 'Đen', dvt: 'Chiếc', sl: 1, donGia: '625.000', s: '', m: '', l: '', xl: '', xxl: '', '3xl': 1, '4xl': '', '5xl': '', thanhTien: '625.000', ghiChu: ''},
-                {ten: 'Regular-fit', ma: 'GARS10-XB', mau: 'Xanh/Blue', dvt: 'Chiếc', sl: 6, donGia: '650.000', s: 1, m: 2, l: 1, xl: 2, xxl: '', '3xl': '', '4xl': '', '5xl': '', thanhTien: '3.900.000', ghiChu: ''},
-                {ten: 'Regular-fit', ma: 'GARS001-M3', mau: 'MÀU 3', dvt: 'Chiếc', sl: 2, donGia: '590.000', s: '', m: 1, l: '', xl: 1, xxl: '', '3xl': '', '4xl': '', '5xl': '', thanhTien: '1.180.000', ghiChu: ''},
-                {ten: 'Regular', ma: 'GAR001-M4', mau: 'MÀU 4', dvt: 'Chiếc', sl: 5, donGia: '625.000', s: '', m: 1, l: 1, xl: 1, xxl: 1, '3xl': 1, '4xl': '', '5xl': '', thanhTien: '3.125.000', ghiChu: ''},
+                {ten: 'Regular-fit', ma: 'GARS001-M5', mau: 'MÀU 5', dvt: 'Chiếc', sl: 9, donGia: '625.000', s: 1, m: 2, l: 2, xl: 2, xxl: 1, '3xl': 1, '4xl': '', '5xl': '', thanhTien: '5.625.000', ghiChu: ''}
             ]
         };
 
@@ -280,21 +292,13 @@
                     <tr>
                         <td>${index + 1}</td>
                         <td class="text-left">${item.ten || ''} - <span class="item-code">${item.ma || ''}</span> - <span class="item-color">${item.mau || ''}</span></td>
-                        <td>${item.dvt || ''}</td>
-                        <td>${item.sl || ''}</td>
+                        <td>${item.dvt || ''}</td><td>${item.sl || ''}</td>
                         <td class="text-right">${item.donGia || ''}</td>
-                        <td>${item.s || ''}</td>
-                        <td>${item.m || ''}</td>
-                        <td>${item.l || ''}</td>
-                        <td>${item.xl || ''}</td>
-                        <td>${item.xxl || ''}</td>
-                        <td>${item['3xl'] || ''}</td>
-                        <td>${item['4xl'] || ''}</td>
-                        <td>${item['5xl'] || ''}</td>
-                        <td class="text-right">${item.thanhTien || ''}</td>
-                        <td>${item.ghiChu || ''}</td>
-                    </tr>
-                `;
+                        <td>${item.s || ''}</td><td>${item.m || ''}</td><td>${item.l || ''}</td>
+                        <td>${item.xl || ''}</td><td>${item.xxl || ''}</td><td>${item['3xl'] || ''}</td>
+                        <td>${item['4xl'] || ''}</td><td>${item['5xl'] || ''}</td>
+                        <td class="text-right">${item.thanhTien || ''}</td><td>${item.ghiChu || ''}</td>
+                    </tr>`;
                 tableBody.innerHTML += row;
             });
         }
@@ -306,7 +310,7 @@
             if (soPhieuParam) {
                 // LIVE MODE
                 document.title = `Phiếu Xuất Kho - ${soPhieuParam}`;
-                const fields = ['soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'sdtNhanVien', 'khachHang', 'diaChi', 'khuVuc', 'doiTuong', 'doanhSoNVKD', 'ckkh', 'cknpp', 'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL', 'tongSize5XL', 'tongThanhTien', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongTienBangChu', 'ghiChuCuoiPhieu', 'tenNguoiLap', 'nganHang', 'chuTaiKhoan', 'ndChuyenKhoan'];
+                const fields = ['soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'sdtNhanVien', 'khachHang', 'diaChi', 'khuVuc', 'doiTuong', 'doanhSoNVKD', 'ckkh', 'cknpp', 'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL', 'tongSize5XL', 'tongThanhTien', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'ghiChuCuoiPhieu', 'tenNguoiLap', 'nganHang', 'chuTaiKhoan', 'ndChuyenKhoan'];
                 fields.forEach(id => {
                     const element = document.getElementById(id);
                     if (element && urlParams.has(id)) {
@@ -320,17 +324,21 @@
                 const qrAccountNo = urlParams.get('stk') || '19132563929019';
                 const qrAcqId = urlParams.get('acqId') || '970407';
                 const qrAccountName = urlParams.get('chuTaiKhoan') || 'CONG TY TNHH T&B VIET NAM';
-                
                 document.getElementById('qrThanhToan').src = `https://img.vietqr.io/image/${qrAcqId}-${qrAccountNo}-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(soPhieuParam)}&accountName=${encodeURIComponent(qrAccountName)}`;
 
-                // CHANGE HERE: Added logic to handle dynamic VAT rate
-                const vatRateParam = urlParams.get('vatRate'); // Get VAT rate from URL
+                const vatRateParam = urlParams.get('vatRate');
                 const vatLabelCell = document.getElementById('vatLabelCell');
                 if (vatLabelCell && vatRateParam) {
-                    // Update the label text if the parameter exists
                     vatLabelCell.textContent = `Thuế suất VAT (${vatRateParam}%):`;
                 }
-                // END CHANGE
+
+                // --- CHANGE HERE: AUTOMATICALLY CONVERT TOTAL AMOUNT TO WORDS ---
+                const tongTienBangChuSpan = document.getElementById('tongTienBangChu');
+                const tongTienNumeric = parseInt(qrAmount, 10); // Use the same numeric value as the QR code
+                if (tongTienBangChuSpan && !isNaN(tongTienNumeric)) {
+                    tongTienBangChuSpan.textContent = numberToVietnameseWords(tongTienNumeric);
+                }
+                // --- END CHANGE ---
 
                 try {
                     const chiTietData = JSON.parse(decodeURIComponent(urlParams.get('chiTietHangHoa')));
@@ -345,8 +353,10 @@
                 document.getElementById('watermark').style.display = 'block';
                 document.querySelectorAll('.demo-signature').forEach(el => el.style.display = 'block');
                 populateTable(demoData.chiTietDonHang);
+                document.getElementById('tongTienBangChu').textContent = numberToVietnameseWords(9746352); // Demo value
             }
         });
+
 
         function downloadPDF() {
             const downloadBtn = document.getElementById('download-btn');
