@@ -81,6 +81,7 @@
         .items-table .sl-col { width: 4%; }
         .items-table .price-col { width: 7%; }
         .items-table .amount-col { width: 10%; }
+        .items-table .size-col { width: 4%; } /* <-- ĐÂY LÀ CLASS MỚI */
         .items-table .item-code { color: #555; font-size: 10px; }
         .items-table .item-color { font-style: italic; }
         .items-table tfoot .total-row { font-weight: bold; background-color: #f2f2f2; }
@@ -156,7 +157,8 @@
                 <tr>
                     <th rowspan="2" class="stt-col">STT</th><th rowspan="2" class="text-left merged-col">Tên hàng / Mã hàng / Màu</th><th rowspan="2" class="dvt-col">ĐVT</th><th rowspan="2" class="sl-col">Tổng SL</th><th rowspan="2" class="text-right price-col">Đơn giá</th><th colspan="8">SIZE</th><th rowspan="2" class="text-right amount-col">Thành tiền (VNĐ)</th><th rowspan="2">Ghi chú</th>
                 </tr>
-                <tr><th>29(S)</th><th>30(M)</th><th>31(L)</th><th>32(XL)</th><th>33(2XL)</th><th>34(3XL)</th><th>35(4XL)</th><th>36(5XL)</th></tr>
+                <!-- Áp dụng class .size-col cho các cột size -->
+                <tr><th class="size-col">29(S)</th><th class="size-col">30(M)</th><th class="size-col">31(L)</th><th class="size-col">32(XL)</th><th class="size-col">33(2XL)</th><th class="size-col">34(3XL)</th><th class="size-col">35(4XL)</th><th class="size-col">36(5XL)</th></tr>
             </thead>
             <tbody id="chiTietDonHang"><!-- Data will be inserted here by JavaScript --></tbody>
             <tfoot>
@@ -164,19 +166,21 @@
                     <td colspan="3" class="text-right">Tổng cộng:</td>
                     <td><span id="tongCongSoLuong" class="dynamic-value">51</span></td>
                     <td></td>
-                    <td><span id="tongSizeS" class="dynamic-value">5</span></td>
-                    <td><span id="tongSizeM" class="dynamic-value">10</span></td>
-                    <td><span id="tongSizeL" class="dynamic-value">11</span></td>
-                    <td><span id="tongSizeXL" class="dynamic-value">12</span></td>
-                    <td><span id="tongSizeXXL" class="dynamic-value">7</span></td>
-                    <td><span id="tongSize3XL" class="dynamic-value">7</span></td>
-                    <td><span id="tongSize4XL" class="dynamic-value">1</span></td>
-                    <td><span id="tongSize5XL" class="dynamic-value">0</span></td>
+                    <!-- Áp dụng class .size-col cho các cột tổng cộng size -->
+                    <td class="size-col"><span id="tongSizeS" class="dynamic-value">5</span></td>
+                    <td class="size-col"><span id="tongSizeM" class="dynamic-value">10</span></td>
+                    <td class="size-col"><span id="tongSizeL" class="dynamic-value">11</span></td>
+                    <td class="size-col"><span id="tongSizeXL" class="dynamic-value">12</span></td>
+                    <td class="size-col"><span id="tongSizeXXL" class="dynamic-value">7</span></td>
+                    <td class="size-col"><span id="tongSize3XL" class="dynamic-value">7</span></td>
+                    <td class="size-col"><span id="tongSize4XL" class="dynamic-value">1</span></td>
+                    <td class="size-col"><span id="tongSize5XL" class="dynamic-value">0</span></td>
                     <td class="text-right"><span id="tongThanhTien" class="dynamic-value">32.035.000</span></td>
                     <td></td>
                 </tr>
                 
                 <tr>
+                    <!-- Đã cập nhật ở lần trước -->
                     <td rowspan="5" colspan="2" class="notes-section" id="ghiChuFooterCell">
                         <!-- Content will be moved here by JavaScript -->
                     </td>
@@ -328,6 +332,7 @@
             const tableBody = document.getElementById('chiTietDonHang');
             tableBody.innerHTML = '';
             data.forEach((item, index) => {
+                // Áp dụng class .size-col cho các cột size
                 const row = `
                     <tr>
                         <td>${index + 1}</td>
@@ -335,14 +340,14 @@
                         <td>${item.dvt || ''}</td>
                         <td>${item.sl || ''}</td>
                         <td class="text-right">${item.donGia || ''}</td>
-                        <td>${item.s || ''}</td>
-                        <td>${item.m || ''}</td>
-                        <td>${item.l || ''}</td>
-                        <td>${item.xl || ''}</td>
-                        <td>${item.xxl || ''}</td>
-                        <td>${item['3xl'] || ''}</td>
-                        <td>${item['4xl'] || ''}</td>
-                        <td>${item['5xl'] || ''}</td>
+                        <td class="size-col">${item.s || ''}</td>
+                        <td class="size-col">${item.m || ''}</td>
+                        <td class="size-col">${item.l || ''}</td>
+                        <td class="size-col">${item.xl || ''}</td>
+                        <td class="size-col">${item.xxl || ''}</td>
+                        <td class="size-col">${item['3xl'] || ''}</td>
+                        <td class="size-col">${item['4xl'] || ''}</td>
+                        <td class="size-col">${item['5xl'] || ''}</td>
                         <td class="text-right">${item.thanhTien || ''}</td>
                         <td>${item.ghiChu || ''}</td>
                     </tr>
