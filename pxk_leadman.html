@@ -122,7 +122,14 @@
             padding-top: 8px; 
         }
         
-        .notes-section { vertical-align: top; text-align: left; font-weight: normal; padding: 8px !important; }
+        /* YÊU CẦU MỚI: Canh trái và top mục ghi chú */
+        .notes-section { 
+            vertical-align: top !important; 
+            text-align: left !important; 
+            font-weight: normal; 
+            padding: 4px !important; 
+        }
+
         .payment-qr-cell { vertical-align: middle; }
         .payment-qr-section { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 15px; }
         .payment-qr-section img { width: 90px; height: 90px; flex-shrink: 0; }
@@ -142,10 +149,9 @@
             font-weight: bold;
         }
         
-        /* YÊU CẦU MỚI: Loại bỏ khoảng trống */
         .footer { 
-            margin-top: 10px; /* Giảm khoảng trống trên */
-            padding-top: 0; /* Bỏ khoảng trống trong */
+            margin-top: 10px;
+            padding-top: 0;
             display: flex; 
             justify-content: space-around; 
             text-align: center; 
