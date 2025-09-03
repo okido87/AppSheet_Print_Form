@@ -26,12 +26,8 @@
 
         /* Main Container for the Invoice */
         .invoice-container {
-            position: relative;
-            width: 297mm; /* Adjusted for landscape */
-            /* FIX 1: Gỡ bỏ 'min-height' để tránh tạo ra trang trắng ở cuối */
-            /* min-height: 210mm; */ 
+            width: 100%; /* Sửa thành 100% để linh hoạt */
             margin: 0 auto;
-            padding: 5mm; /* Consistent with @page margin */
             background: #fff;
             box-sizing: border-box;
         }
@@ -46,7 +42,7 @@
         @media print {
             body { background-color: #fff; }
             .controls { display: none; }
-            .invoice-container { box-shadow: none; margin: 0; padding: 0; }
+            .invoice-container { box-shadow: none; margin: 0; padding: 0; width: 100%; }
             .demo-mode .watermark,
             .demo-mode .demo-signature {
                 display: block !important;
@@ -54,10 +50,11 @@
         }
         /* --- END ON-SCREEN STYLES --- */
         
-        .header, .title, .customer-info, .footer {
-            page-break-inside: avoid;
+        /* CSS cho phần header được chuyển vào bảng */
+        .invoice-main-header-cell {
+            padding: 0 !important;
+            border: none !important;
         }
-
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #ccc; }
         .company-info { display: flex; align-items: center; gap: 15px; flex: 3; }
         .logo { max-height: 36px; flex-shrink: 0; }
@@ -74,6 +71,7 @@
         .info-column { flex-basis: 32%; }
         .info-column p { margin: 0 0 4px 0; }
         
+        /* CSS cho bảng */
         .items-table { width: 100%; border-collapse: collapse; }
         .items-table th, .items-table td { border: 1px solid #000; padding: 4px; text-align: center; vertical-align: middle; }
         
@@ -81,7 +79,7 @@
             page-break-inside: avoid;
         }
         .items-table thead {
-            display: table-header-group; 
+            display: table-header-group; /* BẮT BUỘC: để lặp lại header trên mỗi trang */
         }
         .items-table tfoot {
             display: table-footer-group; 
@@ -111,7 +109,15 @@
         .payment-qr-section .payment-info p { margin: 1px 0; font-size: 10px; }
         .payment-qr-section .payment-info p strong { font-weight: bold; font-size: 11px; text-transform: uppercase; }
         
-        .footer { margin-top: 20px; padding-top: 15px; display: flex; justify-content: space-around; text-align: center; width: 100%; }
+        .footer { 
+            margin-top: 20px; 
+            padding-top: 15px; 
+            display: flex; 
+            justify-content: space-around; 
+            text-align: center; 
+            width: 100%;
+            page-break-inside: avoid; /* Đảm bảo phần chữ ký không bị ngắt */
+        }
         .signature { position: relative; width: 150px; }
         .signature .signature-title { margin: 0; font-weight: bold; }
         .signature .signature-instruction { font-style: italic; font-size: 10px; font-weight: normal; margin: 0; }
@@ -131,44 +137,52 @@
     </div>
     <div class="invoice-container" id="invoice-content">
         <div id="watermark" class="watermark">PHIẾU DEMO</div>
-        <div class="header">
-            <div class="company-info">
-                <img src="logo-manlead.jpg" alt="MANLEAD Logo" class="logo">
-                <div class="company-details">
-                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠNG MẠI T&B VIỆT NAM</h3>
-                    <p>Địa chỉ: 55 Đường Hùng Vương II, Phố Lê Lợi, P Nam Bình, Ninh Bình</p>
-                </div>
-            </div>
-            <div class="qr-code-section">
-                 <img id="qrSoPhieu" src="https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=PX250819110155" alt="QR Code for Invoice No" crossorigin="anonymous">
-            </div>
-        </div>
-        <div class="title">
-            <h1>PHIẾU XUẤT KHO</h1>
-            <p class="subtitle">
-                Số: <span id="soPhieu" class="dynamic-value">PX250819110155</span> | 
-                Ngày <span id="ngay" class="dynamic-value">22 tháng 08 năm 2025</span>
-            </p>
-        </div>
-        <div class="customer-info">
-             <div class="info-column">
-                <p><strong>Nhà phân phối:</strong> <span id="nhaPhanPhoi" class="dynamic-value">Hoàng Vân</span></p>
-                <p><strong>Nhân viên:</strong> <span id="nhanVien" class="dynamic-value">Nguyễn Hoàng Vân</span></p>
-                <p><strong>SĐT Nhân viên:</strong> <span id="sdtNhanVien" class="dynamic-value">0912345678</span></p>
-             </div>
-            <div class="info-column">
-                <p><strong>Khách hàng:</strong> <span id="khachHang" class="dynamic-value">Shop Hiền Hải NA</span></p>
-                <p><strong>Địa chỉ:</strong> <span id="diaChi" class="dynamic-value">Diễn Xuân, Nghệ An</span></p>
-                <p><strong>Khu vực:</strong> <span id="khuVuc" class="dynamic-value">DHMT</span></p>
-            </div>
-             <div class="info-column">
-                <p><strong>Đối tượng:</strong> <span id="doiTuong" class="dynamic-value">khách lẻ</span></p>
-                <p><strong>Doanh số NVKD:</strong> <span id="doanhSoNVKD" class="dynamic-value">10.548.000 đ</span></p>
-                <p><strong>%CKKH:</strong> <span id="ckkh" class="dynamic-value">40%</span> | <strong>%CKNPP:</strong> <span id="cknpp" class="dynamic-value">16%</span></p>
-            </div>
-        </div>
+
+        <!-- BẮT ĐẦU CẤU TRÚC MỚI -->
         <table class="items-table">
             <thead>
+                <!-- Dòng chứa TOÀN BỘ thông tin header -->
+                <tr>
+                    <th colspan="15" class="invoice-main-header-cell">
+                        <div class="header">
+                            <div class="company-info">
+                                <img src="logo-manlead.jpg" alt="MANLEAD Logo" class="logo">
+                                <div class="company-details">
+                                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠNG MẠI T&B VIỆT NAM</h3>
+                                    <p>Địa chỉ: 55 Đường Hùng Vương II, Phố Lê Lợi, P Nam Bình, Ninh Bình</p>
+                                </div>
+                            </div>
+                            <div class="qr-code-section">
+                                 <img id="qrSoPhieu" src="https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=PX250819110155" alt="QR Code for Invoice No" crossorigin="anonymous">
+                            </div>
+                        </div>
+                        <div class="title">
+                            <h1>PHIẾU XUẤT KHO</h1>
+                            <p class="subtitle">
+                                Số: <span id="soPhieu" class="dynamic-value">PX250819110155</span> | 
+                                Ngày <span id="ngay" class="dynamic-value">22 tháng 08 năm 2025</span>
+                            </p>
+                        </div>
+                        <div class="customer-info">
+                             <div class="info-column">
+                                <p><strong>Nhà phân phối:</strong> <span id="nhaPhanPhoi" class="dynamic-value">Hoàng Vân</span></p>
+                                <p><strong>Nhân viên:</strong> <span id="nhanVien" class="dynamic-value">Nguyễn Hoàng Vân</span></p>
+                                <p><strong>SĐT Nhân viên:</strong> <span id="sdtNhanVien" class="dynamic-value">0912345678</span></p>
+                             </div>
+                            <div class="info-column">
+                                <p><strong>Khách hàng:</strong> <span id="khachHang" class="dynamic-value">Shop Hiền Hải NA</span></p>
+                                <p><strong>Địa chỉ:</strong> <span id="diaChi" class="dynamic-value">Diễn Xuân, Nghệ An</span></p>
+                                <p><strong>Khu vực:</strong> <span id="khuVuc" class="dynamic-value">DHMT</span></p>
+                            </div>
+                             <div class="info-column">
+                                <p><strong>Đối tượng:</strong> <span id="doiTuong" class="dynamic-value">khách lẻ</span></p>
+                                <p><strong>Doanh số NVKD:</strong> <span id="doanhSoNVKD" class="dynamic-value">10.548.000 đ</span></p>
+                                <p><strong>%CKKH:</strong> <span id="ckkh" class="dynamic-value">40%</span> | <strong>%CKNPP:</strong> <span id="cknpp" class="dynamic-value">16%</span></p>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+                <!-- Dòng chứa tiêu đề cột của bảng -->
                 <tr>
                     <th rowspan="2" class="stt-col">STT</th><th rowspan="2" class="text-left merged-col">Tên hàng / Mã hàng / Màu</th><th rowspan="2" class="dvt-col">ĐVT</th><th rowspan="2" class="sl-col">Tổng SL</th><th rowspan="2" class="text-right price-col">Đơn giá</th><th colspan="8">SIZE</th><th rowspan="2" class="text-right amount-col">Thành tiền (VNĐ)</th><th rowspan="2">Ghi chú</th>
                 </tr>
@@ -260,9 +274,12 @@
                 <p class="signature-name">&nbsp;</p>
             </div>
         </div>
+        <!-- KẾT THÚC CẤU TRÚC MỚI -->
+
     </div>
 
     <script>
+        // Javascript không có thay đổi
         function numberToVietnameseWords(n) {
             const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
             const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
@@ -430,9 +447,8 @@
             });
 
             Promise.all(imagePromises).then(() => {
-                /* FIX 2: Gỡ bỏ setTimeout để tránh lỗi treo khi render */
                 const opt = {
-                    margin:       [5, 5, 5, 5],
+                    margin:       5, // đơn giản hoá margin
                     filename:     `PhieuXuatKho_${document.getElementById('soPhieu').textContent}.pdf`,
                     image:        { type: 'jpeg', quality: 0.98 },
                     html2canvas:  { scale: 2, useCORS: true },
@@ -444,7 +460,7 @@
                     downloadBtn.disabled = false;
                 }).catch((err) => {
                     console.error("PDF generation failed:", err);
-                    downloadBtn.textContent = '📄 Tải PDF'; // Reset button on error
+                    downloadBtn.textContent = '📄 Tải PDF';
                     downloadBtn.disabled = false;
                 });
             });
