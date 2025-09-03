@@ -12,7 +12,7 @@
             font-family: 'Times New Roman', Times, serif;
             font-size: 11px;
             line-height: 1.4;
-            color: #000; /* YÊU CẦU 2: Chữ mặc định màu đen */
+            color: #000;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
@@ -93,7 +93,6 @@
             display: table-footer-group; 
         }
 
-        /* YÊU CẦU 1 & 2: Bỏ màu nền, chữ label màu đen */
         .items-table th { 
             background-color: #fff; 
             color: #000;
@@ -142,10 +141,11 @@
             background-color: #fff;
             font-weight: bold;
         }
-
+        
+        /* YÊU CẦU MỚI: Loại bỏ khoảng trống */
         .footer { 
-            margin-top: 20px; 
-            padding-top: 15px; 
+            margin-top: 10px; /* Giảm khoảng trống trên */
+            padding-top: 0; /* Bỏ khoảng trống trong */
             display: flex; 
             justify-content: space-around; 
             text-align: center; 
@@ -157,7 +157,6 @@
         .signature .signature-instruction { font-style: italic; font-size: 10px; font-weight: normal; margin: 0; }
         .signature .signature-name { margin-top: 45px; font-weight: normal; min-height: 1.2em; }
 
-        /* YÊU CẦU 3: Chữ value màu xanh dương */
         .dynamic-value { 
             color: #0000FF !important; 
         }
@@ -177,7 +176,6 @@
     <div class="invoice-container" id="invoice-content">
         <div id="watermark" class="watermark">PHIẾU DEMO</div>
 
-        <!-- CẤU TRÚC HTML GỐC ĐÃ ĐƯỢC KHÔI PHỤC -->
         <div class="header">
             <div class="company-info">
                 <img src="logo-manlead.jpg" alt="MANLEAD Logo" class="logo">
@@ -308,7 +306,6 @@
                 <p class="signature-name">&nbsp;</p>
             </div>
         </div>
-        <!-- KẾT THÚC CẤU TRÚC GỐC -->
 
     </div>
 
