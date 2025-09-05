@@ -133,8 +133,7 @@
                     </td>
                     <td class="title-cell">
                         <h1 id="tieuDePhieu"></h1>
-                        <p>Số phiếu: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span></p>
-                        <p>Ngày: <span id="ngay" class="dynamic-value"></span></p>
+                        <p>Số: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span> | Ngày: <span id="ngay" class="dynamic-value"></span></p>
                     </td>
                     <td class="qr-header-cell"><img id="qrSoPhieu" src="" alt="QR Code" crossorigin="anonymous"></td>
                 </tr>
@@ -169,7 +168,7 @@
                 <tr>
                     <td><strong>Tỉnh:</strong> <span id="tinh" class="dynamic-value"></span> | <strong>Khu vực:</strong> <span id="khuVuc" class="dynamic-value"></span></td>
                     <td><strong>Đối tượng:</strong> <span id="doiTuong" class="dynamic-value"></span> | <strong>%CK khác:</strong> <span id="ckKhac" class="dynamic-value"></span></td>
-                    <td><strong>Tiền trả NPP:</strong> <span id="tienTraNPP" class="dynamic-value"></span></td>
+                    <td><strong>Tiền trả NPP:</strong> <span id="tienTraNPP" class="dynamic-value" style="font-weight: bold;"></span></td>
                     <td><strong>Tiền phải thu:</strong> <span id="tienPhaiThu" class="dynamic-value bold"></span></td>
                 </tr>
             </table>
@@ -202,8 +201,8 @@
                         <td colspan="4" class="text-right"><strong>Total</strong></td>
                         <td><span id="tongCongSoLuong" class="dynamic-value"></span></td>
                         <td colspan="9"></td> <!-- Spacer -->
-                        <td class="text-right"><span id="tongThanhTienBaoBi" class="dynamic-value"></span></td>
-                        <td class="text-right"><span id="tongThanhTienChietKhau" class="dynamic-value"></span></td>
+                        <td class="text-right"><span id="tongThanhTienBaoBi" class="dynamic-value bold"></span></td>
+                        <td class="text-right"><span id="tongThanhTienChietKhau" class="dynamic-value bold"></span></td>
                         <td></td>
                     </tr>
                 </tfoot>
@@ -214,7 +213,6 @@
                 <table class="summary-table">
                     <tr>
                         <td class="notes-cell">
-                             <!-- ##### KHÔI PHỤC LẠI MỤC GHI CHÚ ##### -->
                             <div id="ghiChuFooter" style="margin-bottom: 10px;"></div>
                         </td>
                         <td class="payment-qr-cell">
@@ -236,11 +234,11 @@
                         </td>
                         <td class="summary-details-cell">
                             <table class="summary-details-table">
-                                <tr><td class="label">Cộng tiền hàng:</td><td class="value"><span id="congTienHang" class="dynamic-value"></span></td></tr>
-                                <tr><td class="label">Tiền chiết khấu:</td><td class="value">(<span id="tienChietKhau" class="dynamic-value"></span>)</td></tr>
-                                <tr><td class="label">Tổng cộng (trước VAT):</td><td class="value"><span id="tongTruocVAT" class="dynamic-value"></span></td></tr>
-                                <tr><td class="label" id="vatLabelCell">Thuế suất VAT (0%):</td><td class="value"><span id="tienVAT" class="dynamic-value"></span></td></tr>
-                                <tr><td class="label total-label-cell"><strong>TỔNG TIỀN THANH TOÁN:</strong></td><td class="value total-value-cell"><strong id="tongThanhToan" class="dynamic-value"></strong></td></tr>
+                                <tr><td class="label">Cộng tiền hàng:</td><td class="value"><span id="congTienHang" class="dynamic-value bold"></span></td></tr>
+                                <tr><td class="label">Tiền chiết khấu:</td><td class="value">(<span id="tienChietKhau" class="dynamic-value bold"></span>)</td></tr>
+                                <tr><td class="label">Tổng cộng (trước VAT):</td><td class="value"><span id="tongTruocVAT" class="dynamic-value bold"></span></td></tr>
+                                <tr><td class="label" id="vatLabelCell">Thuế suất VAT (0%):</td><td class="value"><span id="tienVAT" class="dynamic-value bold"></span></td></tr>
+                                <tr><td class="label total-label-cell"><strong>TỔNG TIỀN THANH TOÁN:</strong></td><td class="value total-value-cell"><strong id="tongThanhToan" class="dynamic-value bold"></strong></td></tr>
                                 <tr><td colspan="2" style="text-align: right; font-style: italic; padding-top: 8px;"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value"></span></td></tr>
                             </table>
                         </td>
@@ -268,13 +266,11 @@
             ]
         };
         
-        // --- SỬA LỖI HÀM FORMAT TIỀN TỆ ---
         function formatCurrency(numStr) {
             if (!numStr || String(numStr).trim() === '') return '';
-            // Xóa tất cả ký tự không phải số
             let cleanStr = String(numStr).replace(/[^\d]/g, '');
             let number = parseFloat(cleanStr);
-            if (isNaN(number)) return numStr; // Trả về chuỗi gốc nếu không phải là số
+            if (isNaN(number)) return '';
             return new Intl.NumberFormat('vi-VN').format(number);
         }
 
@@ -287,6 +283,13 @@
             });
         }
         
+        function numberToVietnameseWords(n) { /* Function unchanged */ }
+        function downloadPDF() { /* Function unchanged */ }
+
+        document.addEventListener('DOMContentLoaded', function() { /* Full script is here */ });
+    </script>
+    <script>
+        // Full script logic is placed here to ensure functionality
         function numberToVietnameseWords(n) {
             const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
             const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
@@ -322,7 +325,6 @@
             finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1);
             return finalStr + ' đồng.';
         }
-        
         function downloadPDF() {
             const downloadBtn = document.getElementById('download-btn');
             downloadBtn.textContent = 'Đang xử lý...';
@@ -349,7 +351,6 @@
                 downloadBtn.disabled = false;
             });
         }
-
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const soPhieuParam = urlParams.get('soPhieu');
@@ -376,10 +377,11 @@
                 fields.forEach(id => {
                     const element = document.getElementById(id);
                     if (element && urlParams.has(id)) { 
+                        const value = urlParams.get(id);
                         if (['doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongThanhTienBaoBi', 'tongThanhTienChietKhau'].includes(id)) {
-                           element.textContent = formatCurrency(urlParams.get(id)) + ' đ';
+                           element.textContent = formatCurrency(value) + ' đ';
                         } else {
-                           element.textContent = urlParams.get(id); 
+                           element.textContent = value; 
                         }
                     }
                 });
