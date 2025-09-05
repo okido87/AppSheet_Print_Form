@@ -53,8 +53,8 @@
         .header-table td { padding: 1px 4px; vertical-align: middle; }
         .logo { max-height: 50px; display: block; }
         .company-details-wrapper { width: 55%; }
-        .company-details-wrapper h3 { margin: 0; font-size: 14px; text-transform: uppercase; font-weight: bold; }
-        .company-details-wrapper p { margin: 0; font-size: 12px; }
+        .company-details-wrapper h3 { margin: 0; font-size: 15px; text-transform: uppercase; font-weight: bold; }
+        .company-details-wrapper p { margin: 0; font-size: 13px; }
         .title-cell { text-align: center; vertical-align: middle; }
         .title-cell h1 { margin: 0 0 5px 0; font-size: 24px; font-weight: bold; text-transform: uppercase; }
         .title-cell p { margin: 2px 0; font-size: 14px; }
@@ -133,7 +133,8 @@
                     </td>
                     <td class="title-cell">
                         <h1 id="tieuDePhieu"></h1>
-                        <p>Số: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span> | Ngày: <span id="ngay" class="dynamic-value"></span></p>
+                        <p>Số phiếu: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span></p>
+                        <p>Ngày: <span id="ngay" class="dynamic-value"></span></p>
                     </td>
                     <td class="qr-header-cell"><img id="qrSoPhieu" src="" alt="QR Code" crossorigin="anonymous"></td>
                 </tr>
@@ -200,7 +201,14 @@
                     <tr class="total-row">
                         <td colspan="4" class="text-right"><strong>Total</strong></td>
                         <td><span id="tongCongSoLuong" class="dynamic-value"></span></td>
-                        <td colspan="9"></td> <!-- Spacer -->
+                        <td colspan="2"></td>
+                        <td><span id="tongSizeS" class="dynamic-value"></span></td>
+                        <td><span id="tongSizeM" class="dynamic-value"></span></td>
+                        <td><span id="tongSizeL" class="dynamic-value"></span></td>
+                        <td><span id="tongSizeXL" class="dynamic-value"></span></td>
+                        <td><span id="tongSizeXXL" class="dynamic-value"></span></td>
+                        <td><span id="tongSize3XL" class="dynamic-value"></span></td>
+                        <td><span id="tongSize4XL" class="dynamic-value"></span></td>
                         <td class="text-right"><span id="tongThanhTienBaoBi" class="dynamic-value bold"></span></td>
                         <td class="text-right"><span id="tongThanhTienChietKhau" class="dynamic-value bold"></span></td>
                         <td></td>
@@ -212,9 +220,7 @@
             <div class="summary-section">
                 <table class="summary-table">
                     <tr>
-                        <td class="notes-cell">
-                            <div id="ghiChuFooter" style="margin-bottom: 10px;"></div>
-                        </td>
+                        <td class="notes-cell"><div id="ghiChuFooter" style="margin-bottom: 10px;"></div></td>
                         <td class="payment-qr-cell">
                              <div class="qr-container">
                                 <table>
@@ -239,7 +245,7 @@
                                 <tr><td class="label">Tổng cộng (trước VAT):</td><td class="value"><span id="tongTruocVAT" class="dynamic-value bold"></span></td></tr>
                                 <tr><td class="label" id="vatLabelCell">Thuế suất VAT (0%):</td><td class="value"><span id="tienVAT" class="dynamic-value bold"></span></td></tr>
                                 <tr><td class="label total-label-cell"><strong>TỔNG TIỀN THANH TOÁN:</strong></td><td class="value total-value-cell"><strong id="tongThanhToan" class="dynamic-value bold"></strong></td></tr>
-                                <tr><td colspan="2" style="text-align: right; font-style: italic; padding-top: 8px;"><strong>Bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value"></span></td></tr>
+                                <tr><td colspan="2" style="text-align: right; font-style: italic; padding-top: 8px;"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value"></span></td></tr>
                             </table>
                         </td>
                     </tr>
@@ -283,10 +289,37 @@
             });
         }
         
+        // --- CẢI TIẾN: TÍNH TOÁN VÀ HIỂN THỊ TỔNG CỘNG TỰ ĐỘNG ---
+        function calculateAndDisplayTotals(data) {
+            let totalSL = 0, totalS = 0, totalM = 0, totalL = 0, totalXL = 0, totalXXL = 0, total3XL = 0, total4XL = 0, totalBaoBi = 0, totalChietKhau = 0;
+
+            data.forEach(item => {
+                totalSL += parseInt(item.sl || 0, 10);
+                totalS += parseInt(item.s || 0, 10);
+                totalM += parseInt(item.m || 0, 10);
+                totalL += parseInt(item.l || 0, 10);
+                totalXL += parseInt(item.xl || 0, 10);
+                totalXXL += parseInt(item.xxl || 0, 10);
+                total3XL += parseInt(item['3xl'] || 0, 10);
+                total4XL += parseInt(item['4xl'] || 0, 10);
+                totalBaoBi += parseInt(String(item.thanhTienBaoBi).replace(/[^\d]/g, '') || 0, 10);
+                totalChietKhau += parseInt(String(item.thanhTienChietKhau).replace(/[^\d]/g, '') || 0, 10);
+            });
+
+            document.getElementById('tongCongSoLuong').textContent = totalSL;
+            document.getElementById('tongSizeS').textContent = totalS > 0 ? totalS : '';
+            document.getElementById('tongSizeM').textContent = totalM > 0 ? totalM : '';
+            document.getElementById('tongSizeL').textContent = totalL > 0 ? totalL : '';
+            document.getElementById('tongSizeXL').textContent = totalXL > 0 ? totalXL : '';
+            document.getElementById('tongSizeXXL').textContent = totalXXL > 0 ? totalXXL : '';
+            document.getElementById('tongSize3XL').textContent = total3XL > 0 ? total3XL : '';
+            document.getElementById('tongSize4XL').textContent = total4XL > 0 ? total4XL : '';
+            document.getElementById('tongThanhTienBaoBi').textContent = formatCurrency(totalBaoBi) + ' đ';
+            document.getElementById('tongThanhTienChietKhau').textContent = formatCurrency(totalChietKhau) + ' đ';
+        }
+
         function numberToVietnameseWords(n) { /* Function unchanged */ }
         function downloadPDF() { /* Function unchanged */ }
-
-        document.addEventListener('DOMContentLoaded', function() { /* Full script is here */ });
     </script>
     <script>
         // Full script logic is placed here to ensure functionality
@@ -368,8 +401,6 @@
                 const fields = [
                     'soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'khachHang', 'diaChi', 'tinh', 'khuVuc', 'doiTuong',
                     'doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'ckkh', 'cknpp', 'ckKhac',
-                    'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL',
-                    'tongThanhTienBaoBi', 'tongThanhTienChietKhau',
                     'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 
                     'nganHang', 'chuTaiKhoan', 'ndChuyenKhoan',
                     'tenNguoiLapFooter', 'tenNguoiDuyetFooter'
@@ -378,7 +409,7 @@
                     const element = document.getElementById(id);
                     if (element && urlParams.has(id)) { 
                         const value = urlParams.get(id);
-                        if (['doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongThanhTienBaoBi', 'tongThanhTienChietKhau'].includes(id)) {
+                        if (['doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan'].includes(id)) {
                            element.textContent = formatCurrency(value) + ' đ';
                         } else {
                            element.textContent = value; 
@@ -398,16 +429,18 @@
                 if (ghiChuText && ghiChuText.trim() !== "") { 
                     document.getElementById('ghiChuFooter').innerHTML = `<p style="margin:0; padding:0;"><strong>Ghi chú:</strong></p><p style="margin:0; padding:0; font-style: italic;">${ghiChuText}</p>`;
                 }
-                const tongTienNumeric = parseInt(qrAmount, 10);
+                const tongTienNumeric = parseInt(String(qrAmount).replace(/[^\d]/g, ''), 10);
                 if (!isNaN(tongTienNumeric)) { document.getElementById('tongTienBangChu').textContent = numberToVietnameseWords(tongTienNumeric); }
                 try {
                     const chiTietData = JSON.parse(decodeURIComponent(urlParams.get('chiTietHangHoa')));
                     populateTable(chiTietData);
+                    calculateAndDisplayTotals(chiTietData); // Calculate totals from live data
                 } catch (e) { console.error("Error parsing chiTietHangHoa:", e); }
             } else {
                 // DEMO MODE
                 document.title = 'PHIẾU XUẤT KHO (DEMO)';
                 populateTable(demoData);
+                calculateAndDisplayTotals(demoData); // Calculate totals from demo data
                 
                 document.getElementById('tieuDePhieu').textContent = 'PHIẾU XUẤT KHO';
                 document.getElementById('soPhieu').textContent = 'PX250904112753';
@@ -427,17 +460,6 @@
                 document.getElementById('ckkh').textContent = '40%';
                 document.getElementById('cknpp').textContent = '0%';
                 document.getElementById('ckKhac').textContent = '10%';
-                
-                document.getElementById('tongCongSoLuong').textContent = '13';
-                document.getElementById('tongSizeS').textContent = '5';
-                document.getElementById('tongSizeM').textContent = '2';
-                document.getElementById('tongSizeL').textContent = '2';
-                document.getElementById('tongSizeXL').textContent = '4';
-                document.getElementById('tongSizeXXL').textContent = '0';
-                document.getElementById('tongSize3XL').textContent = '0';
-                document.getElementById('tongSize4XL').textContent = '0';
-                document.getElementById('tongThanhTienBaoBi').textContent = formatCurrency('8140000') + ' đ';
-                document.getElementById('tongThanhTienChietKhau').textContent = formatCurrency('4884000') + ' đ';
                 
                 document.getElementById('ghiChuFooter').innerHTML = `<p style="margin:0; padding:0;"><strong>Ghi chú:</strong></p><p style="margin:0; padding:0; font-style: italic;">Vui lòng kiểm tra hàng kỹ trước khi nhận.</p>`;
                 document.getElementById('nganHang').textContent = 'Techcombank';
