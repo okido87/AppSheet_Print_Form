@@ -1,54 +1,437 @@
-CONCATENATE(
-  "https://print.gpems.net/pxk_leadman.html?",
-  "soPhieu=", ENCODEURL([Số phiếu]),
-  "&ngay=", ENCODEURL(CONCATENATE("Ngày ", DAY([Ngày]), " tháng ", TEXT([Ngày], "MM"), " năm ", YEAR([Ngày]))),
-  "&nhaPhanPhoi=", ENCODEURL([Nhà phân phối]),
-  "&nhanVien=", ENCODEURL([Nhân viên].[họ và tên]),
-  "&sdtNhanVien=", ENCODEURL([Nhân viên].[Số điện thoại]),
-  "&tenNguoiLap=", ENCODEURL([Nhân viên].[họ và tên]),
-  "&khachHang=", ENCODEURL([Khách hàng].[Tên khách hàng]),
-  "&diaChi=", ENCODEURL([Địa chỉ]),
-  "&khuVuc=", ENCODEURL([Khu vực]),
-  "&doiTuong=", ENCODEURL([Đối tượng]),
-  "&doanhSoNVKD=", ENCODEURL(TEXT([Doanh số NVKD]) & " đ"),
-  "&ckkh=", ENCODEURL(TEXT([%CKKH])),
-  "&cknpp=", ENCODEURL(TEXT([%CKNPP])),
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu In</title>
+    <!-- Include html2pdf.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* CSS Reset and Basic Setup */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13px; /* Cỡ chữ cơ bản */
+            line-height: 1.4;
+            color: #000;
+            background-color: #f4f4f4; /* Nền xám để làm nổi bật trang giấy */
+            margin: 0;
+            padding: 0;
+        }
 
-  "&tongCongSoLuong=", ENCODEURL(SUM([Related Chi tiết NXs][Số lượng])),
-  "&tongSizeS=", ENCODEURL(SUM([Related Chi tiết NXs][S/29])),
-  "&tongSizeM=", ENCODEURL(SUM([Related Chi tiết NXs][M/30])),
-  "&tongSizeL=", ENCODEURL(SUM([Related Chi tiết NXs][L/31])),
-  "&tongSizeXL=", ENCODEURL(SUM([Related Chi tiết NXs][XL/32])),
-  "&tongSizeXXL=", ENCODEURL(SUM([Related Chi tiết NXs][XXL/33])),
-  "&tongSize3XL=", ENCODEURL(SUM([Related Chi tiết NXs][3XL/34])),
-  "&tongSize4XL=", ENCODEURL(SUM([Related Chi tiết NXs][4XL/35])),
-  "&tongThanhTien=", ENCODEURL(TEXT([Doanh số bao bì])),
+        /* A4 Landscape Page Setup for Printing */
+        @page {
+            size: A4 landscape;
+            margin: 5mm;
+        }
 
-  "&congTienHang=", ENCODEURL(TEXT([Doanh số bao bì]) & " đ"),
-  "&tienChietKhau=", ENCODEURL(TEXT([Doanh số bao bì] - [Doanh số NVKD]) & " đ"),
-  "&tongTruocVAT=", ENCODEURL(TEXT([Doanh số sau CK]) & " đ"),
-  
-  "&vatRate=", ENCODEURL(TEXT(number([%VAT] * 100))),
-  "&tienVAT=", ENCODEURL(TEXT(number([Doanh số sau CK] * [%VAT])) & " đ"),
-  
-  "&tongThanhToan=", ENCODEURL(TEXT(number([Doanh số sau CK] * (1 + [%VAT]))) & " đ"),
-  "&tongThanhToanNumeric=", ENCODEURL(number([Doanh số sau CK] * (1 + [%VAT]))),
-  
-  "&ghiChuCuoiPhieu=", ENCODEURL([Ghi chú]),
+        /* --- CẢI TIẾN: TẠO KHUNG TRANG A4 TRÊN MÀN HÌNH --- */
+        .page-container {
+            width: 297mm; /* Chiều rộng A4 landscape */
+            min-height: 210mm; 
+            padding: 5mm; /* Giả lập margin của trang in, tạo "viền trắng" */
+            margin: 10mm auto; /* Căn giữa trang giấy trên màn hình */
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); /* Hiệu ứng bóng đổ */
+            box-sizing: border-box; 
+        }
+        
+        /* --- STYLES FOR ON-SCREEN VIEW ONLY --- */
+        .controls { text-align: center; padding: 15px; background-color: #333; }
+        .controls button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 0 10px; }
+        .controls button:hover { background-color: #45a049; }
+        .controls button:disabled { background-color: #999; cursor: not-allowed;}
+        
+        /* Hide controls and reset styles when printing */
+        @media print {
+            body { background-color: #fff; }
+            .controls { display: none; }
+            .page-container {
+                width: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
 
-  "&stk=", ENCODEURL("19132563929019"),
-  "&chuTaiKhoan=", ENCODEURL("CONG TY TNHH DAU TU VA THUONG MAI T VA B"),
-  "&ndChuyenKhoan=", ENCODEURL([Số phiếu]),
-  
-  "&chiTietHangHoa=", ENCODEURL(
-    CONCATENATE(
-      "[",
-      SUBSTITUTE(
-        TEXT([Related Chi tiết NXs][JSON_Product] - LIST("")), 
-        " , ", 
-        ","
-      ),
-      "]"
-    )
-  )
-)
+        /* Header Styles (3-column layout) */
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .header-table td { padding: 1px 4px; vertical-align: middle; } /* Canh giữa theo chiều dọc */
+        .logo { max-height: 50px; display: block; }
+        .company-details-wrapper { width: 55%; }
+        .company-details-wrapper h3 { margin: 0; font-size: 15px; text-transform: uppercase; font-weight: bold; }
+        .company-details-wrapper p { margin: 0; font-size: 13px; }
+        .title-cell { text-align: center; vertical-align: middle; }
+        .title-cell h1 { margin: 0 0 5px 0; font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .title-cell p { margin: 2px 0; font-size: 14px; }
+        .qr-header-cell { width: 60px; text-align: right; }
+        .qr-header-cell img { width: 50px; height: 50px; }
+        .company-logo-cell { width: 60px; padding-right: 10px; }
+
+        /* Customer Info Table Styles (4-column layout) */
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed;}
+        .info-table td { border: 1px solid #000; padding: 3px 5px; vertical-align: top; width: 25%; }
+        .info-table td strong { font-weight: bold; }
+
+        /* Items Table Styles */
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th, .items-table td { border: 1px solid #000; padding: 4px; text-align: center; vertical-align: middle; }
+        .items-table thead { display: table-header-group; }
+        .items-table tfoot { display: table-footer-group; }
+        .items-table th { background-color: #E6F5FF; font-weight: bold; text-align: center !important; }
+        .items-table .text-left { text-align: left; }
+        .items-table .text-right { text-align: right; }
+        .items-table tfoot .total-row { font-weight: bold; background-color: #FFF2CC; }
+
+        /* Summary Section Styles (3-column layout) */
+        .summary-section { page-break-inside: avoid; }
+        .summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .summary-table > tbody > tr > td { width: 33.33%; border: 1px solid #000; vertical-align: top; padding: 5px; min-height: 100px; }
+        .notes-cell { text-align: left; }
+        .qr-container table { width: 100%; border-collapse: collapse; }
+        .qr-container td { border: none; padding: 0; vertical-align: middle; }
+        .qr-image-cell { width: 100px; padding-right: 10px;}
+        .qr-image-cell img { width: 90px; height: 90px; display: block; }
+        .qr-info-cell .payment-info p { margin: 1px 0; font-size: 12px; text-align: left; }
+
+        .summary-details-table { width: 100%; border-collapse: collapse; }
+        .summary-details-table td { border: none; padding: 2px 5px; }
+        .summary-details-table tr:not(:first-child) td { border-top: 1px solid #ccc; }
+        .summary-details-table .label { text-align: right; font-weight: normal; }
+        .summary-details-table .value { text-align: right; font-weight: bold; }
+        .summary-details-table .total-label-cell { font-size: 14px; }
+        .summary-details-table .total-value-cell { font-size: 14px; }
+
+        /* Footer & Signatures */
+        .footer { margin-top: 15px; padding-top: 10px; display: flex; justify-content: space-around; text-align: center; width: 100%; page-break-inside: avoid; }
+        .signature { width: 20%; }
+        .signature .signature-title { margin: 0; font-weight: bold; }
+        .signature .signature-instruction { font-style: italic; font-size: 12px; font-weight: normal; margin: 0; }
+        .signature .signature-name { margin-top: 45px; font-weight: bold; min-height: 1.2em; }
+        
+        /* Dynamic value styling */
+        .dynamic-value { color: #0000FF; font-weight: normal; }
+        .dynamic-value.bold { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="window.print()">🖨️ In ngay</button>
+        <button id="download-btn" onclick="downloadPDF()">📄 Tải PDF</button>
+    </div>
+    
+    <div class="page-container">
+        <div class="invoice-content" id="invoice-content">
+            <!-- HEADER (3-column layout) -->
+            <table class="header-table">
+                <tr>
+                    <td class="company-details-wrapper">
+                        <table>
+                            <tr>
+                                <td class="company-logo-cell">
+                                    <img src="logo-manlead.jpg" alt="Logo" class="logo">
+                                </td>
+                                <td>
+                                    <h3>CÔNG TY TNHH ĐẦU TƯ VÀ THƯƠNG MẠI T&B VIỆT NAM</h3>
+                                    <p>Địa chỉ: 55 Đường Hùng Vương II, Phố Lê Lợi, P Nam Bình, Ninh Bình</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="title-cell">
+                        <h1 id="tieuDePhieu"></h1>
+                        <p>Số phiếu: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span> | Ngày: <span id="ngay" class="dynamic-value"></span></p>
+                    </td>
+                    <td class="qr-header-cell">
+                        <img id="qrSoPhieu" src="" alt="QR Code" crossorigin="anonymous">
+                    </td>
+                </tr>
+            </table>
+            
+            <!-- CUSTOMER INFO (Re-arranged layout) -->
+            <table class="info-table">
+                <tr>
+                    <td><strong>Nhà phân phối:</strong> <span id="nhaPhanPhoi" class="dynamic-value"></span></td>
+                    <td><strong>Khách hàng:</strong> <span id="khachHang" class="dynamic-value bold"></span></td>
+                    <td colspan="2"><strong>Địa chỉ:</strong> <span id="diaChi" class="dynamic-value"></span></td>
+                </tr>
+                <tr>
+                    <td><strong>Nhân viên:</strong> <span id="nhanVien" class="dynamic-value"></span></td>
+                    <td><strong>Tỉnh:</strong> <span id="tinh" class="dynamic-value"></span> | <strong>Khu vực:</strong> <span id="khuVuc" class="dynamic-value"></span></td>
+                    <td><strong>Doanh số NVKD:</strong> <span id="doanhSoNVKD" class="dynamic-value bold"></span></td>
+                    <td><strong>Doanh số NPP:</strong> <span id="doanhSoNPP" class="dynamic-value bold"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                       <strong>Đối tượng:</strong> <span id="doiTuong" class="dynamic-value"></span>
+                       | <strong>%CKKH:</strong> <span id="ckkh" class="dynamic-value bold"></span>
+                       | <strong>%CKNPP:</strong> <span id="cknpp" class="dynamic-value"></span>
+                       | <strong>%CK khác:</strong> <span id="ckKhac" class="dynamic-value"></span>
+                    </td>
+                    <td><strong>Tiền trả NPP:</strong> <span id="tienTraNPP" class="dynamic-value"></span></td>
+                    <td><strong>Tiền phải thu:</strong> <span id="tienPhaiThu" class="dynamic-value bold"></span></td>
+                </tr>
+            </table>
+
+            <!-- ITEMS TABLE -->
+            <table class="items-table">
+                 <thead>
+                    <tr>
+                        <th rowspan="2" style="width: 3%;">Stt</th>
+                        <th rowspan="2" style="width: 9%;">Mã Hàng</th>
+                        <th rowspan="2" style="width: 9%;">Tên Hàng</th>
+                        <th rowspan="2" style="width: 4%;">Đvt</th>
+                        <th rowspan="2" style="width: 4%;">SL</th>
+                        <th rowspan="2" style="width: 7%;" class="text-right">Đơn giá</th>
+                        <th rowspan="2" style="width: 7%;">Màu</th>
+                        <th colspan="7">SIZE</th>
+                        <th rowspan="2" style="width: 8%;" class="text-right">Thành tiền bao bì</th>
+                        <th rowspan="2" style="width: 8%;" class="text-right">Thành tiền chiết khấu</th>
+                        <th rowspan="2" style="width: 8%;">Ghi chú</th>
+                    </tr>
+                    <tr>
+                        <th style="width: 3.5%;">S (29)</th><th style="width: 3.5%;">M (30)</th><th style="width: 3.5%;">L (31)</th>
+                        <th style="width: 3.5%;">XL(32)</th><th style="width: 3.5%;">XXL(33)</th><th style="width: 3.5%;">3XL(34)</th>
+                        <th style="width: 3.5%;">4XL(35)</th>
+                    </tr>
+                </thead>
+                <tbody id="chiTietDonHang"></tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="4" class="text-right"><strong>Total</strong></td>
+                        <td><span id="tongCongSoLuong" class="dynamic-value"></span></td>
+                        <td colspan="9"></td> <!-- Spacer for Don Gia, Mau, and 7 Sizes -->
+                        <td class="text-right"><span id="tongThanhTienBaoBi" class="dynamic-value"></span></td>
+                        <td class="text-right"><span id="tongThanhTienChietKhau" class="dynamic-value"></span></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- SUMMARY SECTION (3 COLUMNS) -->
+            <div class="summary-section">
+                <table class="summary-table">
+                    <tr>
+                        <td class="notes-cell"><div id="ghiChuFooter"></div></td>
+                        <td class="payment-qr-cell">
+                             <div class="qr-container">
+                                <table>
+                                    <tr>
+                                        <td class="qr-image-cell"><img id="qrThanhToan" src="" alt="VietQR Payment" crossorigin="anonymous"></td>
+                                        <td class="qr-info-cell">
+                                            <div class="payment-info">
+                                                <p><strong>Quét mã để thanh toán</strong></p>
+                                                <p>Ngân hàng: <span id="nganHang" class="dynamic-value"></span></p>
+                                                <p>Chủ TK: <span id="chuTaiKhoan" class="dynamic-value"></span></p>
+                                                <p>Nội dung: <span id="ndChuyenKhoan" class="dynamic-value"></span></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                        <td class="summary-details-cell">
+                            <table class="summary-details-table">
+                                <tr><td class="label">Cộng tiền hàng:</td><td class="value"><span id="congTienHang" class="dynamic-value"></span></td></tr>
+                                <tr><td class="label">Tiền chiết khấu:</td><td class="value">(<span id="tienChietKhau" class="dynamic-value"></span>)</td></tr>
+                                <tr><td class="label">Tổng cộng (trước VAT):</td><td class="value"><span id="tongTruocVAT" class="dynamic-value"></span></td></tr>
+                                <tr><td class="label" id="vatLabelCell">Thuế suất VAT (0%):</td><td class="value"><span id="tienVAT" class="dynamic-value"></span></td></tr>
+                                <tr><td class="label total-label-cell"><strong>TỔNG TIỀN THANH TOÁN:</strong></td><td class="value total-value-cell"><strong id="tongThanhToan" class="dynamic-value"></strong></td></tr>
+                                <tr><td colspan="2" style="text-align: right; font-style: italic; padding-top: 8px;"><strong>Viết bằng chữ:</strong> <span id="tongTienBangChu" class="dynamic-value"></span></td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- SIGNATURES -->
+            <div class="footer">
+                <div class="signature"><p class="signature-title">Người lập phiếu</p><p class="signature-instruction">(Ký, họ tên)</p><p class="signature-name"><span id="tenNguoiLapFooter" class="dynamic-value"></span></p></div>
+                <div class="signature"><p class="signature-title">Người duyệt</p><p class="signature-instruction">(Ký, họ tên)</p><p class="signature-name"><span id="tenNguoiDuyetFooter" class="dynamic-value"></span></p></div>
+                <div class="signature"><p class="signature-title">Thủ kho</p><p class="signature-instruction">(Ký, họ tên)</p><p class="signature-name">&nbsp;</p></div>
+                <div class="signature"><p class="signature-title">Khách hàng</p><p class="signature-instruction">(Ký, họ tên)</p><p class="signature-name">&nbsp;</p></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const demoData = {
+             chiTietDonHang: [
+                {ma: 'GAS006-Đ', ten: 'Slim fit', dvt: 'Chiếc', sl: 2, donGia: '625.000 đ', mau: 'Đen', s: 2, m: '', l: '', xl: '', xxl: '', '3xl': '', '4xl': '', thanhTienBaoBi: '1.250.000 đ', thanhTienChietKhau: '750.000 đ', ghiChu: ''},
+                {ma: 'GAR002-Đ', ten: 'Regular', dvt: 'Chiếc', sl: 7, donGia: '650.000 đ', mau: 'Đen', s: 1, m: 2, l: 2, xl: 2, xxl: '', '3xl': '', '4xl': '', thanhTienBaoBi: '4.550.000 đ', thanhTienChietKhau: '2.730.000 đ', ghiChu: ''},
+                {ma: 'GAS7-Đ', ten: 'Slim fit', dvt: 'Chiếc', sl: 2, donGia: '545.000 đ', mau: 'Đen', s: 2, m: '', l: '', xl: '', xxl: '', '3xl': '', '4xl': '', thanhTienBaoBi: '1.090.000 đ', thanhTienChietKhau: '654.000 đ', ghiChu: ''},
+                {ma: 'GAS006-GX', ten: 'Slim fit', dvt: 'Chiếc', sl: 2, donGia: '625.000 đ', mau: 'Ghi Xám', s: '', m: '', l: '', xl: 2, xxl: '', '3xl': '', '4xl': '', thanhTienBaoBi: '1.250.000 đ', thanhTienChietKhau: '750.000 đ', ghiChu: ''},
+            ]
+        };
+        
+        function numberToVietnameseWords(n) {
+            const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+            const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
+            function readThreeDigits(n, isFull) {
+                let hundred = Math.floor(n / 100); let ten = Math.floor((n % 100) / 10); let one = n % 10; let result = [];
+                if (hundred > 0 || isFull) { result.push(defaultNumbers[hundred], 'trăm'); }
+                if (ten === 0 && one > 0 && hundred > 0) { result.push('linh');
+                } else if (ten === 1) { result.push('mười');
+                } else if (ten > 1) { result.push(defaultNumbers[ten], 'mươi'); }
+                if (one > 0) {
+                    if (ten === 0 && hundred === 0) { result.push(defaultNumbers[one]);
+                    } else if (ten >= 1 && one === 1) { result.push('mốt');
+                    } else if (ten >= 2 && one === 5) { result.push('lăm');
+                    } else if (ten >= 1 && one === 5) { result.push(defaultNumbers[one]);
+                    } else if (one === 4 && ten > 1) { result.push('tư');
+                    } else { result.push(defaultNumbers[one]); }
+                }
+                return result.join(' ');
+            }
+            if (n === 0) return 'Không đồng.'; if (n < 0) return 'Số âm ' + numberToVietnameseWords(-n);
+            let str = String(n); let parts = [];
+            while (str.length > 0) { parts.unshift(str.slice(Math.max(0, str.length - 3))); str = str.slice(0, Math.max(0, str.length - 3)); }
+            let resultWords = [];
+            for (let i = 0; i < parts.length; i++) {
+                let num = parseInt(parts[i]);
+                if (num > 0) {
+                    let chunkWords = readThreeDigits(num, i > 0 && parts[i].length < 3);
+                    resultWords.push(chunkWords, units[parts.length - 1 - i]);
+                }
+            }
+            let finalStr = resultWords.join(' ').trim();
+            if(finalStr === '') return 'Không đồng.';
+            finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1);
+            return finalStr + ' đồng.';
+        }
+        
+        function populateTable(data) {
+            const tableBody = document.getElementById('chiTietDonHang');
+            tableBody.innerHTML = '';
+            data.forEach((item, index) => {
+                const row = `<tr><td>${index + 1}</td><td class="text-left">${item.ma || ''}</td><td class="text-left">${item.ten || ''}</td><td>${item.dvt || ''}</td><td>${item.sl || ''}</td><td class="text-right">${item.donGia || ''}</td><td class="text-left">${item.mau || ''}</td><td>${item.s || ''}</td><td>${item.m || ''}</td><td>${item.l || ''}</td><td>${item.xl || ''}</td><td>${item.xxl || ''}</td><td>${item['3xl'] || ''}</td><td>${item['4xl'] || ''}</td><td class="text-right">${item.thanhTienBaoBi || ''}</td><td class="text-right">${item.thanhTienChietKhau || ''}</td><td>${item.ghiChu || ''}</td></tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+        
+        function downloadPDF() {
+            const downloadBtn = document.getElementById('download-btn');
+            downloadBtn.textContent = 'Đang xử lý...';
+            downloadBtn.disabled = true;
+
+            const element = document.getElementById('invoice-content'); // Target the inner content div
+            const soPhieu = document.getElementById('soPhieu').textContent || 'PhieuXuatKho';
+
+            const opt = {
+                margin:       5, // Let jsPDF handle the margin
+                filename:     `${soPhieu}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' },
+                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                downloadBtn.textContent = '📄 Tải PDF';
+                downloadBtn.disabled = false;
+            }).catch((err) => {
+                console.error("PDF generation failed:", err);
+                downloadBtn.textContent = '📄 Tải PDF';
+                downloadBtn.disabled = false;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const soPhieuParam = urlParams.get('soPhieu');
+            if (soPhieuParam) {
+                // LIVE MODE - Data from AppSheet
+                document.title = urlParams.get('tieuDePhieu') || `Phiếu - ${soPhieuParam}`;
+                const fields = [
+                    'tieuDePhieu', 'soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'khachHang', 'diaChi', 'tinh', 'khuVuc', 'doiTuong',
+                    'doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'ckkh', 'cknpp', 'ckKhac',
+                    'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL',
+                    'tongThanhTienBaoBi', 'tongThanhTienChietKhau',
+                    'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 
+                    'nganHang', 'chuTaiKhoan', 'ndChuyenKhoan',
+                    'tenNguoiLapFooter', 'tenNguoiDuyetFooter'
+                ];
+                fields.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element && urlParams.has(id)) { element.textContent = urlParams.get(id); }
+                });
+                
+                document.getElementById('qrSoPhieu').src = `https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=${encodeURIComponent(soPhieuParam)}`;
+                
+                const qrAmount = urlParams.get('tongThanhToanNumeric') || '0';
+                const qrAccountNo = urlParams.get('stk') || '19132563929019';
+                const qrAcqId = urlParams.get('acqId') || '970407';
+                const qrAccountName = urlParams.get('chuTaiKhoan') || 'CONG TY TNHH T&B VIET NAM';
+                document.getElementById('qrThanhToan').src = `https://img.vietqr.io/image/${qrAcqId}-${qrAccountNo}-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(soPhieuParam)}&accountName=${encodeURIComponent(qrAccountName)}`;
+                
+                const vatRateParam = urlParams.get('vatRate');
+                if (vatRateParam) { document.getElementById('vatLabelCell').textContent = `Thuế suất VAT (${vatRateParam}%):`; }
+                
+                const ghiChuText = urlParams.get('ghiChuCuoiPhieu');
+                if (ghiChuText && ghiChuText.trim() !== "") { 
+                    document.getElementById('ghiChuFooter').innerHTML = `<p style="margin:0; padding:0;"><strong>Ghi chú:</strong></p><p style="margin:0; padding:0; font-style: italic;">${ghiChuText}</p>`;
+                }
+                
+                const tongTienNumeric = parseInt(qrAmount, 10);
+                if (!isNaN(tongTienNumeric)) { document.getElementById('tongTienBangChu').textContent = numberToVietnameseWords(tongTienNumeric); }
+                
+                try {
+                    const chiTietData = JSON.parse(decodeURIComponent(urlParams.get('chiTietHangHoa')));
+                    populateTable(chiTietData);
+                } catch (e) { console.error("Error parsing chiTietHangHoa:", e); }
+            } else {
+                // DEMO MODE - For direct viewing and testing
+                document.title = 'PHIẾU XUẤT KHO (DEMO)';
+                populateTable(demoData.chiTietDonHang);
+                
+                document.getElementById('tieuDePhieu').textContent = 'PHIẾU XUẤT KHO';
+                document.getElementById('soPhieu').textContent = 'PX250904112753';
+                document.getElementById('ngay').textContent = '04/09/2025';
+                document.getElementById('qrSoPhieu').src = 'https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=PX250904112753';
+                document.getElementById('nhaPhanPhoi').textContent = 'Công Ty TB';
+                document.getElementById('nhanVien').textContent = 'Vũ Thị Minh KD';
+                document.getElementById('khachHang').textContent = 'Shop Quang Huy';
+                document.getElementById('diaChi').textContent = '257,Trần Nhân Tông,P yên Thanh, TP Uông Bí, Tỉnh Quảng Ninh';
+                document.getElementById('tinh').textContent = 'Quảng Ninh';
+                document.getElementById('khuVuc').textContent = 'ĐB';
+                document.getElementById('doanhSoNVKD').textContent = '4.395.600 đ';
+                document.getElementById('doanhSoNPP').textContent = '4.395.600 đ';
+                document.getElementById('tienTraNPP').textContent = '0 đ';
+                document.getElementById('tienPhaiThu').textContent = '4.884.000 đ';
+                document.getElementById('doiTuong').textContent = 'khách lẻ';
+                document.getElementById('ckkh').textContent = '40%';
+                document.getElementById('cknpp').textContent = '0%';
+                document.getElementById('ckKhac').textContent = '10%';
+                
+                document.getElementById('tongCongSoLuong').textContent = '13';
+                document.getElementById('tongSizeS').textContent = '5';
+                document.getElementById('tongSizeM').textContent = '2';
+                document.getElementById('tongSizeL').textContent = '2';
+                document.getElementById('tongSizeXL').textContent = '4';
+                document.getElementById('tongSizeXXL').textContent = '0';
+                document.getElementById('tongSize3XL').textContent = '0';
+                document.getElementById('tongSize4XL').textContent = '0';
+                document.getElementById('tongThanhTienBaoBi').textContent = '8.140.000 đ';
+                document.getElementById('tongThanhTienChietKhau').textContent = '4.884.000 đ';
+                
+                document.getElementById('ghiChuFooter').innerHTML = `<p style="margin:0; padding:0;"><strong>Ghi chú:</strong></p><p style="margin:0; padding:0; font-style: italic;">Vui lòng kiểm tra hàng kỹ trước khi nhận.</p>`;
+                document.getElementById('nganHang').textContent = 'Techcombank';
+                document.getElementById('chuTaiKhoan').textContent = 'CONG TY TNHH T&B VIET NAM';
+                document.getElementById('ndChuyenKhoan').textContent = 'PX250904112753';
+                document.getElementById('qrThanhToan').src = 'https://img.vietqr.io/image/970407-19132563929019-compact2.png?amount=4884000&addInfo=PX250904112753&accountName=CONG%20TY%20TNHH%20T%26B%20VIET%20NAM';
+
+                document.getElementById('congTienHang').textContent = '8.140.000 đ';
+                document.getElementById('tienChietKhau').textContent = '3.256.000 đ';
+                document.getElementById('tongTruocVAT').textContent = '4.884.000 đ';
+                document.getElementById('vatLabelCell').textContent = 'Thuế suất VAT (0%):';
+                document.getElementById('tienVAT').textContent = '0 đ';
+                document.getElementById('tongThanhToan').textContent = '4.884.000 đ';
+                document.getElementById('tongTienBangChu').textContent = numberToVietnameseWords(4884000);
+
+                document.getElementById('tenNguoiLapFooter').textContent = 'Hoàng Thị Kim Thành';
+                document.getElementById('tenNguoiDuyetFooter').textContent = '';
+            }
+        });
+    </script>
+</body>
+</html>
