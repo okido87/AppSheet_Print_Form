@@ -52,7 +52,7 @@
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         .header-table td { padding: 1px 4px; vertical-align: middle; }
         .logo { max-height: 50px; display: block; }
-        .company-details-wrapper { width: 55%; }
+        .company-details-wrapper { width: 65%; } /* <-- ĐÃ TĂNG */
         .company-details-wrapper h3 { margin: 0; font-size: 15px; text-transform: uppercase; font-weight: bold; }
         .company-details-wrapper p { margin: 0; font-size: 13px; }
         .title-cell { text-align: center; vertical-align: middle; }
@@ -92,8 +92,8 @@
         .summary-details-table { width: 100%; border-collapse: collapse; }
         .summary-details-table td { border: none; padding: 2px 5px; }
         .summary-details-table tr:not(:first-child) td { border-top: 1px solid #ccc; }
-        .summary-details-table .label { text-align: left; font-weight: normal; padding-left: 1em; } /* <-- THAY ĐỔI */
-        .summary-details-table .value { text-align: right; font-weight: bold; } /* <-- THAY ĐỔI */
+        .summary-details-table .label { text-align: left; font-weight: normal; padding-left: 1em; }
+        .summary-details-table .value { text-align: right; font-weight: bold; }
         .summary-details-table .total-label-cell { font-size: 14px; }
         .summary-details-table .total-value-cell { font-size: 14px; }
 
@@ -133,6 +133,7 @@
                     </td>
                     <td class="title-cell">
                         <h1 id="tieuDePhieu"></h1>
+                        <!-- ##### SỬA LỖI Ở ĐÂY: TÁCH THÀNH 2 DÒNG ##### -->
                         <p>Số phiếu: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span></p>
                         <p>Ngày: <span id="ngay" class="dynamic-value"></span></p>
                     </td>
@@ -191,9 +192,13 @@
                         <th rowspan="2" style="width: 8%;">Ghi chú</th>
                     </tr>
                     <tr>
-                        <th style="width: 3.5%;">S (29)</th><th style="width: 3.5%;">M (30)</th><th style="width: 3.5%;">L (31)</th>
-                        <th style="width: 3.5%;">XL(32)</th><th style="width: 3.5%;">XXL(33)</th><th style="width: 3.5%;">3XL(34)</th>
-                        <th style="width: 3.5%;">4XL(35)</th>
+                        <th style="width: 3.5%;">S<br>(29)</th>
+                        <th style="width: 3.5%;">M<br>(30)</th>
+                        <th style="width: 3.5%;">L<br>(31)</th>
+                        <th style="width: 3.5%;">XL<br>(32)</th>
+                        <th style="width: 3.5%;">XXL<br>(33)</th>
+                        <th style="width: 3.5%;">3XL<br>(34)</th>
+                        <th style="width: 3.5%;">4XL<br>(35)</th>
                     </tr>
                 </thead>
                 <tbody id="chiTietDonHang"></tbody>
@@ -371,7 +376,6 @@
                 fields.forEach(id => {
                     const element = document.getElementById(id);
                     if (element && urlParams.has(id)) { 
-                        // Format currency fields
                         if (['doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongThanhTienBaoBi', 'tongThanhTienChietKhau'].includes(id)) {
                            element.textContent = formatCurrency(urlParams.get(id));
                         } else {
