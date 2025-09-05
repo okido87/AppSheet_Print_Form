@@ -52,7 +52,7 @@
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         .header-table td { padding: 1px 4px; vertical-align: middle; }
         .logo { max-height: 50px; display: block; }
-        .company-details-wrapper { width: 65%; } /* <-- ĐÃ TĂNG */
+        .company-details-wrapper { width: 55%; }
         .company-details-wrapper h3 { margin: 0; font-size: 15px; text-transform: uppercase; font-weight: bold; }
         .company-details-wrapper p { margin: 0; font-size: 13px; }
         .title-cell { text-align: center; vertical-align: middle; }
@@ -66,7 +66,6 @@
         .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed;}
         .info-table td { border: 1px solid #000; padding: 3px 5px; vertical-align: top; }
         .info-table td strong { font-weight: bold; }
-        /* Nested table for financial info */
         .financial-info-table { width: 100%; }
         .financial-info-table td { border: none; padding: 1px 2px; }
 
@@ -88,13 +87,13 @@
         .qr-container table { width: 100%; border-collapse: collapse; }
         .qr-container td { border: none; padding: 0; vertical-align: middle; }
         .qr-image-cell { width: 120px; padding-right: 10px;}
-        .qr-image-cell img { width: 108px; height: 108px; display: block; } /* <-- TĂNG KÍCH THƯỚC */
+        .qr-image-cell img { width: 108px; height: 108px; display: block; }
         .qr-info-cell .payment-info p { margin: 1px 0; font-size: 12px; text-align: left; }
         .summary-details-table { width: 100%; border-collapse: collapse; }
         .summary-details-table td { border: none; padding: 2px 5px; }
         .summary-details-table tr:not(:first-child) td { border-top: 1px solid #ccc; }
-        .summary-details-table .label { text-align: right; font-weight: normal; }
-        .summary-details-table .value { text-align: right; font-weight: bold; }
+        .summary-details-table .label { text-align: left; font-weight: normal; padding-left: 1em; } /* <-- THAY ĐỔI */
+        .summary-details-table .value { text-align: right; font-weight: bold; } /* <-- THAY ĐỔI */
         .summary-details-table .total-label-cell { font-size: 14px; }
         .summary-details-table .total-value-cell { font-size: 14px; }
 
@@ -257,15 +256,21 @@
     </div>
 
     <script>
-        const demoData = { /* Data remains unchanged */ };
+        const demoData = {
+             chiTietDonHang: [
+                {ma: 'GAS006-Đ', ten: 'Slim fit', dvt: 'Chiếc', sl: 2, donGia: '625000', mau: 'Đen', s: 2, m: '', l: '', xl: '', xxl: '', '3xl': '', '4xl': '', thanhTienBaoBi: '1250000', thanhTienChietKhau: '750000', ghiChu: ''},
+                {ma: 'GAR002-Đ', ten: 'Regular', dvt: 'Chiếc', sl: 7, donGia: '650000', mau: 'Đen', s: 1, m: 2, l: 2, xl: 2, xxl: '', '3xl': '', '4xl': '', thanhTienBaoBi: '4550000', thanhTienChietKhau: '2730000', ghiChu: ''},
+                {ma: 'GAS7-Đ', ten: 'Slim fit', dvt: 'Chiếc', sl: 2, donGia: '545000', mau: 'Đen', s: 2, m: '', l: '', xl: '', xxl: '', '3xl': '', '4xl': '', thanhTienBaoBi: '1090000', thanhTienChietKhau: '654000', ghiChu: ''},
+                {ma: 'GAS006-GX', ten: 'Slim fit', dvt: 'Chiếc', sl: 2, donGia: '625000', mau: 'Ghi Xám', s: '', m: '', l: '', xl: 2, xxl: '', '3xl': '', '4xl': '', thanhTienBaoBi: '1250000', thanhTienChietKhau: '750000', ghiChu: ''},
+            ]
+        };
         
         function formatCurrency(numStr) {
-            if (!numStr) return '';
-            // Remove non-numeric characters except for a decimal point
+            if (!numStr || String(numStr).trim() === '') return '';
             let cleanStr = String(numStr).replace(/[^\d.]/g, '');
             let number = parseFloat(cleanStr);
-            if (isNaN(number)) return numStr; // Return original if it's not a number
-            return new Intl.NumberFormat('vi-VN').format(number) + ' đ';
+            if (isNaN(number)) return numStr;
+            return new Intl.NumberFormat('vi-VN').format(number);
         }
 
         function populateTable(data) {
@@ -277,17 +282,6 @@
             });
         }
         
-        function numberToVietnameseWords(n) { /* Function unchanged */ }
-        function downloadPDF() { /* Function unchanged */ }
-
-        // The entire script block from the previous answer is copied here.
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... (Full script is here, including both LIVE and DEMO modes)
-        });
-    </script>
-    <script>
-        // Full script logic is placed here to ensure functionality
-        // (This includes the demoData object and all functions)
         function numberToVietnameseWords(n) {
             const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
             const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
@@ -323,16 +317,17 @@
             finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1);
             return finalStr + ' đồng.';
         }
+        
         function downloadPDF() {
             const downloadBtn = document.getElementById('download-btn');
             downloadBtn.textContent = 'Đang xử lý...';
             downloadBtn.disabled = true;
 
-            const element = document.getElementById('invoice-content'); // Target the inner content div
+            const element = document.getElementById('invoice-content');
             const soPhieu = document.getElementById('soPhieu').textContent || 'PhieuXuatKho';
 
             const opt = {
-                margin:       5, // Let jsPDF handle the margin
+                margin:       5,
                 filename:     `${soPhieu}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
@@ -349,14 +344,23 @@
                 downloadBtn.disabled = false;
             });
         }
+
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const soPhieuParam = urlParams.get('soPhieu');
             if (soPhieuParam) {
-                // LIVE MODE - Data from AppSheet
-                document.title = urlParams.get('tieuDePhieu') || `Phiếu - ${soPhieuParam}`;
+                // LIVE MODE
+                const tieuDeParam = urlParams.get('tieuDePhieu');
+                if (tieuDeParam) {
+                    const finalTitle = `PHIẾU ${tieuDeParam.toUpperCase()}`;
+                    document.getElementById('tieuDePhieu').textContent = finalTitle;
+                    document.title = `${finalTitle} - ${soPhieuParam}`;
+                } else {
+                    document.title = `Phiếu - ${soPhieuParam}`;
+                }
+
                 const fields = [
-                    'tieuDePhieu', 'soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'khachHang', 'diaChi', 'tinh', 'khuVuc', 'doiTuong',
+                    'soPhieu', 'ngay', 'nhaPhanPhoi', 'nhanVien', 'khachHang', 'diaChi', 'tinh', 'khuVuc', 'doiTuong',
                     'doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'ckkh', 'cknpp', 'ckKhac',
                     'tongCongSoLuong', 'tongSizeS', 'tongSizeM', 'tongSizeL', 'tongSizeXL', 'tongSizeXXL', 'tongSize3XL', 'tongSize4XL',
                     'tongThanhTienBaoBi', 'tongThanhTienChietKhau',
@@ -366,36 +370,38 @@
                 ];
                 fields.forEach(id => {
                     const element = document.getElementById(id);
-                    if (element && urlParams.has(id)) { element.textContent = urlParams.get(id); }
+                    if (element && urlParams.has(id)) { 
+                        // Format currency fields
+                        if (['doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongThanhTienBaoBi', 'tongThanhTienChietKhau'].includes(id)) {
+                           element.textContent = formatCurrency(urlParams.get(id));
+                        } else {
+                           element.textContent = urlParams.get(id); 
+                        }
+                    }
                 });
                 
                 document.getElementById('qrSoPhieu').src = `https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=${encodeURIComponent(soPhieuParam)}`;
-                
                 const qrAmount = urlParams.get('tongThanhToanNumeric') || '0';
                 const qrAccountNo = urlParams.get('stk') || '19132563929019';
                 const qrAcqId = urlParams.get('acqId') || '970407';
                 const qrAccountName = urlParams.get('chuTaiKhoan') || 'CONG TY TNHH T&B VIET NAM';
                 document.getElementById('qrThanhToan').src = `https://img.vietqr.io/image/${qrAcqId}-${qrAccountNo}-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(soPhieuParam)}&accountName=${encodeURIComponent(qrAccountName)}`;
-                
                 const vatRateParam = urlParams.get('vatRate');
                 if (vatRateParam) { document.getElementById('vatLabelCell').textContent = `Thuế suất VAT (${vatRateParam}%):`; }
-                
                 const ghiChuText = urlParams.get('ghiChuCuoiPhieu');
                 if (ghiChuText && ghiChuText.trim() !== "") { 
                     document.getElementById('ghiChuFooter').innerHTML = `<p style="margin:0; padding:0;"><strong>Ghi chú:</strong></p><p style="margin:0; padding:0; font-style: italic;">${ghiChuText}</p>`;
                 }
-                
                 const tongTienNumeric = parseInt(qrAmount, 10);
                 if (!isNaN(tongTienNumeric)) { document.getElementById('tongTienBangChu').textContent = numberToVietnameseWords(tongTienNumeric); }
-                
                 try {
                     const chiTietData = JSON.parse(decodeURIComponent(urlParams.get('chiTietHangHoa')));
                     populateTable(chiTietData);
                 } catch (e) { console.error("Error parsing chiTietHangHoa:", e); }
             } else {
-                // DEMO MODE - For direct viewing and testing
+                // DEMO MODE
                 document.title = 'PHIẾU XUẤT KHO (DEMO)';
-                populateTable(demoData.chiTietDonHang);
+                populateTable(demoData);
                 
                 document.getElementById('tieuDePhieu').textContent = 'PHIẾU XUẤT KHO';
                 document.getElementById('soPhieu').textContent = 'PX250904112753';
