@@ -53,8 +53,8 @@
         .header-table td { padding: 1px 4px; vertical-align: middle; }
         .logo { max-height: 50px; display: block; }
         .company-details-wrapper { width: 55%; }
-        .company-details-wrapper h3 { margin: 0; font-size: 13px; text-transform: uppercase; font-weight: bold; }
-        .company-details-wrapper p { margin: 0; font-size: 11px; }
+        .company-details-wrapper h3 { margin: 0; font-size: 14px; text-transform: uppercase; font-weight: bold; }
+        .company-details-wrapper p { margin: 0; font-size: 12px; }
         .title-cell { text-align: center; vertical-align: middle; }
         .title-cell h1 { margin: 0 0 5px 0; font-size: 24px; font-weight: bold; text-transform: uppercase; }
         .title-cell p { margin: 2px 0; font-size: 14px; }
@@ -133,7 +133,8 @@
                     </td>
                     <td class="title-cell">
                         <h1 id="tieuDePhieu"></h1>
-                        <p>Số: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span> | Ngày: <span id="ngay" class="dynamic-value"></span></p>
+                        <p>Số phiếu: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span></p>
+                        <p>Ngày: <span id="ngay" class="dynamic-value"></span></p>
                     </td>
                     <td class="qr-header-cell"><img id="qrSoPhieu" src="" alt="QR Code" crossorigin="anonymous"></td>
                 </tr>
@@ -213,6 +214,7 @@
                 <table class="summary-table">
                     <tr>
                         <td class="notes-cell">
+                             <!-- ##### KHÔI PHỤC LẠI MỤC GHI CHÚ ##### -->
                             <div id="ghiChuFooter" style="margin-bottom: 10px;"></div>
                         </td>
                         <td class="payment-qr-cell">
@@ -269,8 +271,8 @@
         // --- SỬA LỖI HÀM FORMAT TIỀN TỆ ---
         function formatCurrency(numStr) {
             if (!numStr || String(numStr).trim() === '') return '';
-            // Xóa tất cả ký tự không phải số (giữ lại dấu chấm thập phân nếu có)
-            let cleanStr = String(numStr).replace(/[^0-9.]/g, '');
+            // Xóa tất cả ký tự không phải số
+            let cleanStr = String(numStr).replace(/[^\d]/g, '');
             let number = parseFloat(cleanStr);
             if (isNaN(number)) return numStr; // Trả về chuỗi gốc nếu không phải là số
             return new Intl.NumberFormat('vi-VN').format(number);
@@ -285,21 +287,6 @@
             });
         }
         
-        function numberToVietnameseWords(n) {
-            // ... Function unchanged ...
-        }
-        
-        function downloadPDF() {
-            // ... Function unchanged ...
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... (Full script is here, including both LIVE and DEMO modes)
-        });
-    </script>
-    <script>
-        // Full script logic is placed here to ensure functionality
-        // (This includes the demoData object and all functions)
         function numberToVietnameseWords(n) {
             const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
             const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
@@ -335,6 +322,7 @@
             finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1);
             return finalStr + ' đồng.';
         }
+        
         function downloadPDF() {
             const downloadBtn = document.getElementById('download-btn');
             downloadBtn.textContent = 'Đang xử lý...';
@@ -361,6 +349,7 @@
                 downloadBtn.disabled = false;
             });
         }
+
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const soPhieuParam = urlParams.get('soPhieu');
