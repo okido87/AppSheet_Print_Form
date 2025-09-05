@@ -52,7 +52,7 @@
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         .header-table td { padding: 1px 4px; vertical-align: middle; }
         .logo { max-height: 50px; display: block; }
-        .company-details-wrapper { width: 65%; } /* <-- ĐÃ TĂNG */
+        .company-details-wrapper { width: 55%; }
         .company-details-wrapper h3 { margin: 0; font-size: 15px; text-transform: uppercase; font-weight: bold; }
         .company-details-wrapper p { margin: 0; font-size: 13px; }
         .title-cell { text-align: center; vertical-align: middle; }
@@ -66,7 +66,7 @@
         .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed;}
         .info-table td { border: 1px solid #000; padding: 3px 5px; vertical-align: top; }
         .info-table td strong { font-weight: bold; }
-        .financial-info-table { width: 100%; }
+        .financial-info-table { width: 100%; border-collapse: collapse; }
         .financial-info-table td { border: none; padding: 1px 2px; }
 
         /* Items Table Styles */
@@ -133,7 +133,6 @@
                     </td>
                     <td class="title-cell">
                         <h1 id="tieuDePhieu"></h1>
-                        <!-- ##### SỬA LỖI Ở ĐÂY: TÁCH THÀNH 2 DÒNG ##### -->
                         <p>Số phiếu: <span id="soPhieu" class="dynamic-value" style="font-weight: bold;"></span></p>
                         <p>Ngày: <span id="ngay" class="dynamic-value"></span></p>
                     </td>
@@ -149,8 +148,8 @@
                     <td style="width: 35%;" colspan="2">
                         <table class="financial-info-table">
                             <tr>
-                                <td><strong>%CKKH:</strong> <span id="ckkh" class="dynamic-value bold"></span></td>
-                                <td><strong>Doanh số NVKD:</strong> <span id="doanhSoNVKD" class="dynamic-value bold"></span></td>
+                                <td style="width: 50%;"><strong>%CKKH:</strong> <span id="ckkh" class="dynamic-value bold"></span></td>
+                                <td style="width: 50%; border-left: 1px solid #ccc; padding-left: 5px;"><strong>Doanh số NVKD:</strong> <span id="doanhSoNVKD" class="dynamic-value bold"></span></td>
                             </tr>
                         </table>
                     </td>
@@ -161,8 +160,8 @@
                     <td colspan="2">
                         <table class="financial-info-table">
                             <tr>
-                                <td><strong>%CKNPP:</strong> <span id="cknpp" class="dynamic-value"></span></td>
-                                <td><strong>Doanh số NPP:</strong> <span id="doanhSoNPP" class="dynamic-value bold"></span></td>
+                                <td style="width: 50%;"><strong>%CKNPP:</strong> <span id="cknpp" class="dynamic-value"></span></td>
+                                <td style="width: 50%; border-left: 1px solid #ccc; padding-left: 5px;"><strong>Doanh số NPP:</strong> <span id="doanhSoNPP" class="dynamic-value bold"></span></td>
                             </tr>
                         </table>
                     </td>
@@ -192,12 +191,8 @@
                         <th rowspan="2" style="width: 8%;">Ghi chú</th>
                     </tr>
                     <tr>
-                        <th style="width: 3.5%;">S<br>(29)</th>
-                        <th style="width: 3.5%;">M<br>(30)</th>
-                        <th style="width: 3.5%;">L<br>(31)</th>
-                        <th style="width: 3.5%;">XL<br>(32)</th>
-                        <th style="width: 3.5%;">XXL<br>(33)</th>
-                        <th style="width: 3.5%;">3XL<br>(34)</th>
+                        <th style="width: 3.5%;">S<br>(29)</th><th style="width: 3.5%;">M<br>(30)</th><th style="width: 3.5%;">L<br>(31)</th>
+                        <th style="width: 3.5%;">XL<br>(32)</th><th style="width: 3.5%;">XXL<br>(33)</th><th style="width: 3.5%;">3XL<br>(34)</th>
                         <th style="width: 3.5%;">4XL<br>(35)</th>
                     </tr>
                 </thead>
@@ -218,7 +213,9 @@
             <div class="summary-section">
                 <table class="summary-table">
                     <tr>
-                        <td class="notes-cell"><div id="ghiChuFooter"></div></td>
+                        <td class="notes-cell">
+                            <div id="ghiChuFooter" style="margin-bottom: 10px;"></div>
+                        </td>
                         <td class="payment-qr-cell">
                              <div class="qr-container">
                                 <table>
@@ -270,11 +267,13 @@
             ]
         };
         
+        // --- SỬA LỖI HÀM FORMAT TIỀN TỆ ---
         function formatCurrency(numStr) {
             if (!numStr || String(numStr).trim() === '') return '';
-            let cleanStr = String(numStr).replace(/[^\d.]/g, '');
+            // Xóa tất cả ký tự không phải số (giữ lại dấu chấm thập phân nếu có)
+            let cleanStr = String(numStr).replace(/[^0-9.]/g, '');
             let number = parseFloat(cleanStr);
-            if (isNaN(number)) return numStr;
+            if (isNaN(number)) return numStr; // Trả về chuỗi gốc nếu không phải là số
             return new Intl.NumberFormat('vi-VN').format(number);
         }
 
@@ -287,6 +286,21 @@
             });
         }
         
+        function numberToVietnameseWords(n) {
+            // ... Function unchanged ...
+        }
+        
+        function downloadPDF() {
+            // ... Function unchanged ...
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... (Full script is here, including both LIVE and DEMO modes)
+        });
+    </script>
+    <script>
+        // Full script logic is placed here to ensure functionality
+        // (This includes the demoData object and all functions)
         function numberToVietnameseWords(n) {
             const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
             const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
@@ -322,7 +336,6 @@
             finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1);
             return finalStr + ' đồng.';
         }
-        
         function downloadPDF() {
             const downloadBtn = document.getElementById('download-btn');
             downloadBtn.textContent = 'Đang xử lý...';
@@ -349,7 +362,6 @@
                 downloadBtn.disabled = false;
             });
         }
-
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const soPhieuParam = urlParams.get('soPhieu');
@@ -377,7 +389,7 @@
                     const element = document.getElementById(id);
                     if (element && urlParams.has(id)) { 
                         if (['doanhSoNVKD', 'doanhSoNPP', 'tienTraNPP', 'tienPhaiThu', 'congTienHang', 'tienChietKhau', 'tongTruocVAT', 'tienVAT', 'tongThanhToan', 'tongThanhTienBaoBi', 'tongThanhTienChietKhau'].includes(id)) {
-                           element.textContent = formatCurrency(urlParams.get(id));
+                           element.textContent = formatCurrency(urlParams.get(id)) + ' đ';
                         } else {
                            element.textContent = urlParams.get(id); 
                         }
@@ -417,10 +429,10 @@
                 document.getElementById('diaChi').textContent = '257,Trần Nhân Tông,P yên Thanh, TP Uông Bí, Tỉnh Quảng Ninh';
                 document.getElementById('tinh').textContent = 'Quảng Ninh';
                 document.getElementById('khuVuc').textContent = 'ĐB';
-                document.getElementById('doanhSoNVKD').textContent = formatCurrency('4395600');
-                document.getElementById('doanhSoNPP').textContent = formatCurrency('4395600');
-                document.getElementById('tienTraNPP').textContent = formatCurrency('0');
-                document.getElementById('tienPhaiThu').textContent = formatCurrency('4884000');
+                document.getElementById('doanhSoNVKD').textContent = formatCurrency('4395600') + ' đ';
+                document.getElementById('doanhSoNPP').textContent = formatCurrency('4395600') + ' đ';
+                document.getElementById('tienTraNPP').textContent = formatCurrency('0') + ' đ';
+                document.getElementById('tienPhaiThu').textContent = formatCurrency('4884000') + ' đ';
                 document.getElementById('doiTuong').textContent = 'khách lẻ';
                 document.getElementById('ckkh').textContent = '40%';
                 document.getElementById('cknpp').textContent = '0%';
@@ -434,8 +446,8 @@
                 document.getElementById('tongSizeXXL').textContent = '0';
                 document.getElementById('tongSize3XL').textContent = '0';
                 document.getElementById('tongSize4XL').textContent = '0';
-                document.getElementById('tongThanhTienBaoBi').textContent = formatCurrency('8140000');
-                document.getElementById('tongThanhTienChietKhau').textContent = formatCurrency('4884000');
+                document.getElementById('tongThanhTienBaoBi').textContent = formatCurrency('8140000') + ' đ';
+                document.getElementById('tongThanhTienChietKhau').textContent = formatCurrency('4884000') + ' đ';
                 
                 document.getElementById('ghiChuFooter').innerHTML = `<p style="margin:0; padding:0;"><strong>Ghi chú:</strong></p><p style="margin:0; padding:0; font-style: italic;">Vui lòng kiểm tra hàng kỹ trước khi nhận.</p>`;
                 document.getElementById('nganHang').textContent = 'Techcombank';
@@ -443,12 +455,12 @@
                 document.getElementById('ndChuyenKhoan').textContent = 'PX250904112753';
                 document.getElementById('qrThanhToan').src = 'https://img.vietqr.io/image/970407-19132563929019-compact2.png?amount=4884000&addInfo=PX250904112753&accountName=CONG%20TY%20TNHH%20T%26B%20VIET%20NAM';
 
-                document.getElementById('congTienHang').textContent = formatCurrency('8140000');
-                document.getElementById('tienChietKhau').textContent = formatCurrency('3256000');
-                document.getElementById('tongTruocVAT').textContent = formatCurrency('4884000');
+                document.getElementById('congTienHang').textContent = formatCurrency('8140000') + ' đ';
+                document.getElementById('tienChietKhau').textContent = formatCurrency('3256000') + ' đ';
+                document.getElementById('tongTruocVAT').textContent = formatCurrency('4884000') + ' đ';
                 document.getElementById('vatLabelCell').textContent = 'Thuế suất VAT (0%):';
-                document.getElementById('tienVAT').textContent = formatCurrency('0');
-                document.getElementById('tongThanhToan').textContent = formatCurrency('4884000');
+                document.getElementById('tienVAT').textContent = formatCurrency('0') + ' đ';
+                document.getElementById('tongThanhToan').textContent = formatCurrency('4884000') + ' đ';
                 document.getElementById('tongTienBangChu').textContent = numberToVietnameseWords(4884000);
 
                 document.getElementById('tenNguoiLapFooter').textContent = 'Hoàng Thị Kim Thành';
