@@ -95,12 +95,12 @@
         .summary-section { margin-bottom: 10px; line-height: 1.5; }
         .amount-in-words { font-weight: bold; font-style: italic; }
 
-        .signature-area { margin-top: 40px; }
+        .signature-area { margin-top: 20px; /* CHANGED: Giảm từ 40px xuống 20px */ }
         .signature-row { display: flex; justify-content: space-around; align-items: flex-start; margin-bottom: 10px; }
         .signature-row:last-child { margin-bottom: 0; }
         .signature-block { width: 30%; text-align: center; }
         .signature-block .role { font-weight: bold; line-height: 1.3; }
-        .signature-block .name-container { margin-top: 60px; font-weight: bold; }
+        .signature-block .name-container { margin-top: 40px; /* CHANGED: Giảm từ 60px xuống 40px */ font-weight: bold; }
         .signature-font { font-family: 'Brush Script MT', 'cursive', sans-serif; font-size: 1.6em; color: #000080; height: 40px; }
         
         @media screen and (min-width: 821px) {
@@ -158,6 +158,7 @@
         <option value="fino1">Đề nghị Thanh toán (FINO1)</option>
         <option value="fino2">Đề nghị Tạm ứng (FINO2)</option>
         <option value="fino4">Đề nghị Thu Hoàn ứng (FINO4)</option>
+        <option value="fino5">Đề nghị Thu tiền (FIN05)</option>
     </select>
     <div class="actions">
         <button class="print-btn">🖨️ In Phiếu</button>
@@ -168,6 +169,7 @@
 <div class="page-preview-wrapper"><div id="form-fino1" class="a4-page"></div></div>
 <div class="page-preview-wrapper"><div id="form-fino2" class="a4-page"></div></div>
 <div class="page-preview-wrapper"><div id="form-fino4" class="a4-page"></div></div>
+<div class="page-preview-wrapper"><div id="form-fino5" class="a4-page"></div></div>
 
 <script>
 const demoData = {
@@ -194,6 +196,13 @@ const demoData = {
             signatures: { director: "Lê Việt Hùng", chief_accountant: "Nguyễn Thị Lan Anh", head_of_dept: "Trần Văn Bình", requestor: "TRẦN THỊ DUYÊN ANH", accountant: "Lê Minh Châu" }
         },
         details: [ { description: "Thu hoàn ứng công tác phí ngày 20/08", amount: 750000, remark: "Hoàn tiền thừa sau quyết toán" } ]
+    },
+    fino5: {
+        request: {
+            request_type: "RECEIPT", applicant_name: "PHAN MINH TUẤN", department: "Kế toán", request_date: "09-Sep-25", ref_no: "", payment_method: "CASH", total_amount: 2700000, amount_in_words: "Hai triệu bảy trăm ngàn đồng", attachments: "",
+            signatures: { director: "Lê Việt Hùng", chief_accountant: "Nguyễn Thị Lan Anh", head_of_dept: "Trần Văn Bình", accountant: "Lê Minh Châu", requestor: "PHAN MINH TUẤN" }
+        },
+        details: [ { description: "Thu tiền mặt bán hàng", amount: 2700000, customer_id: "CUS-007", invoice: "INV-2025-098" } ]
     }
 };
 
@@ -203,103 +212,13 @@ function numberToWords(n) { if (n === null || n === undefined) return ''; n = pa
 function buildAndPopulateForm(formType, data, isDemo = false) {
     const { request, details } = data;
     if (!request.amount_in_words) { request.amount_in_words = numberToWords(request.total_amount); }
-    const isFino1 = formType === 'fino1', isFino2 = formType === 'fino2', isFino4 = formType === 'fino4';
-    let title = '', subtitle = '', detailsTitle = 'Số tiền <span class="lang-en">(VND)</span>';
+    const isFino1 = formType === 'fino1', isFino2 = formType === 'fino2', isFino4 = formType === 'fino4', isFino5 = formType === 'fino5';
+    let title = '', subtitle = '', infoGridHTML = '', detailsTableHTML = '', signatureAreaHTML = '';
+    
     if (isFino1) { title = 'ĐỀ NGHỊ THANH TOÁN'; subtitle = 'PAYMENT REQUEST'; }
-    if (isFino2) { title = 'PHIẾU ĐỀ NGHỊ TẠM ỨNG'; subtitle = 'REQUEST FOR ADVANCE'; detailsTitle = 'Số tiền <span class="lang-en">(Amount)</span>'; }
+    if (isFino2) { title = 'PHIẾU ĐỀ NGHỊ TẠM ỨNG'; subtitle = 'REQUEST FOR ADVANCE'; }
     if (isFino4) { title = 'ĐỀ NGHỊ THU HOÀN ỨNG'; subtitle = 'REFUND ADVANCE PAYMENT REQUEST'; }
-
-    let infoGridHTML = `
-        <tr>
-            <td class="label col-1">Người đề nghị <span class="lang-en">(Applicant)</span>:</td>
-            <td class="value col-2 data-value">${request.applicant_name || ''}</td>
-            <td class="label col-3">Ngày <span class="lang-en">(Date)</span>:</td>
-            <td class="value col-4 data-value">${request.request_date || ''}</td>
-        </tr>
-        <tr>
-            <td class="label col-1">Bộ phận <span class="lang-en">(Dept)</span>:</td>
-            <td class="value col-2 data-value">${request.department || ''}</td>
-            <td class="label col-3">Số <span class="lang-en">(Ref No.)</span>:</td>
-            <td class="value col-4 data-value">${request.ref_no || ''}</td>
-        </tr>`;
-
-    // --- START: LOGIC CẬP NHẬT ---
-    const createBankInfoHTML = (req) => {
-        const method = req.payment_method?.toLowerCase();
-        // Chỉ hiển thị thông tin ngân hàng nếu phương thức là 'bank'
-        if (method !== 'bank') {
-            return '';
-        }
-
-        const bankAndAccount = `${req.bank_name || ''} - ${req.bank_account || ''}`;
-        return `
-            <tr>
-                <td class="label col-1">Ngân hàng & STK <span class="lang-en">(Bank & Acc. No.)</span>:</td>
-                <td class="value col-2 data-value">${bankAndAccount.trim() === '-' ? '' : bankAndAccount}</td>
-                <td class="label col-3">Chủ tài khoản <span class="lang-en">(Acc. Holder)</span>:</td>
-                <td class="value col-4 data-value">${req.bank_account_holder || ''}</td>
-            </tr>`;
-    };
-    // --- END: LOGIC CẬP NHẬT ---
-
-    if (isFino2) {
-        infoGridHTML += `
-            <tr>
-                <td class="label col-1">Số dư tạm ứng <span class="lang-en">(Advance balance)</span>:</td>
-                <td class="value col-2 data-value">${formatCurrency(request.balance)}</td>
-                <td class="label col-3">Hạn thanh toán <span class="lang-en">(Deadline)</span>:</td>
-                <td class="value col-4 data-value">${request.settlement_deadline || ''}</td>
-            </tr>
-            <tr>
-                <td class="label">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td>
-                <td colspan="3" class="value checkbox-container">
-                    <div class="payment-methods">
-                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
-                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
-                    </div>
-                </td>
-            </tr>
-            ${createBankInfoHTML(request)}`;
-    } else if (isFino1) {
-        infoGridHTML += `
-            <tr>
-                <td class="label col-1">Tên nhà cung cấp <span class="lang-en">(Vendor name)</span>:</td>
-                <td class="value col-2 data-value">${request.vendor_name || ''}</td>
-                <td class="label col-3">Hạn thanh toán <span class="lang-en">(Deadline)</span>:</td>
-                <td class="value col-4 data-value">${request.settlement_deadline || ''}</td>
-            </tr>
-            <tr>
-                <td class="label">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td>
-                <td colspan="3" class="value checkbox-container">
-                    <div class="payment-methods">
-                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
-                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'visa' ? 'X' : ''}</span> VISA</div>
-                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
-                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'debt' ? 'X' : ''}</span> Debt offset</div>
-                    </div>
-                </td>
-            </tr>
-            ${createBankInfoHTML(request)}`;
-    } else if (isFino4) { 
-        infoGridHTML += `
-            <tr>
-                <td class="label col-1">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td>
-                <td class="value col-2 checkbox-container">
-                    <div class="payment-methods">
-                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
-                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
-                    </div>
-                </td>
-                <td class="label col-3">Hạn thanh toán <span class="lang-en">(Deadline)</span>:</td>
-                <td class="value col-4 data-value">${request.settlement_deadline || ''}</td>
-            </tr>
-            ${createBankInfoHTML(request)}`;
-    }
-
-    let detailsHTML = '';
-    details.forEach((item, index) => {
-        detailsHTML += `<tr><td class="center data-value">${index + 1}</td><td class="data-value">${item.description}</td><td class="number data-value">${formatCurrency(item.amount)}</td><td class="data-value">${item.remark || ''}</td></tr>`;
-    });
+    if (isFino5) { title = 'ĐỀ NGHỊ THU TIỀN'; subtitle = 'PAYMENT COLLECTION REQUEST'; }
 
     const buildSignature = (roleName, name) => { 
         const roleHTML = `<div class="role">${roleName}</div>`; 
@@ -319,15 +238,84 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
         accountant: isDemo ? request.signatures.accountant : request.accountant_id
     };
 
-    const sigDirectorHTML = buildSignature('Giám đốc<br><span class="lang-en">Director</span>', signatures.director);
-    const sigChiefAccHTML = buildSignature('Kế toán trưởng<br><span class="lang-en">Chief accountant</span>', signatures.chief_accountant);
-    const sigHeadDeptHTML = buildSignature('Trưởng bộ phận<br><span class="lang-en">Head of dept.</span>', signatures.head_of_dept);
-    const sigRequestorHTML = buildSignature('Người đề nghị<br><span class="lang-en">Requestor</span>', signatures.requestor);
-    const sigAccountantHTML = buildSignature('Kế toán thanh toán<br><span class="lang-en">Accountant</span>', signatures.accountant);
+    if (isFino5) {
+        infoGridHTML = `
+            <tr>
+                <td class="label col-1">Người đề nghị <span class="lang-en">(Applicant)</span>:</td>
+                <td class="value col-2 data-value">${request.applicant_name || ''}</td>
+                <td class="label col-3">Ngày <span class="lang-en">(Date)</span>:</td>
+                <td class="value col-4 data-value">${request.request_date || ''}</td>
+            </tr>
+            <tr>
+                <td class="label col-1">Bộ phận <span class="lang-en">(Dept)</span>:</td>
+                <td class="value col-2 data-value">${request.department || ''}</td>
+                <td class="label col-3">Số <span class="lang-en">(Ref No.)</span>:</td>
+                <td class="value col-4 data-value">${request.ref_no || ''}</td>
+            </tr>
+            <tr>
+                <td class="label">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td>
+                <td colspan="3" class="value checkbox-container">
+                    <div class="payment-methods">
+                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div>
+                        <div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div>
+                    </div>
+                </td>
+            </tr>`;
+        
+        let detailsRowsHTML = '';
+        details.forEach((item, index) => {
+            detailsRowsHTML += `<tr><td class="center data-value">${index + 1}</td><td class="data-value">${item.description || ''}</td><td class="number data-value">${formatCurrency(item.amount)}</td><td class="center data-value">${item.customer_id || ''}</td><td class="center data-value">${item.invoice || ''}</td></tr>`;
+        });
+        for (let i = details.length; i < 10; i++) { detailsRowsHTML += `<tr><td class="center">${i + 1}</td><td></td><td></td><td></td><td></td></tr>`; }
 
-    const finalHTML = `<div class="watermark">${isDemo ? 'BẢN DEMO' : ''}</div><div class="form-header"><div class="company-name">KARCHER VIETNAM</div><div class="form-no">Form no: <span class="data-value">${formType.toUpperCase()}</span></div></div><h1 class="form-title">${title}</h1><h2 class="form-subtitle lang-en">${subtitle}</h2><table class="info-grid">${infoGridHTML}</table>${isFino2 ? `<p style="font-weight:bold;">Chi tiết tạm ứng <span class="lang-en">(Advance detail)</span>:</p>` : ''}<table class="details-table"><thead><tr><th style="width:9%">STT <span class="lang-en">(No)</span></th><th style="width:46%">Diễn giải <span class="lang-en">(Description)</span></th><th style="width:25%">${detailsTitle}</th><th style="width:20%">Ghi chú <span class="lang-en">(Remark)</span></th></tr></thead><tbody>${detailsHTML}</tbody><tfoot><tr><td colspan="2" style="text-align:right; font-weight:bold;">TỔNG CỘNG <span class="lang-en">(TOTAL)</span></td><td class="number data-value" style="font-weight:bold;">${formatCurrency(request.total_amount)}</td><td></td></tr></tfoot></table><div class="summary-section"><strong>Bằng chữ <span class="lang-en">(In words)</span>:</strong> <span class="amount-in-words data-value">${request.amount_in_words || ''}</span></div>${!isFino2 ? `<div class="summary-section"><strong>Chứng từ đính kèm <span class="lang-en">(Supporting document)</span>:</strong> <span class="data-value">${request.attachments || ''}</span></div>` : ''}<div class="signature-area"><div class="signature-row"><div class="signature-block">${sigDirectorHTML}</div><div class="signature-block">${sigChiefAccHTML}</div><div class="signature-block">${sigHeadDeptHTML}</div></div><div class="signature-row"><div class="signature-block">${sigRequestorHTML}</div><div class="signature-block">${sigAccountantHTML}</div><div class="signature-block"></div></div></div>`;
+        detailsTableHTML = `
+            <table class="details-table">
+                <thead>
+                    <tr><th rowspan="2" style="width:5%; vertical-align: middle;">Số TT<br><span class="lang-en">No</span></th><th rowspan="2" style="width:40%; vertical-align: middle;">Diễn giải<br><span class="lang-en">Description</span></th><th rowspan="2" style="width:25%; vertical-align: middle;">Số tiền ( vnđ )<br><span class="lang-en">Amount</span></th><th colspan="2" style="width:30%;">Ghi chú<br><span class="lang-en">Remark</span></th></tr>
+                    <tr><th style="width:15%;">Customer ID</th><th style="width:15%;">Invoice</th></tr>
+                </thead>
+                <tbody>${detailsRowsHTML}</tbody>
+                <tfoot><tr><td colspan="2" style="text-align:right; font-weight:bold;">TOTAL</td><td class="number data-value" style="font-weight:bold;">${formatCurrency(request.total_amount)}</td><td colspan="2"></td></tr></tfoot>
+            </table>`;
+        
+        const sigDirectorHTML = buildSignature('Giám đốc<br><span class="lang-en">Director</span>', signatures.director);
+        const sigChiefAccHTML = buildSignature('Kế toán trưởng<br><span class="lang-en">Chief accountant</span>', signatures.chief_accountant);
+        const sigHeadDeptHTML = buildSignature('Trưởng bộ phận<br><span class="lang-en">Head of dept.</span>', signatures.head_of_dept);
+        const sigRequestorHTML = buildSignature('Người đề nghị<br><span class="lang-en">Requestor</span>', signatures.requestor);
+        const sigAccountantHTML = buildSignature('Kế toán thanh toán<br><span class="lang-en">Accountant</span>', signatures.accountant);
+        signatureAreaHTML = `<div class="signature-area"><div class="signature-row"><div class="signature-block">${sigDirectorHTML}</div><div class="signature-block">${sigChiefAccHTML}</div><div class="signature-block">${sigHeadDeptHTML}</div></div><div class="signature-row"><div class="signature-block">${sigRequestorHTML}</div><div class="signature-block">${sigAccountantHTML}</div><div class="signature-block"></div></div></div>`;
+    } else {
+        const createBankInfoHTML = (req) => { const method = req.payment_method?.toLowerCase(); if (method !== 'bank') { return ''; } const bankAndAccount = `${req.bank_name || ''} - ${req.bank_account || ''}`; return `<tr><td class="label col-1">Ngân hàng & STK <span class="lang-en">(Bank & Acc. No.)</span>:</td><td class="value col-2 data-value">${bankAndAccount.trim() === '-' ? '' : bankAndAccount}</td><td class="label col-3">Chủ tài khoản <span class="lang-en">(Acc. Holder)</span>:</td><td class="value col-4 data-value">${req.bank_account_holder || ''}</td></tr>`; };
+        
+        let baseInfoHTML = `<tr><td class="label col-1">Người đề nghị <span class="lang-en">(Applicant)</span>:</td><td class="value col-2 data-value">${request.applicant_name || ''}</td><td class="label col-3">Ngày <span class="lang-en">(Date)</span>:</td><td class="value col-4 data-value">${request.request_date || ''}</td></tr><tr><td class="label col-1">Bộ phận <span class="lang-en">(Dept)</span>:</td><td class="value col-2 data-value">${request.department || ''}</td><td class="label col-3">Số <span class="lang-en">(Ref No.)</span>:</td><td class="value col-4 data-value">${request.ref_no || ''}</td></tr>`;
+        
+        if (isFino2) {
+            infoGridHTML = baseInfoHTML + `<tr><td class="label col-1">Số dư tạm ứng <span class="lang-en">(Advance balance)</span>:</td><td class="value col-2 data-value">${formatCurrency(request.balance)}</td><td class="label col-3">Hạn thanh toán <span class="lang-en">(Deadline)</span>:</td><td class="value col-4 data-value">${request.settlement_deadline || ''}</td></tr><tr><td class="label">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td><td colspan="3" class="value checkbox-container"><div class="payment-methods"><div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div><div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div></div></td></tr>${createBankInfoHTML(request)}`;
+        } else if (isFino1) {
+            infoGridHTML = baseInfoHTML + `<tr><td class="label col-1">Tên nhà cung cấp <span class="lang-en">(Vendor name)</span>:</td><td class="value col-2 data-value">${request.vendor_name || ''}</td><td class="label col-3">Hạn thanh toán <span class="lang-en">(Deadline)</span>:</td><td class="value col-4 data-value">${request.settlement_deadline || ''}</td></tr><tr><td class="label">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td><td colspan="3" class="value checkbox-container"><div class="payment-methods"><div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div><div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'visa' ? 'X' : ''}</span> VISA</div><div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div><div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'debt' ? 'X' : ''}</span> Debt offset</div></div></td></tr>${createBankInfoHTML(request)}`;
+        } else if (isFino4) { 
+            infoGridHTML = baseInfoHTML + `<tr><td class="label col-1">Phương thức thanh toán <span class="lang-en">(Method of Payment)</span>:</td><td class="value col-2 checkbox-container"><div class="payment-methods"><div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'cash' ? 'X' : ''}</span> Cash</div><div class="method"><span class="checkbox-box data-value">${request.payment_method?.toLowerCase() === 'bank' ? 'X' : ''}</span> Bank transfer</div></div></td><td class="label col-3">Hạn thanh toán <span class="lang-en">(Deadline)</span>:</td><td class="value col-4 data-value">${request.settlement_deadline || ''}</td></tr>${createBankInfoHTML(request)}`;
+        }
+        
+        let detailsRowsHTML = '';
+        details.forEach((item, index) => { detailsRowsHTML += `<tr><td class="center data-value">${index + 1}</td><td class="data-value">${item.description}</td><td class="number data-value">${formatCurrency(item.amount)}</td><td class="data-value">${item.remark || ''}</td></tr>`; });
+        const detailsTitle = isFino2 ? 'Số tiền <span class="lang-en">(Amount)</span>' : 'Số tiền <span class="lang-en">(VND)</span>';
+        detailsTableHTML = `${isFino2 ? `<p style="font-weight:bold;">Chi tiết tạm ứng <span class="lang-en">(Advance detail)</span>:</p>` : ''}<table class="details-table"><thead><tr><th style="width:9%">STT <span class="lang-en">(No)</span></th><th style="width:46%">Diễn giải <span class="lang-en">(Description)</span></th><th style="width:25%">${detailsTitle}</th><th style="width:20%">Ghi chú <span class="lang-en">(Remark)</span></th></tr></thead><tbody>${detailsRowsHTML}</tbody><tfoot><tr><td colspan="2" style="text-align:right; font-weight:bold;">TỔNG CỘNG <span class="lang-en">(TOTAL)</span></td><td class="number data-value" style="font-weight:bold;">${formatCurrency(request.total_amount)}</td><td></td></tr></tfoot></table>`;
+        
+        const sigDirectorHTML = buildSignature('Giám đốc<br><span class="lang-en">Director</span>', signatures.director);
+        const sigChiefAccHTML = buildSignature('Kế toán trưởng<br><span class="lang-en">Chief accountant</span>', signatures.chief_accountant);
+        const sigHeadDeptHTML = buildSignature('Trưởng bộ phận<br><span class="lang-en">Head of dept.</span>', signatures.head_of_dept);
+        const sigRequestorHTML = buildSignature('Người đề nghị<br><span class="lang-en">Requestor</span>', signatures.requestor);
+        const sigAccountantHTML = buildSignature('Kế toán thanh toán<br><span class="lang-en">Accountant</span>', signatures.accountant);
+        signatureAreaHTML = `<div class="signature-area"><div class="signature-row"><div class="signature-block">${sigDirectorHTML}</div><div class="signature-block">${sigChiefAccHTML}</div><div class="signature-block">${sigHeadDeptHTML}</div></div><div class="signature-row"><div class="signature-block">${sigRequestorHTML}</div><div class="signature-block">${sigAccountantHTML}</div><div class="signature-block"></div></div></div>`;
+    }
+
+    const attachmentsHTML = (isFino1 || isFino4 || isFino5) ? `<div class="summary-section"><strong>Chứng từ đính kèm <span class="lang-en">(Supporting document)</span>:</strong> <span class="data-value">${request.attachments || ''}</span></div>` : '';
+
+    const finalHTML = `<div class="watermark">${isDemo ? 'BẢN DEMO' : ''}</div><div class="form-header"><div class="company-name">KARCHER VIETNAM</div><div class="form-no">Form no: <span class="data-value">${formType.toUpperCase().replace('O','0')}</span></div></div><h1 class="form-title">${title}</h1><h2 class="form-subtitle lang-en">${subtitle}</h2><table class="info-grid">${infoGridHTML}</table>${detailsTableHTML}<div class="summary-section"><strong>Bằng chữ <span class="lang-en">(In words)</span>:</strong> <span class="amount-in-words data-value">${request.amount_in_words || ''}</span></div>${attachmentsHTML}${signatureAreaHTML}`;
     document.getElementById(`form-${formType}`).innerHTML = finalHTML;
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const formSelector = document.getElementById('form-selector');
@@ -344,6 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (formType === 'PAYMENT') { activeFormId = 'fino1'; } 
         else if (formType === 'ADVANCE') { activeFormId = 'fino2'; } 
         else if (formType === 'REFUND') { activeFormId = 'fino4'; } 
+        else if (formType === 'RECEIPT') { activeFormId = 'fino5'; } 
         else { loadDemoData(); return; } 
         buildAndPopulateForm(activeFormId, { request: requestData, details: detailsData }, false); 
         document.querySelectorAll('.page-preview-wrapper').forEach(el => el.style.display = 'none'); 
@@ -355,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formSelector.disabled = true; 
     } catch (e) { console.error("Error parsing AppSheet data:", e); alert("Lỗi dữ liệu đầu vào. Hiển thị dữ liệu demo."); loadDemoData(); } };
     
-    const loadDemoData = () => { buildAndPopulateForm('fino1', demoData.fino1, true); buildAndPopulateForm('fino2', demoData.fino2, true); buildAndPopulateForm('fino4', demoData.fino4, true); document.querySelectorAll('.page-preview-wrapper').forEach(el => el.style.display = 'block'); document.querySelectorAll('.a4-page').forEach(el => el.classList.remove('active')); document.getElementById('form-fino1').classList.add('active'); formSelector.value = 'fino1'; formSelector.disabled = false; };
+    const loadDemoData = () => { buildAndPopulateForm('fino1', demoData.fino1, true); buildAndPopulateForm('fino2', demoData.fino2, true); buildAndPopulateForm('fino4', demoData.fino4, true); buildAndPopulateForm('fino5', demoData.fino5, true); document.querySelectorAll('.page-preview-wrapper').forEach(el => el.style.display = 'block'); document.querySelectorAll('.a4-page').forEach(el => el.classList.remove('active')); document.getElementById('form-fino1').classList.add('active'); formSelector.value = 'fino1'; formSelector.disabled = false; };
     if (urlParams.has('request_type')) { processDataFromUrl(); } else { loadDemoData(); }
     formSelector.addEventListener('change', (e) => { document.querySelectorAll('.a4-page').forEach(el => el.classList.remove('active')); document.getElementById(`form-${e.target.value}`).classList.add('active'); });
     document.querySelector('.print-btn').addEventListener('click', () => window.print());
@@ -375,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             data = demoData[activeId];
         }
-        const filename = `${activeId.toUpperCase()}_${data.request.applicant_name.replace(/\s/g, '_')}_${data.request.request_date.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
+        const filename = `${activeId.toUpperCase().replace('O','0')}_${data.request.applicant_name.replace(/\s/g, '_')}_${data.request.request_date.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
 
         const originalTransform = activePage.style.transform;
         const originalBoxShadow = activePage.style.boxShadow;
