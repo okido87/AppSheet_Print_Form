@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -95,12 +96,13 @@
         .summary-section { margin-bottom: 10px; line-height: 1.5; }
         .amount-in-words { font-weight: bold; font-style: italic; }
 
-        .signature-area { margin-top: 20px; /* CHANGED: Giảm từ 40px xuống 20px */ }
+        .signature-area { margin-top: 20px; }
         .signature-row { display: flex; justify-content: space-around; align-items: flex-start; margin-bottom: 10px; }
         .signature-row:last-child { margin-bottom: 0; }
         .signature-block { width: 30%; text-align: center; }
         .signature-block .role { font-weight: bold; line-height: 1.3; }
-        .signature-block .name-container { margin-top: 40px; /* CHANGED: Giảm từ 60px xuống 40px */ font-weight: bold; }
+        .signature-block .name-container { margin-top: 40px; font-weight: bold; }
+        .signature-date { margin-top: 5px; font-size: 10pt; font-family: 'Times New Roman', Times, serif; font-style: normal; } /* UPDATED: Style for Date */
         .signature-font { font-family: 'Brush Script MT', 'cursive', sans-serif; font-size: 1.6em; color: #000080; height: 40px; }
         
         @media screen and (min-width: 821px) {
@@ -220,14 +222,23 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
     if (isFino4) { title = 'ĐỀ NGHỊ THU HOÀN ỨNG'; subtitle = 'REFUND ADVANCE PAYMENT REQUEST'; }
     if (isFino5) { title = 'ĐỀ NGHỊ THU TIỀN'; subtitle = 'PAYMENT COLLECTION REQUEST'; }
 
+    // CHANGED: Function updated to move Date below the name and change its format
     const buildSignature = (roleName, name) => { 
-        const roleHTML = `<div class="role">${roleName}</div>`; 
-        if (!name) return `${roleHTML}<div class="name-container"><div class="name-text"></div></div>`; 
-        if (isDemo) { 
+        const roleHTML = `<div class="role">${roleName}</div>`;
+        const dateHTML = `<div class="signature-date">Date: ___/___/________</div>`;
+        
+        let nameContainerContent = '';
+        if (!name) {
+            nameContainerContent = `<div class="name-text"></div>`;
+        } else if (isDemo) { 
             const lastName = name.split(' ').pop(); 
-            return `${roleHTML}<div class="name-container signed"><div class="signature-font">${lastName}</div><div class="name-text data-value">${name.toUpperCase()}</div></div>`; 
-        } 
-        return `${roleHTML}<div class="name-container"><div class="name-text data-value">${name.toUpperCase()}</div></div>`; 
+            nameContainerContent = `<div class="signature-font">${lastName}</div><div class="name-text data-value">${name.toUpperCase()}</div>`; 
+        } else {
+            nameContainerContent = `<div class="name-text data-value">${name.toUpperCase()}</div>`; 
+        }
+        const nameContainerHTML = `<div class="name-container">${nameContainerContent}</div>`;
+        
+        return `${roleHTML}${nameContainerHTML}${dateHTML}`; // ORDER CHANGED
     };
     
     const signatures = {
@@ -264,18 +275,25 @@ function buildAndPopulateForm(formType, data, isDemo = false) {
         
         let detailsRowsHTML = '';
         details.forEach((item, index) => {
-            detailsRowsHTML += `<tr><td class="center data-value">${index + 1}</td><td class="data-value">${item.description || ''}</td><td class="number data-value">${formatCurrency(item.amount)}</td><td class="center data-value">${item.customer_id || ''}</td><td class="center data-value">${item.invoice || ''}</td></tr>`;
+            let remarkText = [];
+            if (item.customer_id) remarkText.push(`Customer ID: ${item.customer_id}`);
+            if (item.invoice) remarkText.push(`Invoice: ${item.invoice}`);
+            detailsRowsHTML += `<tr><td class="center data-value">${index + 1}</td><td class="data-value">${item.description || ''}</td><td class="number data-value">${formatCurrency(item.amount)}</td><td class="data-value">${remarkText.join(', ')}</td></tr>`;
         });
-        for (let i = details.length; i < 10; i++) { detailsRowsHTML += `<tr><td class="center">${i + 1}</td><td></td><td></td><td></td><td></td></tr>`; }
+        for (let i = details.length; i < 10; i++) { detailsRowsHTML += `<tr><td class="center">${i + 1}</td><td></td><td></td><td></td></tr>`; }
 
         detailsTableHTML = `
             <table class="details-table">
                 <thead>
-                    <tr><th rowspan="2" style="width:5%; vertical-align: middle;">Số TT<br><span class="lang-en">No</span></th><th rowspan="2" style="width:40%; vertical-align: middle;">Diễn giải<br><span class="lang-en">Description</span></th><th rowspan="2" style="width:25%; vertical-align: middle;">Số tiền ( vnđ )<br><span class="lang-en">Amount</span></th><th colspan="2" style="width:30%;">Ghi chú<br><span class="lang-en">Remark</span></th></tr>
-                    <tr><th style="width:15%;">Customer ID</th><th style="width:15%;">Invoice</th></tr>
+                    <tr>
+                        <th style="width:5%;">Số TT<br><span class="lang-en">No</span></th>
+                        <th style="width:40%;">Diễn giải<br><span class="lang-en">Description</span></th>
+                        <th style="width:25%;">Số tiền ( vnđ )<br><span class="lang-en">Amount</span></th>
+                        <th style="width:30%;">Ghi chú<br><span class="lang-en">Remark</span></th>
+                    </tr>
                 </thead>
                 <tbody>${detailsRowsHTML}</tbody>
-                <tfoot><tr><td colspan="2" style="text-align:right; font-weight:bold;">TOTAL</td><td class="number data-value" style="font-weight:bold;">${formatCurrency(request.total_amount)}</td><td colspan="2"></td></tr></tfoot>
+                <tfoot><tr><td colspan="2" style="text-align:right; font-weight:bold;">TOTAL</td><td class="number data-value" style="font-weight:bold;">${formatCurrency(request.total_amount)}</td><td></td></tr></tfoot>
             </table>`;
         
         const sigDirectorHTML = buildSignature('Giám đốc<br><span class="lang-en">Director</span>', signatures.director);
